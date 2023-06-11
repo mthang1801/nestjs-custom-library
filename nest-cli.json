@@ -54,6 +54,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/serializer/tsconfig.app.json"
       }
+    },
+    "sse": {
+      "type": "application",
+      "root": "apps/sse",
+      "entryFile": "main",
+      "sourceRoot": "apps/sse/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/sse/tsconfig.app.json"
+      }
+    },
+    "events": {
+      "type": "application",
+      "root": "apps/events",
+      "entryFile": "main",
+      "sourceRoot": "apps/events/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/events/tsconfig.app.json"
+      }
     }
   }
 }
