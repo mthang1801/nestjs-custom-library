@@ -27,6 +27,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
+    },
+    "redis-dynamic": {
+      "type": "application",
+      "root": "apps/redis-dynamic",
+      "entryFile": "main",
+      "sourceRoot": "apps/redis-dynamic/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/redis-dynamic/tsconfig.app.json"
+      }
     }
   }
 }
