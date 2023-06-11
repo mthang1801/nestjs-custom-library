@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { RedisDynamicModule } from './../src/redis-dynamic.module';
+import { RedisServiceModule } from './../src/redis-service.module';
 
-describe('RedisDynamicController (e2e)', () => {
+describe('RedisServiceController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [RedisDynamicModule],
+      imports: [RedisServiceModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
