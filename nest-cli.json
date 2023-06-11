@@ -45,6 +45,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/send-files/tsconfig.app.json"
       }
+    },
+    "serializer": {
+      "type": "application",
+      "root": "apps/serializer",
+      "entryFile": "main",
+      "sourceRoot": "apps/serializer/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/serializer/tsconfig.app.json"
+      }
     }
   }
 }
