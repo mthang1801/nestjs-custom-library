@@ -1,5 +1,5 @@
+import { QUEUES, RabbitMQService } from '@app/common';
 import { NestFactory } from '@nestjs/core';
-import { QUEUES, RabbitMQService } from 'libs/common/src';
 import { RmqServiceModule } from './rmq-service.module';
 
 async function bootstrap() {

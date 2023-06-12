@@ -23,7 +23,7 @@
       "type": "library",
       "root": "libs/common",
       "entryFile": "index",
-      "sourceRoot": "libs/common/src",
+      "sourceRoot": "@app/common",
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
@@ -71,6 +71,24 @@
       "sourceRoot": "apps/events/src",
       "compilerOptions": {
         "tsConfigPath": "apps/events/tsconfig.app.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+      }
+    },
+    "mongo-service": {
+      "type": "application",
+      "root": "apps/mongo-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/mongo-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/mongo-service/tsconfig.app.json"
       }
     }
   }

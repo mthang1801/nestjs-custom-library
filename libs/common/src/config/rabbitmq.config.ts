@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
+import { CONFIG_NAME } from './config.name';
 
-export default registerAs('rabbitmq', () => ({
+export default registerAs(CONFIG_NAME.rabbitmq, () => ({
 	host: process.env.RMQ_HOST,
 	port: process.env.RMQ_PORT,
 	username: process.env.RMQ_USERNAME,

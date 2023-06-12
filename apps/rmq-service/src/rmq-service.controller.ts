@@ -1,3 +1,5 @@
+import { QUEUES } from '@app/common';
+import { COMMAND } from '@app/common/constants/command';
 import { Body, Controller, Post } from '@nestjs/common';
 import {
   ClientProxy,
@@ -9,8 +11,6 @@ import {
   RmqRecordBuilder,
   Transport,
 } from '@nestjs/microservices';
-import { QUEUES } from 'libs/common/src';
-import { COMMAND } from 'libs/common/src/constants/command';
 import {
   Observable,
   delay,
