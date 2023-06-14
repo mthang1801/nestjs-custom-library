@@ -1,5 +1,5 @@
 export * from './constants';
-export * from './mongodb';
+export * from './mongoose';
 export * from './rabbitmq';
 export * from './redis';
 export * from './types';

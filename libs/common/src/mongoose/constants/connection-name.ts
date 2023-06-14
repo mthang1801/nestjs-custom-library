@@ -1,0 +1,4 @@
+export enum CONNECTION_NAME {
+	PRIMARY = 'PRIMARY',
+	SECONDARY = 'SECONDARY',
+}
