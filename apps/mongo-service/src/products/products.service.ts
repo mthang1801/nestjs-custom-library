@@ -1,34 +1,38 @@
-import { CONNECTION_NAME } from '@app/common';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose from 'mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
+import { FindProductDto } from './dto/find-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities/product.entity';
+import { ProductRepository } from './product.repository';
 
 @Injectable()
 export class ProductsService {
-	constructor(
-		@InjectModel(Product.name, CONNECTION_NAME.PRIMARY)
-		private readonly productModel: Model<Product>,
-	) {}
-	create(createProductDto: CreateProductDto) {
-		// return this.productRepository.create(createProductDto);
+	constructor(private readonly productRepository: ProductRepository) {}
+	async create(createProductDto: CreateProductDto) {
+		return this.productRepository.create(createProductDto);
 	}
 
-	findAll() {
-		// return this.productModel.find();
+	async findAll(query: FindProductDto) {
+		return this.productRepository.find(query);
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} product`;
+	async findOne(id: string) {
+		return this.productRepository.findOne(
+			{ _id: id },
+			{ name: 1, price: 1, short_description: 1 },
+		);
 	}
 
-	update(id: number, updateProductDto: UpdateProductDto) {
-		return `This action updates a #${id} product`;
+	async update(id: string, updateProductDto: UpdateProductDto) {
+		return this.productRepository.findOneAndUpdate(
+			{ _id: new mongoose.Types.ObjectId(id) },
+			updateProductDto,
+		);
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} product`;
+	async remove(id: number) {
+		return await this.productRepository
+			.aggregateBuilder()
+			.match({ status: 'INACTIVE' });
 	}
 }

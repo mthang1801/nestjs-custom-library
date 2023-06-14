@@ -2,12 +2,12 @@ import { ENUM_STATUS } from '@app/common/constants/enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class Product {
 	@Prop({ maxlength: 255, required: true })
 	name: string;
 
-	@Prop({ type: mongoose.Schema.Types.Decimal128, default: 0 })
+	@Prop({ type: mongoose.Schema.Types.Number, default: 0 })
 	price: number;
 
 	@Prop()
