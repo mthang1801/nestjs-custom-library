@@ -14,7 +14,7 @@ export abstract class AbstractRepository<T extends Document> {
 	protected abstract logger: Logger;
 	protected primaryModel: Model<T> = null;
 	protected secondaryModel: Model<T> = null;
-	protected aggregate: Aggregate<any> = null;
+	private aggregate: Aggregate<any> = null;
 	constructor(primaryModel: Model<T>, secondaryModel: Model<T>) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
@@ -57,8 +57,12 @@ export abstract class AbstractRepository<T extends Document> {
 		projection?: ProjectionType<T> | string,
 		options?: QueryOptions<T>,
 	): Promise<T[]> {
+		console.log(options);
 		return this.secondaryModel
-			.find(filterQuery, projection, { lean: true, ...options })
+			.find(filterQuery, projection, {
+				lean: true,
+				...options,
+			})
 			.allowDiskUse(true)
 			.exec();
 	}

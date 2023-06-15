@@ -1,3 +1,4 @@
+import { getPageSkipLimit } from '@app/common/utils/function.utils';
 import { Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -13,7 +14,18 @@ export class ProductsService {
 	}
 
 	async findAll(query: FindProductDto) {
-		return this.productRepository.find(query);
+		const { page, skip, limit } = getPageSkipLimit(query);
+		return this.productRepository.find(
+			query,
+			{},
+			{
+				skip,
+				limit,
+				populate: [
+					{ path: 'inventories', select: 'stock_quantity product_id' },
+				],
+			},
+		);
 	}
 
 	async findOne(id: string) {

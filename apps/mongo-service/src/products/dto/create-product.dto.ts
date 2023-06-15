@@ -1,4 +1,5 @@
 import { ENUM_STATUS } from '@app/common/constants/enum';
+import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -6,6 +7,7 @@ import {
   IsPositive,
   IsString,
 } from 'class-validator';
+import { ProductSEODto } from './product-seo.dto';
 
 export class CreateProductDto {
 	@IsNotEmpty()
@@ -15,6 +17,14 @@ export class CreateProductDto {
 	@IsNotEmpty()
 	@IsPositive()
 	price: number;
+
+	@IsNotEmpty()
+	@IsString()
+	sku: string;
+
+	@IsNotEmpty()
+	@IsString()
+	barcode: string;
 
 	@IsString()
 	@IsOptional()
@@ -27,4 +37,8 @@ export class CreateProductDto {
 	@IsOptional()
 	@IsEnum(Object.values(ENUM_STATUS))
 	status: ENUM_STATUS;
+
+	@IsOptional()
+	@Type(() => ProductSEODto)
+	seo: ProductSEODto;
 }

@@ -1,8 +1,22 @@
-import { IsDate, IsNotEmpty, IsOptional, IsPositive } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
 export class CreateProductDto {
 	@IsNotEmpty()
 	name: string;
+
+	@IsNotEmpty()
+	@IsString()
+	sku: string;
+
+	@IsNotEmpty()
+	@IsString()
+	barcode: string;
 
 	@IsOptional()
 	description: string;

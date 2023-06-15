@@ -7,13 +7,14 @@ import {
   Patch,
   Post,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
 
 @Controller('products')
+// @UseInterceptors(MongooseClassSerializerInterceptor(Product))
 export class ProductsController {
 	constructor(private readonly productsService: ProductsService) {}
 
