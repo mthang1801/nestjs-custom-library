@@ -27,4 +27,7 @@ export class CreateProductDto {
 	@IsDate()
 	@IsOptional()
 	createdAt: Date = new Date();
+
+	@IsOptional()
+	categories: string[];
 }

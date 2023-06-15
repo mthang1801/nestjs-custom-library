@@ -1,17 +1,19 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   Aggregate,
   ClientSession,
   FilterQuery,
   Model,
+  ObjectId,
   ProjectionType,
   QueryOptions,
   UpdateQuery,
 } from 'mongoose';
 import utils from '../utils';
 
+@Injectable()
 export abstract class AbstractRepository<T extends Document> {
-	protected abstract logger: Logger;
+	protected abstract readonly logger: Logger;
 	protected primaryModel: Model<T> = null;
 	protected secondaryModel: Model<T> = null;
 	private aggregate: Aggregate<any> = null;
@@ -46,6 +48,19 @@ export abstract class AbstractRepository<T extends Document> {
 
 		return this.secondaryModel
 			.findOne(filterQuery, projection, {
+				lean: true,
+				...options,
+			})
+			.exec();
+	}
+
+	async findById(
+		id: string | ObjectId,
+		projection?: ProjectionType<T> | string,
+		options?: QueryOptions<T>,
+	): Promise<T> {
+		return this.secondaryModel
+			.findById(id, projection, {
 				lean: true,
 				...options,
 			})

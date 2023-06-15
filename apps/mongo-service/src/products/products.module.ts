@@ -1,11 +1,9 @@
 import { MongooseDynamicModule } from '@app/common';
 import {
-  Inventory,
-  InventorySchema,
   Product,
   ProductSEO,
   ProductSEOSchema,
-  ProductSchema,
+  ProductSchema
 } from '@app/common/schemas';
 import { Module } from '@nestjs/common';
 import { ProductRepository } from './product.repository';
@@ -25,10 +23,6 @@ import { ProductsService } from './products.service';
 		MongooseDynamicModule.forFeature({
 			name: ProductSEO.name,
 			schema: ProductSEOSchema,
-		}),
-		MongooseDynamicModule.forFeature({
-			name: Inventory.name,
-			schema: InventorySchema,
 		}),
 	],
 	controllers: [ProductsController],

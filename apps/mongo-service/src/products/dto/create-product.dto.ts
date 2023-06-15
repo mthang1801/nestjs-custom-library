@@ -1,6 +1,7 @@
 import { ENUM_STATUS } from '@app/common/constants/enum';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -41,4 +42,8 @@ export class CreateProductDto {
 	@IsOptional()
 	@Type(() => ProductSEODto)
 	seo: ProductSEODto;
+
+	@IsOptional()
+	@IsArray()
+	categories: number[];
 }

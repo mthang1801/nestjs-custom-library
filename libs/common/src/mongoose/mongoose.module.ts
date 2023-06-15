@@ -16,7 +16,7 @@ export class MongooseDynamicModule {
 		};
 	}
 
-	static MongooseForRootAsyncFactory(connectionName: CONNECTION_NAME) {
+	private static MongooseForRootAsyncFactory(connectionName: CONNECTION_NAME) {
 		return MongooseModule.forRootAsync({
 			imports: [ConfigModule.forRoot({ isGlobal: true })],
 			connectionName,
@@ -52,7 +52,7 @@ export class MongooseDynamicModule {
 		};
 	}
 
-	static forFeatureFactory({
+	private static forFeatureFactory({
 		name,
 		schema,
 		connectionName,

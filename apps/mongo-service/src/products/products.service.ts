@@ -23,6 +23,7 @@ export class ProductsService {
 				limit,
 				populate: [
 					{ path: 'inventories', select: 'stock_quantity product_id' },
+					{ path: 'categories' },
 				],
 			},
 		);
