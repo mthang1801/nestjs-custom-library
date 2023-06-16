@@ -7,6 +7,7 @@ import { MongoServiceService } from './mongo-service.service';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { CategoryModule } from './category/category.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { CategoryModule } from './category/category.module';
 		InventoriesModule,
 		MongooseDynamicModule.registerAsync(),
 		CategoryModule,
+		UsersModule,
 	],
 	controllers: [MongoServiceController],
 	providers: [MongoServiceService],

@@ -26,13 +26,13 @@ export class MongooseDynamicModule {
 				return {
 					uri: configService.get<string>(connectionName),
 					dbName: configService.get<string>('MONGO_DATABASE'),
-					useUnifiedTopology: true,
-					maxPoolSize: Number(configService.get('MONGO_MAX_POOL_SIZE')),
-					serverSelectionTimeoutMS: 60000,
-					connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
-					socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-					family: 4, // Use IPv4, skip trying IPv6
-					retryAttempts: 5,
+					// useUnifiedTopology: true,
+					// maxPoolSize: Number(configService.get('MONGO_MAX_POOL_SIZE')),
+					// serverSelectionTimeoutMS: 60000,
+					// connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
+					// socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+					// family: 4, // Use IPv4, skip trying IPv6
+					// retryAttempts: 5,
 				};
 			},
 			inject: [ConfigService],

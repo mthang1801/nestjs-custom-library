@@ -1,4 +1,5 @@
-import MongooseClassSerializerInterceptor from '@app/common/mongoose/interceptors/mongooseClassSerializer.interceptor';
+import { Product } from '@app/common/schemas';
+import MongooseClassSerializerInterceptor from '@app/common/utils/mongooseClassSerializer.interceptor';
 import {
   Body,
   Controller,
@@ -8,16 +9,15 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
-import { Product } from '../../../../libs/common/src/schemas/product.schema';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FindProductDto } from './dto/find-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
 
 @Controller('products')
-// @UseInterceptors(MongooseClassSerializerInterceptor(Product))
+// @SerializeOptions({ strategy: 'excludeAll' })
 export class ProductsController {
 	constructor(private readonly productsService: ProductsService) {}
 
@@ -33,6 +33,7 @@ export class ProductsController {
 	}
 
 	@Get(':id')
+	@UseInterceptors(MongooseClassSerializerInterceptor(Product))
 	findOne(@Param('id') id: string) {
 		return this.productsService.findOne(id);
 	}

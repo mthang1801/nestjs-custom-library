@@ -1,3 +1,4 @@
+import { Product } from '@app/common/schemas';
 import { getPageSkipLimit } from '@app/common/utils/function.utils';
 import { Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
@@ -29,10 +30,11 @@ export class ProductsService {
 		);
 	}
 
-	async findOne(id: string) {
+	async findOne(id: string): Promise<Product> {
 		return this.productRepository.findOne(
 			{ _id: id },
-			{ name: 1, price: 1, short_description: 1 },
+			{},
+			{ populate: [{ path: 'inventories' }, { path: 'categories' }] },
 		);
 	}
 
