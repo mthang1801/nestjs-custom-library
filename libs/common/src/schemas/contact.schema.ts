@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Expose } from 'class-transformer';
 
-@Schema({ versionKey: false, autoCreate: true })
+@Schema({ versionKey: false, autoCreate: true, toJSON: { getters: true } })
+@Expose()
 export class Contact {
 	@Prop()
 	province_id: string;
@@ -23,7 +25,13 @@ export class Contact {
 	@Prop()
 	address: string;
 
-	@Prop()
+	@Prop({
+		get: (phone: string) => {
+			if (!phone) return;
+			const lastFourDigits = phone.slice(phone.length - 4);
+			return `*********${lastFourDigits}`;
+		},
+	})
 	phone: string;
 
 	@Prop()

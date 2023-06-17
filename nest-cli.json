@@ -5,7 +5,10 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/rmq-service/tsconfig.app.json"
+    "tsConfigPath": "apps/rmq-service/tsconfig.app.json",
+    "plugins": [
+      "@nestjs/swagger"
+    ]
   },
   "monorepo": true,
   "root": "apps/rmq-service",
@@ -63,7 +66,7 @@
       "compilerOptions": {
         "tsConfigPath": "apps/sse/tsconfig.app.json"
       }
-    },    
+    },
     "shared": {
       "type": "library",
       "root": "libs/shared",
@@ -73,13 +76,13 @@
         "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
     },
-    "mongo-service": {
+    "mongodb-service": {
       "type": "application",
-      "root": "apps/mongo-service",
+      "root": "apps/mongodb-service",
       "entryFile": "main",
-      "sourceRoot": "apps/mongo-service/src",
+      "sourceRoot": "apps/mongodb-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/mongo-service/tsconfig.app.json"
+        "tsConfigPath": "apps/mongodb-service/tsconfig.app.json"
       }
     }
   }

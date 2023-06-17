@@ -4,7 +4,6 @@ import {
   typeOf,
   valueToBoolean,
 } from './function.utils';
-export * from './mongooseClassSerializer.interceptor';
 
 const utils = {
 	valueToBoolean,
