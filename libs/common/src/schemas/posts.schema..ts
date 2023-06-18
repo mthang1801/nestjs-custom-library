@@ -1,4 +1,4 @@
-import { AbstractSchema } from '@app/common/mongoose/abstract/abstract.schema';
+import { AbstractSchema } from '@app/shared/abstract';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';

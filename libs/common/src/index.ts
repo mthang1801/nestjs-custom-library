@@ -5,4 +5,5 @@ export * from './mongoose';
 export * from './rabbitmq';
 export * from './redis';
 export * from './types';
+export * from './utils';
 

@@ -51,8 +51,8 @@ export class PostsController {
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.postsService.remove(+id);
+	remove(@Param('id', new MongoIdValidationPipe()) id: ObjectId) {
+		return this.postsService.remove(id);
 	}
 
 	@Get('author/:id')

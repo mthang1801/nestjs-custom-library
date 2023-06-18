@@ -1,5 +1,4 @@
 import { ENUM_GENDER, ENUM_LANGUAGES } from '@app/common/constants/enum';
-import { AbstractSchema } from '@app/common/mongoose/abstract/abstract.schema';
 import {
   Contact,
   ContactSchema,
@@ -7,6 +6,7 @@ import {
   PostsDocument,
   UserRole,
 } from '@app/common/schemas';
+import { AbstractSchema } from '@app/shared/abstract';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { NextFunction } from 'express';

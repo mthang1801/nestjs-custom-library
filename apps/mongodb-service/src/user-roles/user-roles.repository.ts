@@ -1,5 +1,6 @@
-import { AbstractRepository, CONNECTION_NAME } from '@app/common';
+import { CONNECTION_NAME } from '@app/common';
 import { UserRole, UserRoleDocument } from '@app/common/schemas';
+import { AbstractRepository } from '@app/shared/abstract';
 import { Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

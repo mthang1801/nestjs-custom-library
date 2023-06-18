@@ -1,5 +1,5 @@
 import { ENUM_ROLES } from '@app/common/constants/enum';
-import { AbstractSchema } from '@app/common/mongoose/abstract/abstract.schema';
+import { AbstractSchema } from '@app/shared/abstract';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
