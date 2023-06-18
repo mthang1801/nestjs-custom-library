@@ -7,13 +7,12 @@ import { User } from './user.schema';
 
 @Schema({
 	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
-	toJSON: { virtuals: true, getters: true },
 	collection: 'posts',
+	strict: false,
 })
 export class Posts extends AbstractSchema {
 	@Prop({
 		type: String,
-		unique: true,
 		required: true,
 	})
 	title: string;
@@ -38,3 +37,8 @@ export class Posts extends AbstractSchema {
 export type PostsDocument = HydratedDocument<Document, Posts>;
 
 export const PostsSchema = SchemaFactory.createForClass(Posts);
+
+export const PostsSchemaFactory = () => {
+	const postsSchema = PostsSchema;
+	return postsSchema;
+};

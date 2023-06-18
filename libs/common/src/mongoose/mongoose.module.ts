@@ -36,34 +36,73 @@ export class MongooseDynamicModule {
 		schema,
 		useFactory,
 		inject,
+		imports,
 	}: MongooseDynamicModuleForFeatureOptions): DynamicModule {
 		return {
 			module: MongooseDynamicModule,
 			imports: Object.values(CONNECTION_NAME).map((connectionName) =>
-				this.forFeatureFactory({
+				this.forFeatureAsyncFactory({
 					name,
 					schema,
 					useFactory,
 					inject,
 					connectionName,
+					imports,
 				}),
 			),
 			exports: [MongooseModule],
 		};
 	}
 
+	static forFeature({
+		name,
+		schema,
+		connectionName = CONNECTION_NAME.PRIMARY,
+	}: MongooseDynamicModuleForFeatureOptions): DynamicModule {
+		return {
+			module: MongooseDynamicModule,
+			imports: [
+				this.forFeatureFactory({
+					name,
+					schema,
+					connectionName,
+				}),
+			],
+			exports: [MongooseModule],
+		};
+	}
+
 	private static forFeatureFactory({
 		name,
+		schema,
 		connectionName,
+	}: MongooseDynamicModuleForFeatureOptions) {
+		return MongooseModule.forFeature(
+			[
+				{
+					name,
+					schema,
+				},
+			],
+			connectionName,
+		);
+	}
+
+	private static forFeatureAsyncFactory({
+		name,
+		connectionName,
+		schema,
 		useFactory,
 		inject,
+		imports,
 	}: MongooseDynamicModuleForFeatureOptions) {
 		return MongooseModule.forFeatureAsync(
 			[
 				{
 					name,
 					inject,
-					useFactory,
+					useFactory: useFactory ? useFactory : () => schema,
+					imports,
 				},
 			],
 			connectionName,

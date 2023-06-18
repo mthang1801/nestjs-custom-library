@@ -1,5 +1,7 @@
-import { FindAllResponse } from '@app/common/types';
-import { Injectable, Logger } from '@nestjs/common';
+import { MongooseClassSerialzierInterceptor } from '@app/common/interceptors';
+import { Posts } from '@app/common/schemas';
+import { FindAllResponse, RemoveOptions } from '@app/common/types';
+import { Injectable, Logger, UseInterceptors } from '@nestjs/common';
 import {
   Aggregate,
   ClientSession,
@@ -15,6 +17,7 @@ import utils from '../../utils';
 import { AbstractSchema } from './abstract.schema';
 
 @Injectable()
+@UseInterceptors(MongooseClassSerialzierInterceptor(Posts))
 export abstract class AbstractRepository<
 	T extends HydratedDocument<Document, AbstractSchema>,
 > {
@@ -34,7 +37,7 @@ export abstract class AbstractRepository<
 		return session;
 	}
 
-	async create(payload: Partial<T> | Partial<T>[]) {
+	async create(payload: Partial<T> | Partial<T>[]): Promise<T> {
 		return this.primaryModel.create(payload);
 	}
 
@@ -106,6 +109,18 @@ export abstract class AbstractRepository<
 
 	async deleteOne(filterQuery?: FilterQuery<T>, options?: QueryOptions<T>) {
 		return this.primaryModel.deleteOne(filterQuery, options);
+	}
+
+	async findOneAndDelete(
+		filterQuery: FilterQuery<T>,
+		options?: RemoveOptions,
+	): Promise<T> {
+		if (options?.permanently) {
+			return this.primaryModel.findOneAndDelete(filterQuery);
+		}
+		return this.primaryModel.findOneAndUpdate(filterQuery, {
+			$set: { deleted_at: new Date() },
+		});
 	}
 
 	aggregateBuilder() {

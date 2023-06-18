@@ -1,10 +1,16 @@
 import { ENUM_GENDER, ENUM_LANGUAGES } from '@app/common/constants/enum';
 import { AbstractSchema } from '@app/common/mongoose/abstract/abstract.schema';
-import { Contact, ContactSchema, UserRole } from '@app/common/schemas';
+import {
+  Contact,
+  ContactSchema,
+  PostsDocument,
+  UserRole,
+} from '@app/common/schemas';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { NextFunction } from 'express';
 import * as _ from 'lodash';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Model } from 'mongoose';
 
 @Schema({
 	timestamps: {
@@ -121,8 +127,21 @@ export type UserDocument = HydratedDocument<Document, User>;
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-export const UserSchemaFactory = () => {
+export const UserSchemaFactory = (postModel: Model<PostsDocument>) => {
 	const userSchema = UserSchema;
+	userSchema.post('findOneAndUpdate', async function (next: NextFunction) {
+		const user = await this.model.findOne(this.getFilter());
+
+		if (user.deleted_at) {
+			await postModel
+				.updateMany({ author: user }, { $set: { deleted_at: new Date() } })
+				.exec();
+		} else {
+			await postModel
+				.updateMany({ author: user }, { $set: { deleted_at: new Date() } })
+				.exec();
+		}
+	});
 	userSchema.virtual('default_address').get(function (this: UserDocument) {
 		if (this.contact.length) {
 			const firstContact = this.contact[0];

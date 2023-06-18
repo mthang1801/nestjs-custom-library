@@ -1,5 +1,6 @@
 import { User } from '@app/common/schemas';
 import { Injectable } from '@nestjs/common';
+import { ObjectId } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.respository';
@@ -21,7 +22,7 @@ export class UsersService {
 		);
 	}
 
-	async findOne(id: string) {
+	async finById(id: string) {
 		return await this.userRepository.findById(id);
 	}
 
@@ -29,7 +30,7 @@ export class UsersService {
 		return `This action updates a #${id} user`;
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} user`;
+	async remove(id: ObjectId) {
+		return this.userRepository.findOneAndDelete({ _id: id });
 	}
 }

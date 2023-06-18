@@ -43,15 +43,6 @@ export class RmqServiceController {
 
 	@Post('stream')
 	stream(@Body('numbers') payload: number[]): Observable<number> {
-		console.log(
-			this.client
-				.send<number>({ cmd: COMMAND.SUM_STREAMING }, { numbers: payload })
-				.pipe(
-					scan((acc, ele) => acc + ele),
-					delay(2000),
-				)
-				.subscribe({ next: (val) => console.log(val) }),
-		);
 		return this.client
 			.send<number>({ cmd: COMMAND.SUM_STREAMING }, { numbers: payload })
 			.pipe(
@@ -158,7 +149,6 @@ export class RmqServiceController {
 
 	@MessagePattern({ cmd: COMMAND.GET_SUM })
 	sum(@Payload('numbers') payload: number[]) {
-		console.log();
 		return (payload || []).reduce((acc, ele) => acc + ele);
 	}
 

@@ -1,4 +1,5 @@
 import { MongooseClassSerialzierInterceptor } from '@app/common';
+import { MongoIdValidationPipe } from '@app/common/pipes';
 import { User } from '@app/common/schemas';
 import {
   Body,
@@ -11,6 +12,7 @@ import {
   SerializeOptions,
   UseInterceptors,
 } from '@nestjs/common';
+import { ObjectId } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -34,7 +36,7 @@ export class UsersController {
 	@Get(':id')
 	@SerializeOptions({ excludePrefixes: ['first_', 'last_'] })
 	findOne(@Param('id') id: string) {
-		return this.usersService.findOne(id);
+		return this.usersService.finById(id);
 	}
 
 	@Patch(':id')
@@ -43,7 +45,7 @@ export class UsersController {
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.usersService.remove(+id);
+	remove(@Param('id', new MongoIdValidationPipe()) id: ObjectId) {
+		return this.usersService.remove(id);
 	}
 }
