@@ -35,8 +35,8 @@ export class UsersController {
 
 	@Get(':id')
 	@SerializeOptions({ excludePrefixes: ['first_', 'last_'] })
-	findOne(@Param('id') id: string) {
-		return this.usersService.finById(id);
+	async findOne(@Param('id') id: string) {
+		return await this.usersService.finById(id);
 	}
 
 	@Patch(':id')

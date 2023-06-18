@@ -5,6 +5,7 @@ import { Injectable, Logger, UseInterceptors } from '@nestjs/common';
 import {
   Aggregate,
   ClientSession,
+  Connection,
   FilterQuery,
   HydratedDocument,
   Model,
@@ -25,14 +26,19 @@ export abstract class AbstractRepository<
 	protected primaryModel: Model<T> = null;
 	protected secondaryModel: Model<T> = null;
 	private aggregate: Aggregate<any> = null;
-
-	constructor(primaryModel: Model<T>, secondaryModel: Model<T>) {
+	protected connection: Connection = null;
+	constructor(
+		primaryModel: Model<T>,
+		secondaryModel: Model<T>,
+		connection?: Connection,
+	) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
+		this.connection = connection;
 	}
 
 	async startTransaction(): Promise<ClientSession> {
-		const session = await this.primaryModel.startSession();
+		const session = await this.connection.startSession();
 		session.startTransaction();
 		return session;
 	}
@@ -71,7 +77,7 @@ export abstract class AbstractRepository<
 		const result = await this.secondaryModel.findById(id, projection, {
 			...options,
 		});
-		return result.deleted_at ? null : result;
+		return result?.deleted_at ? null : result;
 	}
 
 	async find(
@@ -98,7 +104,17 @@ export abstract class AbstractRepository<
 	): Promise<T> {
 		return this.primaryModel.findOneAndUpdate(filterQuery, updateData, {
 			new: true,
-			upsert: true,
+			...options,
+		});
+	}
+
+	async findByIdAndUpdate(
+		id?: ObjectId,
+		updateData?: UpdateQuery<T>,
+		options?: QueryOptions<T>,
+	): Promise<T> {
+		return this.primaryModel.findOneAndUpdate(id, updateData, {
+			new: true,
 			...options,
 		});
 	}
@@ -113,14 +129,19 @@ export abstract class AbstractRepository<
 
 	async findOneAndDelete(
 		filterQuery: FilterQuery<T>,
-		options?: RemoveOptions,
+		options: QueryOptions<T>,
+		removePptions?: RemoveOptions,
 	): Promise<T> {
-		if (options?.permanently) {
-			return this.primaryModel.findOneAndDelete(filterQuery);
+		if (removePptions?.permanently) {
+			return this.primaryModel.findOneAndDelete(filterQuery, options);
 		}
-		return this.primaryModel.findOneAndUpdate(filterQuery, {
-			$set: { deleted_at: new Date() },
-		});
+		return this.primaryModel.findOneAndUpdate(
+			filterQuery,
+			{
+				$set: { deleted_at: new Date() },
+			},
+			options,
+		);
 	}
 
 	aggregateBuilder() {

@@ -1,13 +1,23 @@
 import { User } from '@app/common/schemas';
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { ObjectId } from 'mongoose';
+import { PostsService } from '../posts/posts.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.respository';
 
 @Injectable()
 export class UsersService {
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		@Inject(forwardRef(() => PostsService))
+		private readonly postsService: PostsService,
+	) {}
 
 	async create(createUserDto: CreateUserDto): Promise<User> {
 		const createUser = await this.userRepository.create(createUserDto);
@@ -23,7 +33,12 @@ export class UsersService {
 	}
 
 	async finById(id: string) {
-		return await this.userRepository.findById(id);
+		const result = await this.userRepository.findById(
+			id,
+			{},
+			{ populate: { path: 'posts' } },
+		);
+		return result;
 	}
 
 	update(id: number, updateUserDto: UpdateUserDto) {
@@ -31,6 +46,23 @@ export class UsersService {
 	}
 
 	async remove(id: ObjectId) {
-		return this.userRepository.findOneAndDelete({ _id: id });
+		const session = await this.userRepository.connection.startSession();
+		session.startTransaction();
+		try {
+			const deletedUser = await this.userRepository.findOneAndDelete(
+				{
+					_id: id,
+				},
+				{ session },
+				{ permanently: true },
+			);
+			await this.postsService.deleteByAuthor(deletedUser, session);
+			await session.commitTransaction();
+		} catch (error) {
+			await session.abortTransaction();
+			throw new BadRequestException(error.message);
+		} finally {
+			await session.endSession();
+		}
 	}
 }

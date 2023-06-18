@@ -3,6 +3,7 @@ import { AbstractSchema } from '@app/common/mongoose/abstract/abstract.schema';
 import {
   Contact,
   ContactSchema,
+  Posts,
   PostsDocument,
   UserRole,
 } from '@app/common/schemas';
@@ -19,8 +20,11 @@ import mongoose, { HydratedDocument, Model } from 'mongoose';
 	},
 	toJSON: {
 		virtuals: true,
-		getters: true,
 	},
+	toObject: {
+		virtuals: true,
+	},
+	collection: 'users',
 })
 export class User extends AbstractSchema {
 	@Prop({
@@ -43,6 +47,13 @@ export class User extends AbstractSchema {
 		unique: true,
 		required: true,
 		match: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+		get: (email) => {
+			if (email) {
+				const firstFourCharacters = email.slice(0, 4);
+				return `${firstFourCharacters}*******@${email.split('@').at(-1)}`;
+			}
+			return email;
+		},
 	})
 	email: string;
 
@@ -67,6 +78,7 @@ export class User extends AbstractSchema {
 			const lastFourDigits = phone.slice(phone.length - 4);
 			return `***-*******${lastFourDigits}`;
 		},
+		index: true,
 	})
 	phone: string;
 
@@ -121,6 +133,9 @@ export class User extends AbstractSchema {
 	get fullName(): string {
 		return [this.first_name, this.last_name].filter(Boolean).join(' ');
 	}
+
+	@Type(() => Posts)
+	posts: Posts[];
 }
 
 export type UserDocument = HydratedDocument<Document, User>;
@@ -129,6 +144,9 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 export const UserSchemaFactory = (postModel: Model<PostsDocument>) => {
 	const userSchema = UserSchema;
+	userSchema.index({ first_name: 1, last_name: 1 });
+	userSchema.index({ updated_at: -1 });
+
 	userSchema.post('findOneAndUpdate', async function (next: NextFunction) {
 		const user = await this.model.findOne(this.getFilter());
 
@@ -157,5 +175,10 @@ export const UserSchemaFactory = (postModel: Model<PostsDocument>) => {
 		return 'Đang cập nhật';
 	});
 
+	userSchema.virtual('posts', {
+		ref: 'Posts',
+		localField: '_id',
+		foreignField: 'author',
+	});
 	return userSchema;
 };

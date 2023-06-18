@@ -24,6 +24,8 @@ export function MongooseClassSerialzierInterceptor(
 				| PlainLiteralObject[]
 				| FindAllResponse<PlainLiteralObject>,
 		) {
+			if (!response) return null;
+
 			if (Array.isArray(response)) {
 				return response.map(this.changePlainObjectToClass);
 			}

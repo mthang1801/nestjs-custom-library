@@ -5,8 +5,9 @@ import {
   User,
   UserSchemaFactory,
 } from '@app/common/schemas';
-import { Module } from '@nestjs/common';
-import { MongooseModule, getModelToken } from '@nestjs/mongoose';
+import { Module, forwardRef } from '@nestjs/common';
+import { getModelToken } from '@nestjs/mongoose';
+import { PostsModule } from '../posts/posts.module';
 import { UserRepository } from './user.respository';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
@@ -18,12 +19,14 @@ import { UsersService } from './users.service';
 			useFactory: UserSchemaFactory,
 			inject: [getModelToken(Posts.name, CONNECTION_NAME.PRIMARY)],
 			imports: [
-				MongooseModule.forFeature(
-					[{ name: Posts.name, schema: PostsSchema }],
-					CONNECTION_NAME.PRIMARY,
-				),
+				MongooseDynamicModule.forFeature({
+					name: Posts.name,
+					schema: PostsSchema,
+					connectionName: CONNECTION_NAME.PRIMARY,
+				}),
 			],
 		}),
+		forwardRef(() => PostsModule),
 	],
 	controllers: [UsersController],
 	providers: [UsersService, UserRepository],

@@ -1,8 +1,8 @@
 import { AbstractRepository, CONNECTION_NAME } from '@app/common';
 import { User, UserDocument } from '@app/common/schemas';
 import { Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 
 export class UserRepository extends AbstractRepository<UserDocument> {
 	protected logger = new Logger(UserRepository.name);
@@ -12,7 +12,8 @@ export class UserRepository extends AbstractRepository<UserDocument> {
 		readonly primaryModel: Model<UserDocument>,
 		@InjectModel(User.name, CONNECTION_NAME.SECONDARY)
 		readonly secondaryModel: Model<UserDocument>,
+		@InjectConnection(CONNECTION_NAME.PRIMARY) readonly connection: Connection,
 	) {
-		super(primaryModel, secondaryModel);
+		super(primaryModel, secondaryModel, connection);
 	}
 }

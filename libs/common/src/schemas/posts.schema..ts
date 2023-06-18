@@ -7,6 +7,8 @@ import { User } from './user.schema';
 
 @Schema({
 	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+	toJSON: { virtuals: true },
+	toObject: { virtuals: true },
 	collection: 'posts',
 	strict: false,
 })
@@ -40,5 +42,7 @@ export const PostsSchema = SchemaFactory.createForClass(Posts);
 
 export const PostsSchemaFactory = () => {
 	const postsSchema = PostsSchema;
+	postsSchema.index({ title: 'text' });
+	postsSchema.index({ title: 'text', content: 'text' });
 	return postsSchema;
 };
