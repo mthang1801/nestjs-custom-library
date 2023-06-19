@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule, MongooseModuleFactoryOptions } from '@nestjs/mongoose';
+import * as Joi from 'joi';
 import { CONNECTION_NAME } from './constants/connection-name';
 import { MongooseDynamicModuleForFeatureOptions } from './interfaces/mongoose-dynamic-module-options.interface';
 
@@ -9,9 +10,29 @@ export class MongooseDynamicModule {
 	static forRootAsync(): DynamicModule {
 		return {
 			module: MongooseDynamicModule,
-			imports: Object.values(CONNECTION_NAME).map((connectionName) =>
-				this.MongooseForRootAsyncFactory(connectionName),
-			),
+			imports: [
+				ConfigModule.forRoot({
+					isGlobal: true,
+					validationSchema: Joi.object({
+						NODE_ENV: Joi.string()
+							.valid('development', 'production', 'test', 'provision')
+							.default('development'),
+						PORT: Joi.number().port().required(),
+						MONGO_URI_PRIMARY: Joi.string().required(),
+						MONGO_URI_SECONDARY: Joi.string().optional(),
+					}),
+					validationOptions: {
+						abortEarly: false,
+					},
+					cache: true,
+					expandVariables: true,
+					envFilePath:
+						process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
+				}),
+				...Object.values(CONNECTION_NAME).map((connectionName) =>
+					this.MongooseForRootAsyncFactory(connectionName),
+				),
+			],
 			exports: [MongooseModule],
 		};
 	}

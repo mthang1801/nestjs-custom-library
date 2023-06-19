@@ -60,12 +60,6 @@ export class TypeORMDynamicModule {
 									},
 								],
 							},
-
-							// host: configService.get<string>('MYSQL_MASTER_HOST'),
-							// port: configService.get<number>('MYSQL_MASTER_PORT'),
-							// username: configService.get<string>('MYSQL_MASTER_USERNAME'),
-							// password: configService.get<string>('MYSQL_MASTER_PASSWORD'),
-							// database: configService.get<string>('MYSQL_MASTER_DATABASE'),
 							entities: [],
 							synchronize: true,
 						};
