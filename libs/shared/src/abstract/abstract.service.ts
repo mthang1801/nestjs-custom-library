@@ -18,7 +18,10 @@ export abstract class AbstractService<
 		this.modelInfo = repository.modelInfo;
 	}
 
-	async _create(payload: Partial<T> | Partial<T>[], extraData?: any) {
+	async _create(
+		payload: Partial<T> | Partial<T>[],
+		extraData?: any,
+	): Promise<T> {
 		const createData = await this.repository.create(payload);
 
 		return createData;
