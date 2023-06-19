@@ -31,6 +31,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^7.0.0",
     "@nestjs/terminus": "^10.0.1",
+    "@nestjs/typeorm": "^10.0.0",
     "amqp-connection-manager": "^4.1.13",
     "amqplib": "^0.10.3",
     "bcryptjs": "^2.4.3",
@@ -40,9 +41,11 @@
     "joi": "^17.9.2",
     "lodash": "^4.17.21",
     "mongoose": "^6.4.1",
+    "mysql2": "^3.4.0",
     "redis": "^4.6.7",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "typeorm": "^0.3.16"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

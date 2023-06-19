@@ -1,10 +1,11 @@
+import { TypeORMDynamicModule } from '@app/common/typeorm/typeorm.module';
 import { Module } from '@nestjs/common';
+import { TerminusModule } from '@nestjs/terminus';
 import { HealthController } from './health.controller';
-import { HealthService } from './health.service';
 
 @Module({
-  imports: [],
+  imports: [TerminusModule, TypeORMDynamicModule.forRootAsync({logger : true})],
   controllers: [HealthController],
-  providers: [HealthService],
+  providers: [],
 })
 export class HealthModule {}
