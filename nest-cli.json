@@ -84,6 +84,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/mongodb-service/tsconfig.app.json"
       }
+    },
+    "health": {
+      "type": "application",
+      "root": "apps/health",
+      "entryFile": "main",
+      "sourceRoot": "apps/health/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/health/tsconfig.app.json"
+      }
     }
   }
 }

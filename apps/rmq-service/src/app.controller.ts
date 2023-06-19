@@ -20,7 +20,7 @@ import {
   scan,
   timeout,
 } from 'rxjs';
-import { RmqServiceService } from './rmq-service.service';
+import { RmqServiceService } from './app.service';
 @Controller()
 export class RmqServiceController {
 	client: ClientProxy;
