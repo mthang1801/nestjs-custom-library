@@ -1,3 +1,6 @@
+import { Request } from 'express';
+import { User } from '../schemas';
+
 export type FindAllResponse<T> = {
 	items: T[];
 	count: number;
@@ -24,3 +27,5 @@ export type ModelInfo = {
 	collectionName: string;
 	schema: any;
 };
+
+export type UserRequest = Request & typeof User;

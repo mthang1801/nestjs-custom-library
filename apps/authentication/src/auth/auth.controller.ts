@@ -8,11 +8,15 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LocalAuthGuard } from './guards/local.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -22,6 +26,13 @@ export class AuthController {
 	@UseInterceptors(MongooseClassSerialzierInterceptor(User))
 	register(@Body() registerDto: RegisterDto) {
 		return this.authService.register(registerDto);
+	}
+
+	@Post('login')
+	@UseGuards(LocalAuthGuard)
+	@UseInterceptors(MongooseClassSerialzierInterceptor(User))
+	async login(@Req() request: Request): Promise<User> {
+		return request.user as User;
 	}
 
 	@Get()

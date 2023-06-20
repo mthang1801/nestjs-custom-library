@@ -145,7 +145,6 @@ export abstract class AbstractRepository<
 		if (utils.typeOf(projection) === 'string')
 			return this.secondaryModel
 				.findOne(filterQuery, {
-					lean: true,
 					...options,
 				})
 				.select(projection)
@@ -153,7 +152,6 @@ export abstract class AbstractRepository<
 
 		return this.secondaryModel
 			.findOne(filterQuery, projection, {
-				lean: true,
 				...options,
 			})
 			.exec();
