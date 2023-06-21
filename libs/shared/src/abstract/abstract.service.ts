@@ -1,6 +1,12 @@
 import { ModelInfo } from '@app/common';
 import { Injectable, Logger } from '@nestjs/common';
-import { HydratedDocument, Model } from 'mongoose';
+import {
+  HydratedDocument,
+  Model,
+  ObjectId,
+  ProjectionType,
+  QueryOptions,
+} from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
 import { AbstractSchema } from './abstract.schema';
 
@@ -18,12 +24,21 @@ export abstract class AbstractService<
 		this.modelInfo = repository.modelInfo;
 	}
 
-	async _create(
+	protected async _create(
 		payload: Partial<T> | Partial<T>[],
 		extraData?: any,
 	): Promise<T> {
-		const createData = await this.repository.create(payload);
+		return await this.repository.create({
+			...payload,
+			...extraData,
+		});
+	}
 
-		return createData;
+	protected async _findById(
+		id: ObjectId | string,
+		projection?: ProjectionType<T>,
+		options?: QueryOptions<T>,
+	) {
+		return this.readModel.findById(id, projection, options);
 	}
 }

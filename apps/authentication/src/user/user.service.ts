@@ -1,6 +1,7 @@
 import { User, UserDocument } from '@app/common/schemas';
 import { AbstractService } from '@app/shared';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ObjectId } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.repository';
@@ -27,8 +28,8 @@ export class UserService extends AbstractService<UserDocument> {
 		return `This action returns all user`;
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} user`;
+	findById(id: ObjectId | string | any) {
+		return this._findById(id);
 	}
 
 	update(id: number, updateUserDto: UpdateUserDto) {

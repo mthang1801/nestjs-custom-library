@@ -1,4 +1,5 @@
 import { MongooseClassSerialzierInterceptor } from '@app/common';
+import { MongoIdValidationPipe } from '@app/common/pipes';
 import { User } from '@app/common/schemas';
 import {
   Body,
@@ -10,6 +11,7 @@ import {
   Post,
   UseInterceptors,
 } from '@nestjs/common';
+import { ObjectId } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -30,8 +32,8 @@ export class UserController {
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.userService.findOne(+id);
+	findOne(@Param('id', new MongoIdValidationPipe()) id: ObjectId) {
+		return this.userService.findById(id);
 	}
 
 	@Patch(':id')

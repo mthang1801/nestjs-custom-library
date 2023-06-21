@@ -28,4 +28,13 @@ export type ModelInfo = {
 	schema: any;
 };
 
-export type UserRequest = Request & typeof User;
+export type UserRequest = Request & User;
+
+export type TokenPayload = {
+	_id: string;
+};
+
+export type CookieToken = {
+	token: string;
+	cookie: string;
+};

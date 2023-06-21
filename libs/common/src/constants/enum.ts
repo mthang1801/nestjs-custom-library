@@ -25,3 +25,7 @@ export enum ENUM_ROLES {
 	SUPERVISER = 'SUPERVISER',
 	USER = 'USER',
 }
+
+export enum PERMISSION {
+	IS_PUBLIC_KEY = 'isPublic',
+}
