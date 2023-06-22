@@ -1,12 +1,10 @@
 import { User } from '@app/common/schemas';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Expose, Transform } from 'class-transformer';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
 
 @Schema()
 export class AbstractSchema {
-	_id: ObjectId | string;
-
 	@Expose()
 	@Transform(
 		({ value }) => {

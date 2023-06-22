@@ -31,7 +31,7 @@ export type ModelInfo = {
 export type UserRequest = Request & User;
 
 export type TokenPayload = {
-	_id: string;
+	id: string;
 };
 
 export type CookieToken = {

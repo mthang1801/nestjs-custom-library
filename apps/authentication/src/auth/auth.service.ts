@@ -1,4 +1,5 @@
 import { CookieToken, TokenPayload } from '@app/common';
+import { ENUM_TOKEN_TYPE } from '@app/common/constants/enum';
 import { User } from '@app/common/schemas';
 import {
   BadRequestException,
@@ -47,13 +48,70 @@ export class AuthService {
 	}
 
 	public async getCookieToken(user: User): Promise<CookieToken> {
-		const payload: TokenPayload = { _id: user._id.toString() };
+		const payload: TokenPayload = { id: user.id.toString() };
 		const token = await this.jwtService.signAsync(payload);
 		return {
 			token,
 			cookie: `Authentication=${token};HttpOnly;Path=/;Max-Age=${this.configService.get<number>(
 				'JWT_EXPIRATION_TIME',
 			)}`,
+		};
+	}
+
+	public async getCookieWithJwtToken(user: User, tokenType: ENUM_TOKEN_TYPE) {
+		const tokenScret = this.configService.get<string>(
+			tokenType === ENUM_TOKEN_TYPE.ACCESS
+				? 'JWT_ACCESS_TOKEN_SECRET'
+				: 'JWT_REFRESH_TOKEN_SECRET',
+		);
+
+		const tokenExpiration = this.configService.get<number>(
+			tokenType === ENUM_TOKEN_TYPE.ACCESS
+				? 'JWT_ACCESS_TOKEN_EXPIRATION_TIME'
+				: 'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+		);
+
+		const payload: TokenPayload = { id: user.id.toString() };
+		const token = await this.jwtService.signAsync(payload, {
+			secret: tokenScret,
+			expiresIn: `${tokenExpiration}s`,
+		});
+
+		console.log(
+			ENUM_TOKEN_TYPE,
+			tokenType,
+			ENUM_TOKEN_TYPE[tokenType],
+			tokenExpiration,
+		);
+
+		const cookie = `${ENUM_TOKEN_TYPE[tokenType]}=${token};HttpOnly;Path=/;Max-Age=${tokenExpiration}`;
+
+		return { token, cookie };
+	}
+
+	getCookiesForLogout() {
+		return [ENUM_TOKEN_TYPE.ACCESS, ENUM_TOKEN_TYPE.REFRESH].map(
+			(tokenType) => `${tokenType}=;OnlyHttp;Path=/;Max-Age=0`,
+		);
+	}
+
+	async removeRefreshToken(user: User): Promise<any> {
+		return this.userService.removeRefreshTokenByUserId(user.id);
+	}
+
+	async login(user: User) {
+		const [cookieWithAccessToken, cookieWithRefreshToken] = await Promise.all([
+			this.getCookieWithJwtToken(user, ENUM_TOKEN_TYPE.ACCESS),
+			this.getCookieWithJwtToken(user, ENUM_TOKEN_TYPE.REFRESH),
+		]);
+		await this.userService.setCurrentRefreshToken(
+			cookieWithRefreshToken.token,
+			user.id,
+		);
+
+		return {
+			cookieWithAccessToken: cookieWithAccessToken.cookie,
+			cookieWithRefreshToken: cookieWithRefreshToken.cookie,
 		};
 	}
 

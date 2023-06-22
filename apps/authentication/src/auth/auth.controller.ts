@@ -1,4 +1,5 @@
 import { MongooseClassSerialzierInterceptor } from '@app/common';
+import { ENUM_TOKEN_TYPE } from '@app/common/constants/enum';
 import { IUserRequest } from '@app/common/interfaces';
 import { User } from '@app/common/schemas';
 import {
@@ -18,7 +19,7 @@ import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { JwtAuthGuard } from './guards/jwt.guard';
+import { JwtRefreshTokenGuard } from './guards/jwt-refresh-token.guard';
 import { LocalAuthGuard } from './guards/local.guard';
 
 @Controller('auth')
@@ -35,18 +36,37 @@ export class AuthController {
 	@UseGuards(LocalAuthGuard)
 	async login(@Req() request: IUserRequest, @Res() res: Response) {
 		const { user } = request;
-		const { token, cookie } = await this.authService.getCookieToken(user);
-		res.setHeader('Set-Cookie', cookie);
-		res.setHeader('Authorization', token);
+		const { cookieWithAccessToken, cookieWithRefreshToken } =
+			await this.authService.login(user);
+		request.res.setHeader('Set-Cookie', [
+			cookieWithAccessToken,
+			cookieWithRefreshToken,
+		]);
 		res.send(user);
 	}
 
 	@Post('logout')
-	@UseGuards(JwtAuthGuard)
-	async logout(@Req() req: Request, @Res() res: Response) {
-		res.setHeader('Set-Cookie', 'Authentication=;HttpOnly;Path=/;Max-Age=0');
-		res.setHeader('Authorization', '');
+	@UseGuards(JwtRefreshTokenGuard)
+	async logout(@Req() req: IUserRequest, @Res() res: Response) {
+		const { user } = req;
+		await this.authService.removeRefreshToken(user);
+		const getCookiesForLogout = this.authService.getCookiesForLogout();
+		res.setHeader('Set-Cookie', getCookiesForLogout);
+
 		res.json({ message: 'Đăng xuất thành công.' });
+	}
+
+	@Post('refresh')
+	@UseGuards(JwtRefreshTokenGuard)
+	async refresh(@Req() req: IUserRequest, @Res() res: Response) {
+		const { user } = req;
+		const accessTokenCookie = await this.authService.getCookieWithJwtToken(
+			user.id,
+			ENUM_TOKEN_TYPE.ACCESS,
+		);
+
+		res.setHeader('Set-Cookie', accessTokenCookie.cookie);
+		return req.user;
 	}
 
 	@Get()

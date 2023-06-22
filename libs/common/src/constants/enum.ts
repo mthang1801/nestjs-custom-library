@@ -29,3 +29,8 @@ export enum ENUM_ROLES {
 export enum PERMISSION {
 	IS_PUBLIC_KEY = 'isPublic',
 }
+
+export enum ENUM_TOKEN_TYPE {
+	ACCESS = 'ACCESS',
+	REFRESH = 'REFRESH',
+}

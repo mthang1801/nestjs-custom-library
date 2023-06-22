@@ -1,11 +1,13 @@
-import { ModelInfo } from '@app/common';
+import { ExtraUpdateOptions, ModelInfo } from '@app/common';
 import { Injectable, Logger } from '@nestjs/common';
 import {
+  FilterQuery,
   HydratedDocument,
   Model,
   ObjectId,
   ProjectionType,
   QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
 import { AbstractSchema } from './abstract.schema';
@@ -40,5 +42,13 @@ export abstract class AbstractService<
 		options?: QueryOptions<T>,
 	) {
 		return this.readModel.findById(id, projection, options);
+	}
+
+	protected _update(
+		fitlerQuery: FilterQuery<T>,
+		payload: UpdateQuery<T>,
+		options?: QueryOptions<T> & ExtraUpdateOptions,
+	) {
+		return this.writeModel.updateOne(fitlerQuery, payload, options);
 	}
 }

@@ -136,6 +136,9 @@ export class User extends AbstractSchema {
 
 	@Type(() => Posts)
 	posts: Posts[];
+
+	@Prop()
+	refresh_token: string;
 }
 
 export type UserDocument = HydratedDocument<Document, User>;
