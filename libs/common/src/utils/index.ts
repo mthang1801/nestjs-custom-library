@@ -1,8 +1,9 @@
 import {
-  getPageSkipLimit,
+  compareHashedString, getPageSkipLimit,
+  hashedString,
   recursivelyStripNullValues,
   typeOf,
-  valueToBoolean,
+  valueToBoolean
 } from './function.utils';
 
 const utils = {
@@ -10,6 +11,8 @@ const utils = {
 	typeOf,
 	getPageSkipLimit,
 	recursivelyStripNullValues,
+	hashedString,
+	compareHashedString,
 };
 
 export default utils;

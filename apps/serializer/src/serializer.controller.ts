@@ -1,7 +1,9 @@
+import { TransformInterceptor } from '@app/common/interceptors/transform.interceptor';
 import {
   ClassSerializerInterceptor,
   Controller,
   Get,
+  SerializeOptions,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
@@ -17,8 +19,13 @@ export class SerializerController {
 
 	@Get()
 	@UsePipes(new ValidationPipe())
+	@UseInterceptors(TransformInterceptor)
+	@SerializeOptions({
+		strategy: 'exposeAll',
+	})
 	findOne(): UserEntity {
-		return new UserEntity({
+		for (let i = 0; i < 10e9; i++) {}
+		const user = new UserEntity({
 			firstName: 'Mai',
 			lastName: 'Thang',
 			password: 'admin123',
@@ -26,6 +33,10 @@ export class SerializerController {
 				id: 1,
 				name: 'Admin',
 			}),
+			email: 'mthang1801@gmail.com',
+			phone: '0123456789',
+			address: null,
 		});
+		return user;
 	}
 }

@@ -1,12 +1,12 @@
 import { ENUM_GENDER, ENUM_LANGUAGES } from '@app/common/constants/enum';
 import {
+  AbstractSchema,
   Contact,
   ContactSchema,
   Posts,
   PostsDocument,
   UserRole,
 } from '@app/common/schemas';
-import { AbstractSchema } from '@app/shared/abstract';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { NextFunction } from 'express';
@@ -117,7 +117,7 @@ export class User extends AbstractSchema {
 
 	@Prop({
 		type: mongoose.Schema.Types.ObjectId,
-		ref: UserRole.name,
+		ref: 'UserRole',
 	})
 	@Type(() => UserRole)
 	@Transform(
@@ -137,8 +137,13 @@ export class User extends AbstractSchema {
 	@Type(() => Posts)
 	posts: Posts[];
 
-	@Prop()
+	// Apply for authentication
+	@Prop({ index: true })
 	refresh_token: string;
+
+	// Apply for advanced-auth
+	@Prop({ index: 1 })
+	refresh_token_list: string;
 }
 
 export type UserDocument = HydratedDocument<Document, User>;

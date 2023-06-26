@@ -1,4 +1,5 @@
-import { ExtraUpdateOptions, ModelInfo } from '@app/common';
+import { ExtraUpdateOptions, ModelInfo, UpdateResponse } from '@app/common';
+import { AbstractSchema } from '@app/common/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import {
   FilterQuery,
@@ -6,11 +7,9 @@ import {
   Model,
   ObjectId,
   ProjectionType,
-  QueryOptions,
-  UpdateQuery,
+  QueryOptions
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
-import { AbstractSchema } from './abstract.schema';
 
 @Injectable()
 export abstract class AbstractService<
@@ -41,14 +40,33 @@ export abstract class AbstractService<
 		projection?: ProjectionType<T>,
 		options?: QueryOptions<T>,
 	) {
-		return this.readModel.findById(id, projection, options);
+		return this.repository.findById(id, projection, options);
 	}
 
-	protected _update(
+	protected async _findOne(
+		filterQuery?: FilterQuery<T>,
+		projection?: ProjectionType<T>,
+		options?: QueryOptions<T>,
+	): Promise<T> {
+		return this.repository.findOne(filterQuery, projection, options);
+	}
+
+	protected async _update(
 		fitlerQuery: FilterQuery<T>,
-		payload: UpdateQuery<T>,
+		payload: Partial<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
-	) {
+	): Promise<UpdateResponse> {
 		return this.writeModel.updateOne(fitlerQuery, payload, options);
+	}
+
+	protected async _findByIdAndUpdate(
+		id: string | ObjectId,
+		payload: Partial<T>,
+		options?: QueryOptions<T> & ExtraUpdateOptions,
+	): Promise<T> {
+		return this.repository.findByIdAndUpdate(id, payload, {
+			new: true,
+			...options,
+		});
 	}
 }

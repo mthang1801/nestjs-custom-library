@@ -1,4 +1,4 @@
-import { Public } from '@app/common/decorators';
+import { Public } from '@app/common/decorators/permissions.decorator';
 import {
   Body,
   Controller,
@@ -9,7 +9,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import JwtAuthGuard from '../auth/guards/jwt.guard';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostService } from './post.service';

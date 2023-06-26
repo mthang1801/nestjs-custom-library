@@ -1,3 +1,4 @@
+import { AbstractSchema } from '@app/common/schemas';
 import {
   ExtraUpdateOptions,
   FindAllResponse,
@@ -19,7 +20,6 @@ import {
   QueryOptions,
   UpdateQuery,
 } from 'mongoose';
-import { AbstractSchema } from './abstract.schema';
 import { IAbstractRepository } from './interfaces';
 
 @Injectable()
@@ -89,11 +89,11 @@ export abstract class AbstractRepository<
 	}
 
 	async findByIdAndUpdate(
-		id?: ObjectId,
-		updateData?: UpdateQuery<T>,
+		id: string | ObjectId,
+		updateData?: Partial<T>,
 		options?: QueryOptions<T>,
 	): Promise<T> {
-		return this.primaryModel.findOneAndUpdate(id, updateData, {
+		return this.primaryModel.findByIdAndUpdate(id, updateData, {
 			new: true,
 			...options,
 		});

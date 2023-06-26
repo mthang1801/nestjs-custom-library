@@ -13,7 +13,7 @@ export class SendFilesService {
 			'Content-Disposition': 'attachment;filename=mv.mp4',
 			length: file.byteLength,
 		});
-		return new StreamableFile(file);
+		return new StreamableFile(file).;
 	}
 
 	getRxJSFile(res): Observable<StreamableFile> {

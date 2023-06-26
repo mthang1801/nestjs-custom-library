@@ -43,6 +43,7 @@ export class MongooseDynamicModule {
 			useFactory: (
 				configService: ConfigService,
 			): MongooseModuleFactoryOptions => {
+				console.log(configService.get<string>(connectionName));
 				return {
 					uri: configService.get<string>(connectionName),
 					dbName: configService.get<string>('MONGO_DATABASE'),

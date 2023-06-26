@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcryptjs';
 import { DataType } from '../types';
 
 export const valueToBoolean = (value: any) => {
@@ -42,8 +43,12 @@ export const recursivelyStripNullValues = (value: unknown): unknown => {
 			]),
 		);
 	}
-  
+
 	if (value !== null) {
 		return value;
 	}
 };
+
+export const hashedString = async (str: string) => bcrypt.hash(str, 10);
+export const compareHashedString = async (str: string, hashedStr: string) =>
+	bcrypt.compare(str, hashedStr);

@@ -1,4 +1,5 @@
 import { Controller, Get, Res, StreamableFile } from '@nestjs/common';
+import { Response } from 'express';
 import { Observable } from 'rxjs';
 import { SendFilesService } from './send-files.service';
 @Controller()
@@ -6,7 +7,7 @@ export class SendFilesController {
 	constructor(private readonly sendFilesService: SendFilesService) {}
 
 	@Get('file/stream')
-	async getReadStream(@Res({ passthrough: true }) res) {
+	async getReadStream(@Res({ passthrough: true }) res: Response) {
 		this.sendFilesService.getReadStream(res);
 	}
 

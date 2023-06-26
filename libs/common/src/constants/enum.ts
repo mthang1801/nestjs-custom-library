@@ -31,6 +31,11 @@ export enum PERMISSION {
 }
 
 export enum ENUM_TOKEN_TYPE {
-	ACCESS = 'ACCESS',
-	REFRESH = 'REFRESH',
+	ACCESS = 'ACCESS_TOKEN',
+	REFRESH = 'REFRESH_TOKEN',
+}
+
+export enum ENUM_TOKEN_VALUE {
+	ACCESS_TOKEN = 'AccessToken',
+	REFRESH_TOKEN = 'RefreshToken',
 }

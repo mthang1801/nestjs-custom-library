@@ -37,8 +37,21 @@ export class RmqServiceController {
 	}
 
 	@Post()
-	call(@Body('numbers') payload: number[]) {
-		return this.client.send({ cmd: COMMAND.GET_SUM }, { numbers: payload });
+	async call(@Body('numbers') payload: number[]) {
+		const res = await lastValueFrom(
+			this.client.send({ cmd: COMMAND.GET_SUM }, { numbers: payload }),
+		);
+    
+		return {
+			metadata: {
+				currentPage: 1,
+				pageSize: 10,
+				total: 100,
+			},
+			result: res,
+			items: [1, 2, 3, 4, 5],
+			extra: ['a', 'b'],
+		};
 	}
 
 	@Post('stream')
