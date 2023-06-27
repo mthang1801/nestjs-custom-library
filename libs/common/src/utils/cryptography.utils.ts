@@ -111,17 +111,12 @@ export class Cryptography {
 		};
 	}
 
-	public isMatchingPublicKey(publicKey) {
+	public isMatchingPublicKey(publicKey): boolean {
 		const privateKey = process.env.CLIENT_PRIVATE_KEY;
 		const secretKey = process.env.CLIENT_SECRET_KEY;
 		const hashedPublicKey = this.desaltHashPassword(publicKey, privateKey);
-		console.log('isMatchingPublicKey::');
-		console.log('hashedPublicKey::', hashedPublicKey);
-		console.log('secretKey::', secretKey);
-		console.log('isMathcing::', secretKey === hashedPublicKey);
-		console.log('endcodePrivate::', this.decodeBase64(privateKey));
-		console.log('endcodeSecret::', this.decodeBase64(secretKey));
-		console.log('hashedPublicKey::', this.decodeBase64(hashedPublicKey));
+		if (secretKey === hashedPublicKey) return true;
+		return false;
 	}
 
 	public generateMD5(str) {

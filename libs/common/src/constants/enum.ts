@@ -55,3 +55,12 @@ export enum ENUM_FAV_ICON {
 	DEFAULT = 'nestjs-logo.png',
 	NT_OMS = 'nt-oms-logo.png',
 }
+
+export enum ENUM_PRODUCT_VISIBILITY {
+	'ALL' = 'ALL',
+	'CATEGORY' = 'CATEGORY',
+	'SEARCH' = 'SEARCH',
+	'RECOMMEND' = 'RECOMMEND',
+	'ADVERTISE' = 'ADVERTISE',
+	'PROMOTION' = 'PROMOTION',
+}

@@ -8,6 +8,7 @@ import {
   UserRole,
 } from '@app/common/schemas';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { NextFunction } from 'express';
 import * as _ from 'lodash';
@@ -33,6 +34,7 @@ export class User extends AbstractSchema {
 		maxlength: 60,
 		set: (first_name: string) => _.capitalize(first_name.trim()),
 	})
+	@ApiProperty({ description: 'First Name', example: 'John' })
 	first_name: string;
 
 	@Prop({
@@ -41,6 +43,7 @@ export class User extends AbstractSchema {
 		maxlength: 60,
 		set: (last_name: string) => _.capitalize(last_name.trim()),
 	})
+	@ApiProperty({ description: 'Last Name', example: 'Doe' })
 	last_name: string;
 
 	@Prop({

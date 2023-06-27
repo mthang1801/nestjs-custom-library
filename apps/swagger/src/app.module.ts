@@ -1,3 +1,4 @@
+import { MongooseDynamicModule } from '@app/common';
 import {
   MiddlewareConsumer,
   Module,
@@ -6,7 +7,8 @@ import {
   VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { UserModule } from './user/user.module';
+import { CategoryModule } from './category/category.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
 	imports: [
@@ -14,7 +16,9 @@ import { UserModule } from './user/user.module';
 			isGlobal: true,
 			envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
 		}),
-		UserModule,
+		MongooseDynamicModule.forRootAsync(),
+		ProductModule,
+		CategoryModule,
 	],
 	controllers: [],
 	providers: [],
