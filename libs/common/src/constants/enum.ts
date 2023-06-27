@@ -39,3 +39,19 @@ export enum ENUM_TOKEN_VALUE {
 	ACCESS_TOKEN = 'AccessToken',
 	REFRESH_TOKEN = 'RefreshToken',
 }
+
+export enum ENUM_SWAGGER_THEME {
+	DARK = 'swagger-dark.css',
+	FEELING_BLUE = 'swagger-feeling-blue.css',
+	FLATTOP = 'swagger-flattop.css',
+	GENERAL = 'swagger-general.css',
+	MATERIAL = 'swagger-material.css',
+	MUTED = 'swagger-muted.css',
+	NEWSPAPER = 'swagger-newspaper.css',
+	OUTLINE = 'swagger-outline.css',
+}
+
+export enum ENUM_FAV_ICON {
+	DEFAULT = 'nestjs-logo.png',
+	NT_OMS = 'nt-oms-logo.png',
+}

@@ -6,7 +6,23 @@
 		"deleteOutDir": true,
 		"webpack": true,
 		"tsConfigPath": "apps/rmq-service/tsconfig.app.json",
-		"plugins": ["@nestjs/swagger"]
+		"assets": [
+			{ "include": "../views", "watchAssets": true },
+			{ "include": "i18n/**/*", "watchAssets": true }
+		],
+		"plugins": [
+			{
+				"name": "@nestjs/swagger",
+				"options": {
+					"dtoFileNameSuffix": [
+						".dto.ts",
+						".entity.ts",
+						".model.ts",
+						".schema.ts"
+					]
+				}
+			}
+		]
 	},
 	"monorepo": true,
 	"root": "apps/rmq-service",
@@ -99,6 +115,24 @@
 			"sourceRoot": "apps/authentication/src",
 			"compilerOptions": {
 				"tsConfigPath": "apps/authentication/tsconfig.app.json"
+			}
+		},
+		"grpc-service": {
+			"type": "application",
+			"root": "apps/grpc-service",
+			"entryFile": "main",
+			"sourceRoot": "apps/grpc-service/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/grpc-service/tsconfig.app.json"
+			}
+		},
+		"swagger": {
+			"type": "application",
+			"root": "apps/swagger",
+			"entryFile": "main",
+			"sourceRoot": "apps/swagger/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/swagger/tsconfig.app.json"
 			}
 		}
 	}
