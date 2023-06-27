@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import { DataType } from '../types';
+import { Cryptography } from './cryptography.utils';
 
 export const valueToBoolean = (value: any) => {
 	if ([true, 'true', 1, '1', 'yes', 'y'].includes(value?.toLowerCase()))
@@ -52,3 +53,14 @@ export const recursivelyStripNullValues = (value: unknown): unknown => {
 export const hashedString = async (str: string) => bcrypt.hash(str, 10);
 export const compareHashedString = async (str: string, hashedStr: string) =>
 	bcrypt.compare(str, hashedStr);
+
+export const genKeys = () => {
+	const cryptography = new Cryptography();
+
+	const publicKey = Cryptography.genPrivateKey();
+
+	const { hashedData: secretKey, secretKey: privateKey } =
+		cryptography.saltHashPassword(publicKey);
+
+	return { publicKey, secretKey, privateKey };
+};

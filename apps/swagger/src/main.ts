@@ -1,4 +1,5 @@
 import { SetupSwagger } from '@app/common/swagger/setup';
+import { Cryptography } from '@app/common/utils/cryptography.utils';
 import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -25,4 +26,10 @@ import { AppModule } from './app.module';
 			'APPLICATION READY',
 		),
 	);
+
+	const cryptography = new Cryptography();
+
+	const publicKey = configServce.get<string>('CLIENT_PUBLIC_KEY');
+
+	cryptography.isMatchingPublicKey(publicKey);
 })();
