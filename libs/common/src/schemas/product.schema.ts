@@ -1,5 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional
+} from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { AbstractSchema } from '.';
 import { ENUM_PRODUCT_VISIBILITY, ENUM_STATUS } from '../constants/enum';

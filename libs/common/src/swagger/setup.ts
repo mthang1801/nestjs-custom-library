@@ -1,4 +1,4 @@
-import { excludes, includes } from '@app/common/swagger';
+import { extraModels, includes } from '@app/common/swagger';
 import { NestApplication } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import {
@@ -38,7 +38,7 @@ export const SetupSwagger = (
 		operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
 		ignoreGlobalPrefix: true,
 		include: includes,
-		extraModels: excludes,
+		extraModels: extraModels,
 	};
 
 	const document = SwaggerModule.createDocument(

@@ -1,3 +1,3 @@
-export * from './excludes';
+export * from './extra-models';
 export * from './includes';
 
