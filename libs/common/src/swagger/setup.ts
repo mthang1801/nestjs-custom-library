@@ -36,7 +36,7 @@ export const SetupSwagger = (
 
 	const swaggerOptions: SwaggerDocumentOptions = {
 		operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
-		ignoreGlobalPrefix: true,
+		ignoreGlobalPrefix: false,
 		include: includes,
 		extraModels: extraModels,
 	};
