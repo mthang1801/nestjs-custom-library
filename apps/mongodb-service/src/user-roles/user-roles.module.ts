@@ -1,8 +1,8 @@
-import { MongooseDynamicModule } from '@app/common';
+import { MongooseDynamicModule } from '@app/shared';
 import { Module } from '@nestjs/common';
 import {
-  UserRole,
-  UserRoleSchema,
+    UserRole,
+    UserRoleSchema,
 } from '../../../../libs/common/src/schemas/user-roles.schema';
 import { UserRolesController } from './user-roles.controller';
 import { UserRoleRepository } from './user-roles.repository';

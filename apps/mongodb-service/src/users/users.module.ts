@@ -1,10 +1,10 @@
-import { CONNECTION_NAME, MongooseDynamicModule } from '@app/common';
+import { CONNECTION_NAME, MongooseDynamicModule } from '@app/shared';
 import {
-  Posts,
-  PostsSchema,
-  User,
-  UserSchemaFactory,
-} from '@app/common/schemas';
+    Posts,
+    PostsSchema,
+    User,
+    UserSchemaFactory,
+} from '@app/shared/schemas';
 import { Module, forwardRef } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { PostsModule } from '../posts/posts.module';

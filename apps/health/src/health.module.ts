@@ -1,4 +1,4 @@
-import { MongooseDynamicModule, QUEUES, RabbitMQModule } from '@app/common';
+import { MongooseDynamicModule, QUEUES, RabbitMQModule } from '@app/shared';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';

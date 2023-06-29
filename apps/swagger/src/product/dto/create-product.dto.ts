@@ -1,20 +1,20 @@
 import {
-  ENUM_PRODUCT_VISIBILITY,
-  ENUM_STATUS,
-} from '@app/common/constants/enum';
-import { Category } from '@app/common/schemas/category.schema';
+    ENUM_PRODUCT_VISIBILITY,
+    ENUM_STATUS,
+} from '@app/shared/constants/enum';
+import { Category } from '@app/shared/schemas/category.schema';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  ArrayMinSize,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsPositive,
-  IsString,
-  MaxLength,
-  ValidateNested,
+    ArrayMinSize,
+    IsArray,
+    IsEnum,
+    IsNotEmpty,
+    IsOptional,
+    IsPositive,
+    IsString,
+    MaxLength,
+    ValidateNested,
 } from 'class-validator';
 
 export class CreateProductDto {

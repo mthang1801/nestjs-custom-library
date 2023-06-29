@@ -1,18 +1,18 @@
-import { CONNECTION_NAME, QUEUES } from '@app/common';
+import { CONNECTION_NAME, QUEUES } from '@app/shared';
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy, RmqOptions, Transport } from '@nestjs/microservices';
 import { InjectConnection } from '@nestjs/mongoose';
 
 import {
-  DiskHealthIndicator,
-  HealthCheck,
-  HealthCheckService,
-  HttpHealthIndicator,
-  MemoryHealthIndicator,
-  MicroserviceHealthIndicator,
-  MongooseHealthIndicator,
-  TypeOrmHealthIndicator,
+    DiskHealthIndicator,
+    HealthCheck,
+    HealthCheckService,
+    HttpHealthIndicator,
+    MemoryHealthIndicator,
+    MicroserviceHealthIndicator,
+    MongooseHealthIndicator,
+    TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 
 import { Connection } from 'mongoose';

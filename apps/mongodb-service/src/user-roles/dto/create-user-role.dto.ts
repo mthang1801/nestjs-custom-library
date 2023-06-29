@@ -1,10 +1,5 @@
-import { ENUM_ROLES } from '@app/common/constants/enum';
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString
-} from 'class-validator';
+import { ENUM_ROLES } from '@app/shared/constants/enum';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserRoleDto {
 	@IsNotEmpty()

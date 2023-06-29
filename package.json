@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
+    "copy-proto": "cp -r ./libs/common/src/grpc/protos ./dist",
     "start:dev": "NODE_ENV=development nest start --watch",
     "start:debug": "NODE_ENV=development nest start --debug --watch",
     "start:prod": "NODE_ENV=production node dist/apps/nestjs-rabbitmq/main",
@@ -21,11 +22,14 @@
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^3.6.1",
+    "@grpc/grpc-js": "^1.8.17",
+    "@grpc/proto-loader": "^0.7.7",
+    "@jsreport/nodejs-client": "^3.0.0",
     "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.2",
     "@nestjs/core": "^9.0.0",
-    "@nestjs/event-emitter": "^1.4.1",
+    "@nestjs/event-emitter": "^1.4.2",
     "@nestjs/jwt": "^10.1.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/microservices": "^9.4.2",
@@ -54,7 +58,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.6.3",
-    "typeorm": "^0.3.16"
+    "typeorm": "^0.3.16",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

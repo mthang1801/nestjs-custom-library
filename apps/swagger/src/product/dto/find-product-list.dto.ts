@@ -1,15 +1,15 @@
 import {
-  ENUM_PRODUCT_VISIBILITY,
-  ENUM_STATUS,
-} from '@app/common/constants/enum';
+    ENUM_PRODUCT_VISIBILITY,
+    ENUM_STATUS,
+} from '@app/shared/constants/enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsArray,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
+    IsArray,
+    IsEnum,
+    IsNumber,
+    IsOptional,
+    IsString,
 } from 'class-validator';
 
 export class FindProductListDto {

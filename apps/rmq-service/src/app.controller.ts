@@ -1,24 +1,24 @@
-import { QUEUES } from '@app/common';
-import { COMMAND } from '@app/common/constants/command';
+import { QUEUES } from '@app/shared';
+import { COMMAND } from '@app/shared/constants/command';
 import { Body, Controller, Post } from '@nestjs/common';
 import {
-  ClientProxy,
-  ClientProxyFactory,
-  Ctx,
-  MessagePattern,
-  Payload,
-  RmqContext,
-  RmqRecordBuilder,
-  Transport,
+    ClientProxy,
+    ClientProxyFactory,
+    Ctx,
+    MessagePattern,
+    Payload,
+    RmqContext,
+    RmqRecordBuilder,
+    Transport,
 } from '@nestjs/microservices';
 import {
-  Observable,
-  delay,
-  from,
-  lastValueFrom,
-  of,
-  scan,
-  timeout,
+    Observable,
+    delay,
+    from,
+    lastValueFrom,
+    of,
+    scan,
+    timeout,
 } from 'rxjs';
 import { RmqServiceService } from './app.service';
 @Controller()
@@ -41,7 +41,7 @@ export class RmqServiceController {
 		const res = await lastValueFrom(
 			this.client.send({ cmd: COMMAND.GET_SUM }, { numbers: payload }),
 		);
-    
+
 		return {
 			metadata: {
 				currentPage: 1,

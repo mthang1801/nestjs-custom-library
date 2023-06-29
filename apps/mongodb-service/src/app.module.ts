@@ -1,10 +1,10 @@
-import { MongooseDynamicModule } from '@app/common';
+import { MongooseDynamicModule } from '@app/shared';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-import { UserRolesModule } from './user-roles/user-roles.module';
-import { PostsModule } from './posts/posts.module';
 import * as Joi from 'joi';
+import { PostsModule } from './posts/posts.module';
+import { UserRolesModule } from './user-roles/user-roles.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
 	imports: [

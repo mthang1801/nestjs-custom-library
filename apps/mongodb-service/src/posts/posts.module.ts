@@ -1,5 +1,5 @@
-import { MongooseDynamicModule } from '@app/common';
-import { Posts, PostsSchema, PostsSchemaFactory } from '@app/common/schemas';
+import { MongooseDynamicModule } from '@app/shared';
+import { Posts, PostsSchema, PostsSchemaFactory } from '@app/shared/schemas';
 import { Module, forwardRef } from '@nestjs/common';
 import { UsersModule } from '../users/users.module';
 import { PostsController } from './posts.controller';

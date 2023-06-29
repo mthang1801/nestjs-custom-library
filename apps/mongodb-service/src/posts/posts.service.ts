@@ -1,11 +1,11 @@
-import { PostsDocument, User } from '@app/common/schemas';
 import { AbstractService } from '@app/shared';
+import { PostsDocument, User } from '@app/shared/schemas';
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  forwardRef,
+    BadRequestException,
+    Inject,
+    Injectable,
+    Logger,
+    forwardRef,
 } from '@nestjs/common';
 import { ClientSession, ObjectId } from 'mongoose';
 import { UsersService } from '../users/users.service';

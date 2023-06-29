@@ -1,10 +1,10 @@
-import { MongooseDynamicModule } from '@app/common';
+import { MongooseDynamicModule } from '@app/shared';
 import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-  VERSION_NEUTRAL,
+    MiddlewareConsumer,
+    Module,
+    NestModule,
+    RequestMethod,
+    VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CategoryModule } from './category/category.module';

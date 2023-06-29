@@ -7,8 +7,18 @@
 		"webpack": true,
 		"tsConfigPath": "apps/rmq-service/tsconfig.app.json",
 		"assets": [
-			{ "include": "../views", "watchAssets": true },
-			{ "include": "i18n/**/*", "watchAssets": true }
+			{
+				"include": "../views",
+				"watchAssets": true
+			},
+			{
+				"include": "i18n/**/*",
+				"watchAssets": true
+			},
+			{
+				"include": "**/**/*.proto",
+				"watchAssets": true
+			}
 		],
 		"plugins": [
 			{
@@ -72,15 +82,6 @@
 				"tsConfigPath": "apps/serializer/tsconfig.app.json"
 			}
 		},
-		"sse": {
-			"type": "application",
-			"root": "apps/sse",
-			"entryFile": "main",
-			"sourceRoot": "apps/sse/src",
-			"compilerOptions": {
-				"tsConfigPath": "apps/sse/tsconfig.app.json"
-			}
-		},
 		"shared": {
 			"type": "library",
 			"root": "libs/shared",
@@ -117,15 +118,6 @@
 				"tsConfigPath": "apps/authentication/tsconfig.app.json"
 			}
 		},
-		"grpc-service": {
-			"type": "application",
-			"root": "apps/grpc-service",
-			"entryFile": "main",
-			"sourceRoot": "apps/grpc-service/src",
-			"compilerOptions": {
-				"tsConfigPath": "apps/grpc-service/tsconfig.app.json"
-			}
-		},
 		"swagger": {
 			"type": "application",
 			"root": "apps/swagger",
@@ -133,6 +125,24 @@
 			"sourceRoot": "apps/swagger/src",
 			"compilerOptions": {
 				"tsConfigPath": "apps/swagger/tsconfig.app.json"
+			}
+		},
+		"scheduler": {
+			"type": "application",
+			"root": "apps/scheduler",
+			"entryFile": "main",
+			"sourceRoot": "apps/scheduler/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/scheduler/tsconfig.app.json"
+			}
+		},
+		"event": {
+			"type": "application",
+			"root": "apps/event",
+			"entryFile": "main",
+			"sourceRoot": "apps/event/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/event/tsconfig.app.json"
 			}
 		}
 	}

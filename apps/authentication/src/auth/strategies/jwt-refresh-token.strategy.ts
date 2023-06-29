@@ -1,5 +1,5 @@
-import { TokenPayload } from '@app/common';
-import { ENUM_TOKEN_TYPE, ENUM_TOKEN_VALUE } from '@app/common/constants/enum';
+import { TokenPayload } from '@app/shared';
+import { ENUM_TOKEN_TYPE, ENUM_TOKEN_VALUE } from '@app/shared/constants/enum';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';

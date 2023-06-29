@@ -1,9 +1,9 @@
-import { User } from '@app/common/schemas';
+import { User } from '@app/shared/schemas';
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  forwardRef,
+    BadRequestException,
+    Inject,
+    Injectable,
+    forwardRef,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { PostsService } from '../posts/posts.service';

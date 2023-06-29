@@ -1,11 +1,11 @@
-import { ENUM_STATUS } from '@app/common/constants/enum';
+import { ENUM_STATUS } from '@app/shared/constants/enum';
 import {
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
+    IsEnum,
+    IsMongoId,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    MaxLength,
 } from 'class-validator';
 
 export class CreatePostDto {

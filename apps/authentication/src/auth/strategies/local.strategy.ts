@@ -1,4 +1,4 @@
-import { User } from '@app/common/schemas';
+import { User } from '@app/shared/schemas';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';

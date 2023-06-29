@@ -1,9 +1,9 @@
-import { Product } from '@app/common/schemas/product.schema';
+import { Product } from '@app/shared/schemas/product.schema';
 import {
   ApiCreatedResponseCustom,
   ApiListResponseCustom,
   ApiOkResponseCustom,
-} from '@app/common/swagger';
+} from '@app/shared/swagger';
 import {
   Body,
   Controller,

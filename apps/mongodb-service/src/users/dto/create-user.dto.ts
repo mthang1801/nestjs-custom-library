@@ -1,18 +1,18 @@
-import { ENUM_LANGUAGES } from '@app/common/constants/enum';
-import { ContactDTO } from '@app/common/dto/contact.dto';
-import { UserRole } from '@app/common/schemas';
+import { ENUM_LANGUAGES } from '@app/shared/constants/enum';
+import { ContactDTO } from '@app/shared/dto/contact.dto';
+import { UserRole } from '@app/shared/schemas';
 import { Type } from 'class-transformer';
 import {
-  ArrayMinSize,
-  IsArray,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsStrongPassword,
-  MaxLength,
-  ValidateNested,
+    ArrayMinSize,
+    IsArray,
+    IsEmail,
+    IsEnum,
+    IsNotEmpty,
+    IsOptional,
+    IsPhoneNumber,
+    IsStrongPassword,
+    MaxLength,
+    ValidateNested,
 } from 'class-validator';
 
 export class CreateUserDto {

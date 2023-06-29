@@ -1,5 +1,5 @@
-import { RedisConnectionOptions, RedisModule } from '@app/common';
-import redisConfig from '@app/common/config/redis.config';
+import { RedisConnectionOptions, RedisModule } from '@app/shared';
+import redisConfig from '@app/shared/config/redis.config';
 import { Module, Type } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisServiceController } from './redis-service.controller';

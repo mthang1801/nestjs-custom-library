@@ -1,6 +1,5 @@
-import { CONNECTION_NAME } from '@app/common';
-import { User, UserDocument } from '@app/common/schemas';
-import { AbstractRepository } from '@app/shared';
+import { AbstractRepository, CONNECTION_NAME } from '@app/shared';
+import { User, UserDocument } from '@app/shared/schemas';
 import { Logger } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';

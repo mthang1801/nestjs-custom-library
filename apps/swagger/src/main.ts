@@ -1,4 +1,4 @@
-import { SetupSwagger } from '@app/common/swagger/setup';
+import { SetupSwagger } from '@app/shared/swagger/setup';
 import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';

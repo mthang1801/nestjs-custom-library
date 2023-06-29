@@ -1,4 +1,4 @@
-import { QUEUES, RabbitMQService } from '@app/common';
+import { QUEUES, RabbitMQService } from '@app/shared';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';

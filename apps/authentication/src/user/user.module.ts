@@ -1,10 +1,10 @@
-import { MongooseDynamicModule } from '@app/common';
+import { MongooseDynamicModule } from '@app/shared';
 import {
-  User,
-  UserRole,
-  UserRoleSchema,
-  UserSchema,
-} from '@app/common/schemas';
+    User,
+    UserRole,
+    UserRoleSchema,
+    UserSchema,
+} from '@app/shared/schemas';
 import { Module } from '@nestjs/common';
 import { UserRoleRepository } from 'apps/mongodb-service/src/user-roles/user-roles.repository';
 import { UserRepository } from 'apps/mongodb-service/src/users/user.respository';

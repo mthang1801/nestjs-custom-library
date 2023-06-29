@@ -1,12 +1,12 @@
-import { ENUM_ROLES } from '@app/common/constants/enum';
-import { User, UserDocument } from '@app/common/schemas';
-import utils from '@app/common/utils';
 import { AbstractService } from '@app/shared';
+import { ENUM_ROLES } from '@app/shared/constants/enum';
+import { User, UserDocument } from '@app/shared/schemas';
+import utils from '@app/shared/utils';
 import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  UnauthorizedException,
+    BadRequestException,
+    Injectable,
+    Logger,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { UserRoleRepository } from 'apps/mongodb-service/src/user-roles/user-roles.repository';
 import { UserRepository } from 'apps/mongodb-service/src/users/user.respository';
@@ -99,4 +99,3 @@ export class UserService extends AbstractService<UserDocument> {
 }
 
 //$2a$10$hH7QyRKWT.CbcXAGr6687uD/QIwSd8ewPs1qXZeU5Cm35HeSFz1aK
-

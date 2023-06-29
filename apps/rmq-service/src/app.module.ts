@@ -1,5 +1,5 @@
-import { QUEUES, RabbitMQModule } from '@app/common';
-import { TransformInterceptor } from '@app/common/interceptors/transform.interceptor';
+import { QUEUES, RabbitMQModule } from '@app/shared';
+import { TransformInterceptor } from '@app/shared/interceptors/transform.interceptor';
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RmqServiceController } from './app.controller';

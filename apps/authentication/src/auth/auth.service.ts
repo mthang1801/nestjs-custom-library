@@ -1,6 +1,6 @@
-import { CookieToken, TokenPayload } from '@app/common';
-import { ENUM_TOKEN_TYPE, ENUM_TOKEN_VALUE } from '@app/common/constants/enum';
-import { User } from '@app/common/schemas';
+import { CookieToken, TokenPayload } from '@app/shared';
+import { ENUM_TOKEN_TYPE, ENUM_TOKEN_VALUE } from '@app/shared/constants/enum';
+import { User } from '@app/shared/schemas';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';

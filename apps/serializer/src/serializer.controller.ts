@@ -1,12 +1,12 @@
-import { TransformInterceptor } from '@app/common/interceptors/transform.interceptor';
+import { TransformInterceptor } from '@app/shared/interceptors/transform.interceptor';
 import {
-  ClassSerializerInterceptor,
-  Controller,
-  Get,
-  SerializeOptions,
-  UseInterceptors,
-  UsePipes,
-  ValidationPipe,
+    ClassSerializerInterceptor,
+    Controller,
+    Get,
+    SerializeOptions,
+    UseInterceptors,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
 import { RoleEntity } from './entities/role.entity';
 import { UserEntity } from './entities/user.entity';

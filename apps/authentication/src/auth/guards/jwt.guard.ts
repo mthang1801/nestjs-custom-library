@@ -1,4 +1,4 @@
-import { ENUM_TOKEN_VALUE, PERMISSION } from '@app/common/constants/enum';
+import { ENUM_TOKEN_VALUE, PERMISSION } from '@app/shared/constants/enum';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';

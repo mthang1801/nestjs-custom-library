@@ -1,7 +1,7 @@
-import { MongooseClassSerialzierInterceptor } from '@app/common';
-import { ENUM_TOKEN_TYPE } from '@app/common/constants/enum';
-import { IUserRequest } from '@app/common/interfaces';
-import { User } from '@app/common/schemas';
+import { MongooseClassSerialzierInterceptor } from '@app/shared';
+import { ENUM_TOKEN_TYPE } from '@app/shared/constants/enum';
+import { IUserRequest } from '@app/shared/interfaces';
+import { User } from '@app/shared/schemas';
 import {
   Body,
   Controller,

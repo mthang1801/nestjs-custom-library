@@ -1,5 +1,5 @@
-import { MongooseDynamicModule } from '@app/common';
-import { Category, CategorySchema } from '@app/common/schemas/category.schema';
+import { MongooseDynamicModule } from '@app/shared';
+import { Category, CategorySchema } from '@app/shared/schemas/category.schema';
 import { Module } from '@nestjs/common';
 import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';

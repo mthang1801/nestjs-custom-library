@@ -1,5 +1,5 @@
-import { MongooseDynamicModule } from '@app/common';
-import { Product, ProductSchema } from '@app/common/schemas/product.schema';
+import { MongooseDynamicModule } from '@app/shared';
+import { Product, ProductSchema } from '@app/shared/schemas/product.schema';
 import { Module } from '@nestjs/common';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
