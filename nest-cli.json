@@ -153,6 +153,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/sse/tsconfig.app.json"
       }
+    },
+    "cloud-service": {
+      "type": "application",
+      "root": "apps/cloud-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/cloud-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cloud-service/tsconfig.app.json"
+      }
     }
   }
 }
