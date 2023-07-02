@@ -25,10 +25,13 @@ export class RedisIoAdapter extends IoAdapter {
 	}
 
 	getUrl() {
-		const host = this.configService.get('REDIS_HOST');
-		const port = this.configService.get('REDIS_PORT');
-		const username = this.configService.get('REDIS_USERNAME');
-		const password = this.configService.get('REDIS_PASSWORD');
+		const [host, port, username, password] = [
+			'REDIS_HOST',
+			'REDIS_PORT',
+			'REDIS_USERNAME',
+			'REDIS_PASSWORD',
+		].map((ele) => this.configService.get(ele));
+
 		if (username && password)
 			return `redis://${username}:${password}@${host}:${port}`;
 		return `redis://${host}:${port}`;

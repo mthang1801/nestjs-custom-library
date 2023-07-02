@@ -1,24 +1,10 @@
-import * as Client from '@jsreport/nodejs-client';
-import { Module, OnModuleInit } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { CoreModule } from '@app/shared/core/core.module';
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({
-			isGlobal: true,
-			envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
-		}),
-	],
-	controllers: [],
+	imports: [CoreModule],
+	controllers: [AppController],
 	providers: [],
 })
-export class AppModule implements OnModuleInit {
-	private client: Client;
-	onModuleInit() {
-		this.client = Client({
-			serverUrl: 'http://localhost:5488',
-			username: 'admin',
-			password: 'admin123',
-		});
-	}
-}
+export class AppModule {}

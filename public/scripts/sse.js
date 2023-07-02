@@ -1,14 +1,18 @@
-const eventSource = new EventSource('/sse/4');
+document.getElementById('form-submit').addEventListener('submit', (e) => {
+	e.preventDefault();
+	const company = document.querySelector('#company-input').value;
+	const userId = document.querySelector('#user-id-input').value;
+	const eventSource = new EventSource(`/${company}/${userId}`);
 
-eventSource.onmessage = (event) => {
-	const { data } = event;
-	if (!data) return;
-	const element = document.createElement('li');
-	const parseData = JSON.parse(data);
-	element.innerHTML = `+ id: ${parseData.id} </br>
-                       + userId : ${parseData.userId} </br>
-                       + message: ${parseData.message} </br> 
-                       + timestamp : ${parseData.timestamp} </br> 
-                      `;
-	document.body.appendChild(element);
-};
+	eventSource.onmessage = ({ data }) => {
+		const parseData = JSON.parse(data);
+		const li = document.createElement('li');
+		li.innerHTML = `
+      <p>[${parseData.company}] ${parseData.userId} </p>
+      <p>${data}</p>
+      <p>-------------------------------</p>
+    `;
+		document.body.appendChild(li);
+		eventSource.close();
+	};
+});
