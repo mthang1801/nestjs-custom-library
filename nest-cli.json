@@ -162,6 +162,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/cloud-service/tsconfig.app.json"
       }
+    },
+    "web-sockets": {
+      "type": "application",
+      "root": "apps/web-sockets",
+      "entryFile": "main",
+      "sourceRoot": "apps/web-sockets/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/web-sockets/tsconfig.app.json"
+      }
     }
   }
 }

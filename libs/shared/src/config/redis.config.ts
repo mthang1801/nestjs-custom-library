@@ -12,6 +12,6 @@ export type RedisConfig = {
 export default registerAs(CONFIG_NAME.redis, () => ({
 	host: env.REDIS_HOST,
 	port: env.REDIS_PORT,
-	username: env.REDIS_USERNAME,
-	password: env.REDIS_PASSWORD,
+	username: env.REDIS_USERNAME || undefined,
+	password: env.REDIS_PASSWORD || undefined,
 }));
