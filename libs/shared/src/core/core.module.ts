@@ -13,6 +13,8 @@ import { TelegramDynamicModule } from '../telegram/telegram.module';
 				JWT_ACCESS_TOKEN_EXPIRATION_TIME: Joi.number().required(),
 				JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
 				JWT_REFRESH_TOKEN_EXPIRATION_TIME: Joi.number().required(),
+				NODE_ENV: Joi.valid('development', 'production').required(),
+				TELEGRAM_ENALBE_NOTI: Joi.boolean().required(),
 			}),
 			expandVariables: true,
 		}),

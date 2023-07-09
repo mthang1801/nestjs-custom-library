@@ -14,7 +14,7 @@ export class ProductService {
 		private readonly inventoryService: InventoryService,
 	) {}
 	private products: Product[] = [];
-	create(createProductDto: CreateProductDto) {
+	async create(createProductDto: CreateProductDto) {
 		const newProduct = new Product({
 			...createProductDto,
 			id: uuid(),
@@ -24,6 +24,7 @@ export class ProductService {
 			event(ENUM_EVENT_MODULE.PRODUCT, ENUM_ACTION.CREATE),
 			{ newProduct, inventories: createProductDto.inventories },
 		);
+
 		return newProduct;
 	}
 
@@ -38,6 +39,7 @@ export class ProductService {
 				inventories,
 			},
 		);
+		return { status: true };
 	}
 
 	findAll() {

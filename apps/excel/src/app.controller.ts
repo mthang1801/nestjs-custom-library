@@ -1,10 +1,63 @@
-import { Controller, Get } from '@nestjs/common';
-import { I18n, I18nContext } from 'nestjs-i18n';
-
+import { ExceljsService } from '@app/shared/exceljs/exceljs.service';
+import {
+  Body,
+  Controller,
+  Get,
+  Header,
+  Post,
+  Req,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
+import * as fs from 'fs';
+import { createReadStream } from 'fs-extra';
+import * as multer from 'multer';
+import { join } from 'path';
+import { AppService } from './app.service';
 @Controller()
 export class AppController {
+	constructor(
+		private readonly appService: AppService,
+		private readonly exceljsService: ExceljsService,
+	) {}
 	@Get()
-	async getHello(@I18n() i18n: I18nContext) {
-		return await i18n.t('messages.login', { args: { timestamp: new Date() } });
+	@Header('Content-Type', 'application/octet-stream')
+	@Header('Content-Disposition', 'attachment; filename="export.xlsx"')
+	async exportFile(@Res() res: Response) {
+		const filepath = await this.appService.exportFile();
+		const file = await createReadStream(filepath);
+		file.pipe(res);
+	}
+
+	@Post()
+	@UseInterceptors(
+		FileInterceptor('file', {
+			storage: multer.diskStorage({
+				destination: (req, file, cb) => {
+					const targetDir = join(
+						process.cwd(),
+						'libs/shared/src/exceljs/imports',
+					);
+					if (!fs.existsSync(targetDir)) {
+						fs.mkdirSync(targetDir, { recursive: true });
+					}
+					cb(null, targetDir);
+				},
+				filename: (req, file, cb) => {
+					const filename = `${req.headers['x-client-id']}-${file.originalname}`;
+					return cb(null, filename);
+				},
+			}),
+		}),
+	)
+	async importFile(
+		@Req() req: Request,
+		@Body() payload,
+		@UploadedFile() file: Express.Multer.File,
+	): Promise<any> {
+		await this.appService.importFile(file);
 	}
 }
