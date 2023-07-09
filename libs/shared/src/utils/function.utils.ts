@@ -71,3 +71,14 @@ export const genKeys = () => {
 
 	return { publicKey, secretKey, privateKey };
 };
+
+export const has = (obj, property) => {
+	const has = Object.prototype.hasOwnProperty;
+	return has.call(obj, property);
+};
+
+export const generateRandomNumber = (numDigits = 6) =>
+	Math.floor(
+		Number(`10e${numDigits - 2}`) +
+			Math.random() * 9 * Number(`10e${numDigits - 2}`),
+	);

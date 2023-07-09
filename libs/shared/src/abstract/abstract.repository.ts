@@ -1,24 +1,24 @@
 import { AbstractSchema } from '@app/shared/schemas';
 import {
-  ExtraUpdateOptions,
-  FindAllResponse,
-  ModelInfo,
-  RemoveOptions,
-  UpdateResponse,
+	ExtraUpdateOptions,
+	FindAllResponse,
+	ModelInfo,
+	RemoveOptions,
+	UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  Aggregate,
-  ClientSession,
-  Connection,
-  FilterQuery,
-  HydratedDocument,
-  Model,
-  ObjectId,
-  ProjectionType,
-  QueryOptions,
-  UpdateQuery,
+	Aggregate,
+	ClientSession,
+	Connection,
+	FilterQuery,
+	HydratedDocument,
+	Model,
+	ObjectId,
+	ProjectionType,
+	QueryOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { IAbstractRepository } from './interfaces';
 
@@ -61,7 +61,7 @@ export abstract class AbstractRepository<
 
 	async update(
 		fitlerQuery: FilterQuery<T>,
-		payload: UpdateQuery<T>,
+		payload: UpdateQuery<T> | UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<UpdateResponse> {
 		if (options.updateOnlyOne) {
@@ -79,7 +79,7 @@ export abstract class AbstractRepository<
 
 	async findOneAndUpdate(
 		filterQuery?: FilterQuery<T>,
-		updateData?: UpdateQuery<T>,
+		updateData?: UpdateQuery<T> | UpdateQuery<T>,
 		options?: QueryOptions<T>,
 	): Promise<T> {
 		return this.primaryModel.findOneAndUpdate(filterQuery, updateData, {
@@ -90,7 +90,7 @@ export abstract class AbstractRepository<
 
 	async findByIdAndUpdate(
 		id: string | ObjectId,
-		updateData?: Partial<T>,
+		updateData?: Partial<T> | UpdateQuery<T>,
 		options?: QueryOptions<T>,
 	): Promise<T> {
 		return this.primaryModel.findByIdAndUpdate(id, updateData, {

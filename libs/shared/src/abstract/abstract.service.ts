@@ -2,12 +2,13 @@ import { ExtraUpdateOptions, ModelInfo, UpdateResponse } from '@app/shared';
 import { AbstractSchema } from '@app/shared/schemas';
 import { Injectable, Logger } from '@nestjs/common';
 import {
-    FilterQuery,
-    HydratedDocument,
-    Model,
-    ObjectId,
-    ProjectionType,
-    QueryOptions,
+  FilterQuery,
+  HydratedDocument,
+  Model,
+  ObjectId,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
 
@@ -53,7 +54,7 @@ export abstract class AbstractService<
 
 	protected async _update(
 		fitlerQuery: FilterQuery<T>,
-		payload: Partial<T>,
+		payload: Partial<T> | UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<UpdateResponse> {
 		return this.writeModel.updateOne(fitlerQuery, payload, options);
@@ -61,7 +62,7 @@ export abstract class AbstractService<
 
 	protected async _findByIdAndUpdate(
 		id: string | ObjectId,
-		payload: Partial<T>,
+		payload: Partial<T> | UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<T> {
 		return this.repository.findByIdAndUpdate(id, payload, {

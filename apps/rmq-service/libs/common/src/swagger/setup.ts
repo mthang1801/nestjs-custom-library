@@ -2,9 +2,9 @@ import { extraModels, includes } from '@app/shared/swagger';
 import { NestApplication } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import {
-    DocumentBuilder,
-    SwaggerDocumentOptions,
-    SwaggerModule,
+	DocumentBuilder,
+	SwaggerDocumentOptions,
+	SwaggerModule,
 } from '@nestjs/swagger';
 import { join } from 'path';
 import { ENUM_FAV_ICON, ENUM_SWAGGER_THEME } from '../constants/enum';

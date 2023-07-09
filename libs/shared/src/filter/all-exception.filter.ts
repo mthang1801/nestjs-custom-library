@@ -52,7 +52,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	getMessage(exception: HttpException): string {
 		let messageResponse: any;
 		if ((exception as any) instanceof HttpException) {
-			messageResponse = exception.getResponse() || exception.message;
+			messageResponse =
+				exception.getResponse()?.['message'] ||
+				exception.getResponse().valueOf() ||
+				exception.message;
 		} else if (exception instanceof Error) {
 			messageResponse =
 				exception['errors'] && typeOf(exception['errors']) === 'array'
