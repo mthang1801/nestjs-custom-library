@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Header,
+  HttpException,
   Post,
   Req,
   Res,
@@ -58,6 +59,12 @@ export class AppController {
 		@Body() payload,
 		@UploadedFile() file: Express.Multer.File,
 	): Promise<any> {
-		await this.appService.importFile(file);
+		try {
+			await this.appService.importFile(file);
+		} catch (error) {
+			throw new HttpException(error.message, error.status);
+		} finally {
+			await this.exceljsService.removeFile(file.path);
+		}
 	}
 }

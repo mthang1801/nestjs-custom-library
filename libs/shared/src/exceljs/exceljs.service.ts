@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Row, Workbook, Worksheet } from 'exceljs';
+import * as fsExtra from 'fs-extra';
 import * as _ from 'lodash';
 import { join } from 'path';
 import { typeOf } from '../utils/function.utils';
@@ -72,5 +73,9 @@ export class ExceljsService {
 
 	private isKeysRow(row: Row, keys: string[]) {
 		return _.difference(row.values, keys).filter(Boolean).length === 0;
+	}
+
+	async removeFile(filePath) {
+		await fsExtra.unlink(filePath);
 	}
 }

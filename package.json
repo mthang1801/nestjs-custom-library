@@ -44,6 +44,7 @@
     "@nestjs/typeorm": "^10.0.0",
     "@nestjs/websockets": "^9.4.3",
     "@socket.io/redis-adapter": "^8.2.1",
+    "@types/fs-extra": "^11.0.1",
     "amqp-connection-manager": "^4.1.13",
     "amqplib": "^0.10.3",
     "axios": "^1.4.0",
