@@ -19,4 +19,4 @@ import { TelegramDynamicModule } from '../telegram/telegram.module';
 		TelegramDynamicModule,
 	],
 })
-export class CoreModule {}
+export class LibCoreModule {}

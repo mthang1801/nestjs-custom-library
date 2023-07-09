@@ -1,0 +1,289 @@
+{
+	"change_password": "Thay đổi mật khẩu không thành công.",
+	"login": "Login Success at {timestamp}",
+	"ACTION": {
+		"GET": "Truy vấn {name} thành công.",
+		"CREATE": "Tạo {name} thành công.",
+		"UPDATE": "Cập nhật {name} thành công.",
+		"DELETE": "Xóa {name} thành công.",
+		"ACTIVE": "Kích hoạt {name} thành công.",
+		"INACTIVE": "Hủy kích hoạt {name} thành công.",
+		"CHANGE_STATUS": "Thay đổi trạng thái {name} thành công.",
+		"IMPORT": "Import {name} thành công",
+		"SYNC": "Thực hiện {name} thành công.",
+		"HISTORY": "Truy vấn lịch sử {name} thành công.",
+		"VALIDATE": "Kiểm tra {name} thành công."
+	},
+	"ORDER": {
+		"STATUS": {
+			"INIT": "đã được tạo mới",
+			"APPROVED": "đã xác nhận",
+			"PROCESSING": "đang được xử lý",
+			"SUCCESS": "đã nhận hàng thành công.",
+			"CANCEL": "đã hủy"
+		},
+		"DELIVERY_DELAY": "xử lý chậm trể quá "
+	},
+	"STORE": {
+		"STATUS": {
+			"INIT": "khởi tạo",
+			"ACTIVE": "duyệt hoạt động",
+			"INACTIVE": "tắt hoạt động"
+		},
+		"IS_CHECK_LOCATION": {
+			"TRUE": "Kích hoạt",
+			"FALSE": "Không kích hoạt"
+		},
+		"IS_CHECK_DISTRIBUTOR": {
+			"TRUE": "Kích hoạt",
+			"FALSE": "Không kích hoạt"
+		},
+		"IS_LOCATION_VERIFY": {
+			"TRUE": "Kích hoạt",
+			"FALSE": "Không kích hoạt"
+		},
+		"LOCATION_VERIFY_NUMBER": {
+			"0": "Chưa có",
+			"1": "Yếu",
+			"2": "Trung bình",
+			"3": "Tốt"
+		},
+		"ASSET_STATUS": {
+			"OWNER_ASSET": "Tủ trắng",
+			"KIDO_ASSET": "Tủ Kido",
+			"OTHER_ASSET": "Tủ đối thủ"
+		}
+	},
+	"TICKET": {
+		"STATUS": {
+			"INIT": "được tạo mới",
+			"PROCESSING": "đang xử lý",
+			"RESOLVED": "đã giải quyết",
+			"REJECT": "từ chối giải quyết"
+		}
+	},
+	"MESSAGE": {
+		"TITLE": {
+			"INFORMATION": "Thông báo",
+			"TICKET": "Yêu cầu hỗ trợ",
+			"CHAT": "Tin nhắn",
+			"ORDER": "Thông báo",
+			"STORE": "Thông báo"
+		},
+		"CONTENT": {}
+	},
+	"NOTIFY": {
+		"V0001": "Yêu cầu mở điểm mới #{parameter1} {parameter2} bởi {parameter3} đã được {parameter4}",
+		"V0002": "Trạng thái cửa hàng #{parameter1} {parameter2} đã được {parameter3}",
+		"V0003": "Vị trí cửa hàng #{parameter1} {parameter2} đã được chỉnh sửa bởi {parameter3}",
+		"V0004": "Đơn hàng #{parameter1} từ cửa hàng {parameter2} {parameter3}",
+		"V0005": "Yêu cầu #{parameter1} hỗ trợ mới của cửa hàng {parameter2} {parameter3}",
+		"V0006": "Yêu cầu #{parameter1} hỗ trợ của cửa hàng {parameter2} {parameter3}",
+		"V0007": "Cửa hàng #{parameter1}({parameter2}) cần cập nhật thông tin ",
+		"E0001": "Đăng ký CTTB thành công",
+		"E0002": "Bạn vừa đăng ký thành công CTTB {parameter1} từ app Salesman",
+		"E0003": "CTTB đã bị từ chối",
+		"E0004": "CTTB {parameter1} đã bị từ chối bởi lý do: {parameter2}",
+		"E0005": "CTTB đã được đăng ký lại",
+		"E0006": "CTTB {parameter1} vừa đăng ký lại với thông tin thay đổi: {parameter2}",
+		"E0007": "CTTB đã được duyệt đăng ký",
+		"E0008": "CTTB {parameter1} đã được duyệt đăng ký. Hãy thực hiện đúng nội dung đã đăng ký trong khoảng thời gian {parameter2} - {parameter3} để nhận quà từ chương trình",
+		"E0009": "Chờ duyệt trưng bày",
+		"E0010": "CTTB {parameter1} đã được chụp hình trưng bày và đang chờ duyệt",
+		"E0011": "Hình ảnh trưng bày chưa hợp lệ",
+		"E0012": "CTTB {parameter1} cần được chụp hình lại vì lý do: {parameter2}",
+		"E0013": "Hình ảnh trưng bày đã được duyệt",
+		"E0014": "CTTB {parameter1} đã được duyệt hình ảnh trưng bày",
+		"E0015": "CTTB sắp kết thúc",
+		"E0016": "CTTB {parameter1} sẽ kết thúc vào {parameter2}. Hãy hoàn thành các nhiệm vụ trước thời hạn để nhận được quà tặng từ chương trình",
+		"E0017": "Thông báo CTTB kết thúc",
+		"E0018": "CTTB {parameter1} đã kết thúc vào {parameter2}. Bạn chưa đủ điều kiện nhận thưởng. Nhớ hoàn thành nhiệm vụ đúng thời hạn sau khi đăng ký CTTB để được nhận quà",
+		"E0019": "Thông báo nhận thưởng",
+		"E0020": "CTTB {parameter1} đã kết thúc vào {parameter2}. Bạn sẽ nhận được quà tặng từ {parameter3}",
+		"E0021": "Xác nhận nhận thưởng thành công",
+		"E0022": "Bạn đã xác nhận nhận quà tặng từ CTTB {parameter1}. Đơn hàng trả thưởng {parameter2} sẽ sớm được giao đến bạn",
+		"E0023": "CTTB đã hết thời hạn duyệt đăng ký",
+		"E0024": "Yêu cầu đăng ký tham gia CTTB {parameter1} của bạn đã hết thời hạn xét duyệt",
+		"E0025": "CTTB đã hết thời hạn duyệt hình ảnh",
+		"E0026": "Hình ảnh tham gia CTTB {parameter1} của bạn đã hết thời hạn xét duyệt",
+		"E0027": "Cửa hàng {parameter1} đã được cập nhật trạng thái gán mã QR từ {parameter2} thành {parameter3}."
+	},
+	"UPDATE_PROCESS_SOCKET": {
+		"INIT": "Khởi tạo xử lý",
+		"KPI_TARGET": "Hoàn thành giao KPI",
+		"REAL_ROUTE": "Hoàn thành tuyến thực tế",
+		"GROUP": "Hoàn thành gán nhóm",
+		"ROUTE": "Hoàn thành gán tuyến",
+		"BUSINESS": "Hoàn thành gán nhiệm vụ",
+		"INACTIVE": "Chuyển trạng thái không hoạt động",
+		"FINISH": "Xử lý thành công",
+		"FAILS": "Xử lý lỗi"
+	},
+	"QR_CODE": {
+		"STATUS": {
+			"ACTIVE": "Đã duyệt",
+			"INACTIVE": "Không hoạt động",
+			"PENDING": "Đang chờ duyệt",
+			"REJECTED": "Từ chối duyệt"
+		}
+	},
+	"USER": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		},
+		"SEX": {
+			"MALE": "Nam",
+			"FEMALE": "Nữ",
+			"OTHER": "Khác"
+		},
+		"TITLE": {
+			"CTV": "Cộng tác viên",
+			"SALE": "Nhân viên bán hàng",
+			"SUPERVISOR": "Giám sát viên"
+		}
+	},
+	"GROUP": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		}
+	},
+	"KPI_INDICATOR": {
+		"TARGET_TYPES": {
+			"REAL": "Thực tế",
+			"SETUP": "Cài đặt"
+		},
+		"MEASURE": {
+			"COUNT": "Đếm",
+			"VALUE": "Giá trị",
+			"PERCENT": "Phần trăm"
+		},
+		"IS_PLUS": {
+			"TRUE": "Tăng"
+		},
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		},
+		"APPLY_TIMES": {
+			"DAY": "Ngày",
+			"MONTH": "Tháng"
+		},
+		"APPLY_OBJECTS": {
+			"SALE": "Nhân viên bán hàng",
+			"GROUP": "Nhóm bán hàng",
+			"AREA_GROUP": "Vùng",
+			"STORE": "Cửa hàng",
+			"ROUTE": "Tuyến",
+			"DISTRIBUTOR": "Nhà phân phối"
+		}
+	},
+	"ROUTE": {
+		"RESET_ROUTE_DAY": {
+			"MONDAY": "Thứ 2",
+			"TUESDAY": "Thứ 3",
+			"WEDNESDAY": "Thứ 4",
+			"THURSDAY": "Thứ 5",
+			"FRIDAY": "Thứ 6",
+			"SATURDAY": "Thứ 7",
+			"SUNDAY": "Chủ Nhật"
+		},
+		"ROUTE_DAY": {
+			"MONDAY": "Thứ 2",
+			"TUESDAY": "Thứ 3",
+			"WEDNESDAY": "Thứ 4",
+			"THURSDAY": "Thứ 5",
+			"FRIDAY": "Thứ 6",
+			"SATURDAY": "Thứ 7",
+			"SUNDAY": "Chủ Nhật"
+		},
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động",
+			"EXPIRED": "Hết hạn"
+		}
+	},
+	"KPI_TARGET": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		}
+	},
+	"BUSINESS": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		},
+		"TYPE": {
+			"ROUTE": "Theo tuyến",
+			"NEW_STORE": "Cửa hàng mới",
+			"OWNER_STORE": "Cửa hàng chăm sóc"
+		},
+		"ASSIGN_TASKS": {
+			"IS_REQUIRED": {
+				"TRUE": "bắt buộc",
+				"FALSE": "không bắt buộc"
+			}
+		}
+	},
+	"KPI_INDICATOR_GROUP": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		},
+		"APPLY_TIMES": {
+			"DAY": "Ngày",
+			"MONTH": "Tháng"
+		}
+	},
+	"SURVEY": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		}
+	},
+	"EVENT": {
+		"STATUS": {
+			"INIT": "Khởi tạo",
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động",
+			"EXPIRED": "Hết hạn"
+		}
+	},
+	"EVENT_PARTICIPANT": {
+		"STATUS": {
+			"ACTIVE": "Tham gia",
+			"PENDING": "Đang chờ duyệt"
+		}
+	},
+	"COMPANY": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		}
+	},
+	"SETTING": {
+		"OPTION": "Bật",
+		"GROUP_NAME": {
+			"SYNC_ECOMV2": "Đồng bộ từ ECOMV2",
+			"SYNC": "Đồng bộ từ Tân Long",
+			"PROMOTION": "Khuyến mãi",
+			"ORDER": "Đơn hàng",
+			"STORE": "Cửa hàng",
+			"ROUTE": "Tuyến",
+			"LOYALTY": "Tích lũy điểm",
+			"KPI": "KPI",
+			"INVENTORY": "Kho hàng",
+			"USER": "Người dùng",
+			"REPORT": "Báo cáo",
+			"OTHER": "Khác"
+		}
+	},
+	"PRODUCT": {
+		"STATUS": {
+			"ACTIVE": "Hoạt động",
+			"INACTIVE": "Không hoạt động"
+		}
+	}
+}

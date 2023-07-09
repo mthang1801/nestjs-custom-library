@@ -57,6 +57,7 @@
     "moment": "^2.29.4",
     "mongoose": "^6.4.1",
     "mysql2": "^3.4.0",
+    "nestjs-i18n": "^10.2.6",
     "nestjs-telegram": "^1.2.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
