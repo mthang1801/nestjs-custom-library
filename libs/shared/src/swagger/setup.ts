@@ -2,9 +2,9 @@ import { extraModels, includes } from '@app/shared/swagger';
 import { NestApplication } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import {
-    DocumentBuilder,
-    SwaggerDocumentOptions,
-    SwaggerModule,
+	DocumentBuilder,
+	SwaggerDocumentOptions,
+	SwaggerModule,
 } from '@nestjs/swagger';
 import { join } from 'path';
 import { ENUM_FAV_ICON, ENUM_SWAGGER_THEME } from '../constants/enum';
@@ -16,15 +16,12 @@ export const SetupSwagger = (
 ) => {
 	app.useStaticAssets(join(process.cwd(), 'public'));
 	const swaggerConfig = new DocumentBuilder()
-		.setTitle('API NestJS')
-		.setDescription('API developed throughout the API with NestJS course')
-		.setVersion('1.0.0')
-		.setContact(
-			'mthang',
-			'https://mvt-blog-official.netlify.app/',
-			'mthang1801@gmail.com',
+		.setTitle(options?.title || 'API NestJS')
+		.setDescription(
+			options?.description ||
+				'API developed throughout the API with NestJS course',
 		)
-		.setLicense('API NestJS', 'localhost')
+		.setVersion(options?.version || '1.0.0')
 		.addTag('Nội dung')
 		.addBearerAuth({
 			type: 'apiKey',
@@ -47,7 +44,7 @@ export const SetupSwagger = (
 		swaggerOptions,
 	);
 
-	SwaggerModule.setup('docs', app, document, {
+	SwaggerModule.setup(options?.apiEndpoint || 'docs', app, document, {
 		explorer: true,
 		customCssUrl: options?.theme
 			? `../../swagger-ui/${ENUM_SWAGGER_THEME[options.theme]}`

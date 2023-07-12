@@ -70,4 +70,15 @@ export abstract class AbstractService<
 			...options,
 		});
 	}
+
+	protected async _findOneAndUpdate(
+		filterQuery: FilterQuery<T>,
+		payload: Partial<T> | UpdateQuery<T>,
+		options?: QueryOptions<T> & ExtraUpdateOptions,
+	): Promise<T> {
+		return this.repository.findOneAndUpdate(filterQuery, payload, {
+			new: true,
+			...options,
+		});
+	}
 }

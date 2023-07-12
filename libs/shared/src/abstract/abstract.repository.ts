@@ -80,7 +80,7 @@ export abstract class AbstractRepository<
 	async findOneAndUpdate(
 		filterQuery?: FilterQuery<T>,
 		updateData?: UpdateQuery<T> | UpdateQuery<T>,
-		options?: QueryOptions<T>,
+		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<T> {
 		return this.primaryModel.findOneAndUpdate(filterQuery, updateData, {
 			new: true,
