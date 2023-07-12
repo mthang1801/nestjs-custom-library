@@ -75,3 +75,14 @@ export enum ENUM_EVENT_MODULE {
 	PRODUCT = 'PRODUCT',
 	INVENTORY = 'INVENTORY',
 }
+
+export enum ENUM_FORMAT_TYPE {
+	JSON = 'json',
+	XLSX = 'xlsx',
+	PDF = 'pdf',
+}
+
+export enum ENUM_DATA_TYPE {
+	BUFFER = 'buffer',
+	JSON = 'json',
+}

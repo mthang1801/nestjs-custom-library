@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { TelegramDynamicModule } from '../telegram/telegram.module';
+import { LibHttpModule } from '../http/http.module';
+import { LibTelegramModule } from '../telegram/telegram.module';
 @Module({
 	imports: [
 		ConfigModule.forRoot({
@@ -18,7 +19,8 @@ import { TelegramDynamicModule } from '../telegram/telegram.module';
 			}),
 			expandVariables: true,
 		}),
-		TelegramDynamicModule,
+		LibTelegramModule,
+		LibHttpModule,
 	],
 })
 export class LibCoreModule {}

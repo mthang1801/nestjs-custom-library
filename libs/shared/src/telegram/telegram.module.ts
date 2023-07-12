@@ -20,4 +20,4 @@ import { TelegramModule } from 'nestjs-telegram';
 	],
 	exports: [TelegramModule],
 })
-export class TelegramDynamicModule {}
+export class LibTelegramModule {}

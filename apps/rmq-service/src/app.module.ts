@@ -4,9 +4,10 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RmqServiceController } from './app.controller';
 import { RmqServiceService } from './app.service';
+import { ReportModule } from './report/report.module';
 
 @Module({
-	imports: [RabbitMQModule.registerAsync({ name: QUEUES.TEST })],
+	imports: [RabbitMQModule.registerAsync({ name: QUEUES.TEST }), ReportModule],
 	controllers: [RmqServiceController],
 	providers: [
 		RmqServiceService,

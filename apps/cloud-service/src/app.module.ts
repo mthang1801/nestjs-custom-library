@@ -1,4 +1,4 @@
-import { TelegramDynamicModule } from '@app/shared/telegram/telegram.module';
+import { LibTelegramModule } from '@app/shared/telegram/telegram.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 			envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
 		}),
 		ScheduleModule.forRoot(),
-		TelegramDynamicModule,
+		LibTelegramModule,
 	],
 	controllers: [],
 	providers: [AppService],

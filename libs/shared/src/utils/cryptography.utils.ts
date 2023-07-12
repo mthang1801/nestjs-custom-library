@@ -1,14 +1,15 @@
 import * as crypto from 'crypto';
+import { promisify } from 'util';
 
 export class Cryptography {
 	private _encoding = 'base64';
 	private _algorithm = 'aes-256-cbc';
-	private _secretKey = Buffer.from(process.env.CLIENT_PRIVATE_KEY, 'base64');
+	private _secretKey = Buffer.from(process.env.SECRET_KEY, 'base64');
 	private _ivKey = crypto.randomBytes(16).fill(0);
-	constructor() {}
 
 	//Encrypting text
 	public encrypt(text) {
+		console.log(this._algorithm, this._secretKey, this._ivKey);
 		const cipher = crypto.createCipheriv(
 			this._algorithm,
 			this._secretKey,
@@ -136,7 +137,13 @@ export class Cryptography {
 	}
 
 	static genPrivateKey() {
-		return crypto.randomBytes(32).toString('base64');
+		return crypto.randomBytes(16).toString('base64');
+	}
+
+	static async genSecretKey(str) {
+		return (
+			(await promisify(crypto.scrypt)(str, 'salt', 32)) as Buffer
+		).toString('base64');
 	}
 
 	/**
