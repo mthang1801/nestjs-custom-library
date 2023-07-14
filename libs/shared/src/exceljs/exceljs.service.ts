@@ -1,19 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { Row, Workbook, Worksheet } from 'exceljs';
 import * as fsExtra from 'fs-extra';
 import * as _ from 'lodash';
 import { join } from 'path';
 import { typeOf } from '../utils/function.utils';
-import { ExcelExtension } from './types/exceljs.type';
+import { TEMPLATE_COLUMN_DEFINITION } from './constants/template-definition';
+import {
+	ExcelColumnDefinitionValue,
+	ExcelExtension,
+	ExcelHeaderColumn,
+	ExcelTemplate,
+} from './types/exceljs.type';
 @Injectable()
 export class ExceljsService {
-	public columnsTemplates = {
-		sampleCode: [
-			{ header: 'id', key: 'id', width: 20 },
-			{ header: 'name', key: 'name', width: 30 },
-			{ header: 'email', key: 'email', width: 30 },
-		],
-	};
+	public columnsTemplates: typeof TEMPLATE_COLUMN_DEFINITION =
+		TEMPLATE_COLUMN_DEFINITION;
 
 	private readonly templateDir = join(
 		process.cwd(),
@@ -22,16 +27,16 @@ export class ExceljsService {
 
 	protected workbook: Workbook | Worksheet;
 
-	async initWorkBook() {
-		this.workbook = await new Workbook();
+	public initWorkBook() {
+		this.workbook = new Workbook();
 		return this.workbook;
 	}
 
-	async readFile(
+	public async readFile(
 		filePath: string | Express.Multer.File,
 		extension: ExcelExtension = 'xlsx',
 	) {
-		const workbook = new Workbook();
+		const workbook = this.initWorkBook();
 		this.workbook = await workbook[extension].readFile(
 			typeOf(filePath) === 'string' ? filePath : filePath['path'],
 		);
@@ -48,31 +53,93 @@ export class ExceljsService {
 		return join(this.templateDir, filename);
 	}
 
-	public getColumsKeys(template) {
-		if (!this.columnsTemplates[template]) {
+	public getColumsKeys(
+		ws: Worksheet,
+		templateDescription: ExcelColumnDefinitionValue,
+	): ExcelHeaderColumn[] {
+		if (!templateDescription) {
 			throw new NotFoundException();
 		}
 
-		return this.columnsTemplates[template].map(({ key }) => key);
+		let columnKeys: ExcelHeaderColumn[] = [];
+		ws.getRow(templateDescription.headerRowIndex).eachCell((cell, colNum) => {
+			const { value } = cell.model;
+			const [col] = cell.$col$row.split('$').filter(Boolean);
+			if (templateDescription.metadata.some(({ header }) => header === value)) {
+				columnKeys.push({ header: value, column: col });
+			}
+		});
+
+		return columnKeys;
 	}
 
-	public getDataFromWorksheet(ws: Worksheet, template) {
-		const keys = this.getColumsKeys(template);
+	public getDataFromWorksheet(ws: Worksheet, template: ExcelTemplate) {    
+		const templateDescription = this.columnsTemplates[template];
+		const columnKeys = this.getColumsKeys(ws, templateDescription);
+    
+		this.validateTemplateIsMatching(columnKeys, templateDescription);
+
 		const data = [];
 		ws.eachRow((row, rowIdx) => {
-			if (!this.isKeysRow(row, keys)) {
+			if (rowIdx > templateDescription.headerRowIndex) {
 				const rowData = {};
-				row.eachCell((cell, colIdx) => {
-					rowData[keys[colIdx - 1]] = cell.value?.['text'] || cell.value;
+				row.eachCell((cell) => {
+					const [col] = cell.$col$row.split('$').filter(Boolean);
+					const { header } = _.find(
+						columnKeys,
+						(item: ExcelHeaderColumn) => item.column === col,
+					);
+
+					const { key } = _.find(
+						templateDescription.metadata,
+						(metadata) => metadata.header === header,
+					);
+					if (key) {
+						rowData[key] = cell.value;
+					}
 				});
 				data.push(rowData);
 			}
-		});
+		});    
 		return data;
 	}
 
-	private isKeysRow(row: Row, keys: string[]) {
-		return _.difference(row.values, keys).filter(Boolean).length === 0;
+	validateTemplateIsMatching(
+		columnKeys: ExcelHeaderColumn[],
+		templateDescription,
+	) {
+		const requiredFields = [];
+
+		templateDescription.metadata.forEach(({ header }) => {
+			if (
+				!columnKeys.some(({ header: columnHeader }) => columnHeader === header)
+			) {
+				requiredFields.push(header);
+			}
+		});
+
+		const redundantFields = [];
+		columnKeys.forEach(({ header: columnHeader }) => {
+			if (
+				!templateDescription.metadata.some(
+					({ header }) => header === columnHeader,
+				)
+			) {
+				redundantFields.push(columnHeader);
+			}
+		});
+
+		if (requiredFields.length || redundantFields.length) {
+			const requiredTextField = requiredFields.length
+				? requiredFields.join(', ') + ' là bắt buộc.'
+				: undefined;
+			const redundantTextField = redundantFields.length
+				? redundantFields.join(', ') + ' không nên tồn tại'
+				: undefined;
+			throw new BadRequestException(
+				[requiredTextField, redundantTextField].filter(Boolean).join('\n'),
+			);
+		}
 	}
 
 	async removeFile(filePath) {

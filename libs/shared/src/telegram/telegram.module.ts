@@ -11,7 +11,6 @@ import { TelegramModule } from 'nestjs-telegram';
 		TelegramModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => {
-				Logger.log(`TELEGRAM BOT`);
 				return {
 					botKey: configService.get<string>('TELEGRAM_BOT_ID'),
 				};
