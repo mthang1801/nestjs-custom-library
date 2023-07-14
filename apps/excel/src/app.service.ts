@@ -15,7 +15,7 @@ export class AppService {
 
 		ws1.columns = this.exceljsService.columnsTemplates.sampleCode.metadata;
 
-		mockData.forEach((data) => {
+		(mockData as any[]).forEach((data) => {
 			ws1.addRow(data);
 		});
 
