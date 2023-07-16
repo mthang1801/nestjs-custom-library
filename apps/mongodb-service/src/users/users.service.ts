@@ -1,27 +1,39 @@
-import { User } from '@app/shared/schemas';
+import { AbstractService } from '@app/shared';
+import { ENUM_ROLES } from '@app/shared/constants/enum';
+import { User, UserDocument } from '@app/shared/schemas';
 import {
-    BadRequestException,
-    Inject,
-    Injectable,
-    forwardRef,
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  forwardRef,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { PostsService } from '../posts/posts.service';
+import { UserRolesService } from '../user-roles/user-roles.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.respository';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends AbstractService<UserDocument> {
+	logger = new Logger(UsersService.name);
 	constructor(
 		private readonly userRepository: UserRepository,
 		@Inject(forwardRef(() => PostsService))
 		private readonly postsService: PostsService,
-	) {}
+		@Inject(forwardRef(() => UserRolesService))
+		private readonly userRoleService: UserRolesService,
+	) {
+		super(userRepository);
+	}
 
 	async create(createUserDto: CreateUserDto): Promise<User> {
-		const createUser = await this.userRepository.create(createUserDto);
-		return createUser;
+		const userRole = await this.userRoleService.findOne({
+			name: ENUM_ROLES.USER,
+		});
+		const newUser = new User({ ...createUserDto, role: userRole });
+		return await this._create(newUser);
 	}
 
 	async findAll(filter?: object) {

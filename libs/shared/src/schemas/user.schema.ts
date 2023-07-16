@@ -1,11 +1,11 @@
 import { ENUM_GENDER, ENUM_LANGUAGES } from '@app/shared/constants/enum';
 import {
-    AbstractSchema,
-    Contact,
-    ContactSchema,
-    Posts,
-    PostsDocument,
-    UserRole,
+	AbstractSchema,
+	Contact,
+	ContactSchema,
+	Posts,
+	PostsDocument,
+	UserRole,
 } from '@app/shared/schemas';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
@@ -147,6 +147,11 @@ export class User extends AbstractSchema {
 	// Apply for advanced-auth
 	@Prop({ index: 1 })
 	refresh_token_list: string;
+
+	constructor(partial: Partial<UserDocument>) {
+		super();
+		Object.assign(this, partial);
+	}
 }
 
 export type UserDocument = HydratedDocument<Document, User>;

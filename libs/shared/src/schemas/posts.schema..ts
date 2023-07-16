@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 
 import { AbstractSchema } from '.';
@@ -23,10 +23,14 @@ export class Posts extends AbstractSchema {
 	@Prop({ type: String, enum: ENUM_STATUS, default: ENUM_STATUS.ACTIVE })
 	status: ENUM_STATUS;
 
-	@Prop()
+	@Prop({
+		get: (short_content: string) => `<strong>${short_content}</strong>`,
+	})
 	short_content: string;
 
-	@Prop()
+	@Prop({
+		get: (content: string) => content?.repeat(10),
+	})
 	content: string;
 
 	@Prop()
@@ -35,6 +39,10 @@ export class Posts extends AbstractSchema {
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
 	@Type(() => User)
 	author: User;
+
+	@Prop({ type: Number, default: 0 })
+	@Exclude()
+	view_count: number;
 }
 
 export type PostsDocument = HydratedDocument<Document, Posts>;

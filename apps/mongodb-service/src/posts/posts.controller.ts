@@ -1,13 +1,16 @@
+import { MongooseClassSerialzierInterceptor } from '@app/shared';
 import { MongoIdValidationPipe } from '@app/shared/pipes';
+import { Posts } from '@app/shared/schemas';
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Patch,
-    Post,
-    Put,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
+	Put,
+	UseInterceptors,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -20,11 +23,13 @@ export class PostsController {
 	constructor(private readonly postsService: PostsService) {}
 
 	@Post()
+	@UseInterceptors(MongooseClassSerialzierInterceptor(Posts))
 	create(@Body() createPostDto: CreatePostDto) {
 		return this.postsService.create(createPostDto);
 	}
 
 	@Get()
+	@UseInterceptors(MongooseClassSerialzierInterceptor(Posts))
 	findAll() {
 		return this.postsService.findAll();
 	}

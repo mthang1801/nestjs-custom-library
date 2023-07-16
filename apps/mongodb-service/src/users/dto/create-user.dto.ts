@@ -3,16 +3,16 @@ import { ContactDTO } from '@app/shared/dto/contact.dto';
 import { UserRole } from '@app/shared/schemas';
 import { Type } from 'class-transformer';
 import {
-    ArrayMinSize,
-    IsArray,
-    IsEmail,
-    IsEnum,
-    IsNotEmpty,
-    IsOptional,
-    IsPhoneNumber,
-    IsStrongPassword,
-    MaxLength,
-    ValidateNested,
+	ArrayMinSize,
+	IsArray,
+	IsEmail,
+	IsEnum,
+	IsNotEmpty,
+	IsOptional,
+	IsPhoneNumber,
+	IsStrongPassword,
+	MaxLength,
+	ValidateNested,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -49,7 +49,4 @@ export class CreateUserDto {
 	@ArrayMinSize(1)
 	@IsEnum(ENUM_LANGUAGES, { each: true })
 	languges: ENUM_LANGUAGES[];
-
-	@IsNotEmpty()
-	role: UserRole;
 }

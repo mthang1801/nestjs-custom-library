@@ -1,44 +1,38 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-} from 'class-validator';
+import { IsEmail, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 
 export class ContactDTO {
 	@IsOptional()
 	province_id: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsOptional()
 	province_name: string;
 
 	@IsOptional()
 	district_id: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsOptional()
 	district_name: string;
 
 	@IsOptional()
 	ward_id: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsOptional()
 	ward_name: string;
 
 	@IsString()
-	@IsNotEmpty()
+	@IsOptional()
 	address: string;
 
 	@IsString()
 	@IsPhoneNumber('VN')
-	@IsNotEmpty()
+	@IsOptional()
 	phone: string;
 
 	@IsEmail()
-	@IsNotEmpty()
+	@IsOptional()
 	email: string;
 
 	@IsString()

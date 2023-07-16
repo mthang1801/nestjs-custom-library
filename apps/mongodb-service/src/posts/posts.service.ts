@@ -1,11 +1,11 @@
 import { AbstractService } from '@app/shared';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
-    BadRequestException,
-    Inject,
-    Injectable,
-    Logger,
-    forwardRef,
+	BadRequestException,
+	Inject,
+	Injectable,
+	Logger,
+	forwardRef,
 } from '@nestjs/common';
 import { ClientSession, ObjectId } from 'mongoose';
 import { UsersService } from '../users/users.service';
@@ -35,7 +35,6 @@ export class PostsService extends AbstractService<PostsDocument> {
 	}
 
 	findAll() {
-		this.logger.log('11111111111111::', this.modelInfo);
 		return this.postRepository.find({}, {}, { populate: 'author' });
 	}
 

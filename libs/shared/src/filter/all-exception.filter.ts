@@ -95,12 +95,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	}
 
 	async sendToTelegram(exception: HttpException) {
-		this.logger.error(`🤬😡😤🤯 [${this.serviceName}] ${exception}`);
+		this.logger.error(`🤬 [${this.serviceName}] ${exception}`);
 
 		await this.telegramService
 			.sendMessage({
 				chat_id: this.configService.get<string>('TELEGRAM_GROUP_ID'),
-				text: `🤬😡😤🤯 [${exception.name}]-->${exception.message}-->${exception.stack}`,
+				text: `🤬[${exception.name}]-->${exception.message}-->${exception.stack}`,
 			})
 			.toPromise();
 	}

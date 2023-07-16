@@ -1,7 +1,8 @@
-import { Logger, Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramModule } from 'nestjs-telegram';
 
+@Global()
 @Module({
 	imports: [
 		ConfigModule.forRoot({

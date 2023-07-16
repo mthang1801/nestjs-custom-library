@@ -2,15 +2,15 @@ import { MongooseClassSerialzierInterceptor } from '@app/shared';
 import { MongoIdValidationPipe } from '@app/shared/pipes';
 import { User } from '@app/shared/schemas';
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  SerializeOptions,
-  UseInterceptors,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
+	SerializeOptions,
+	UseInterceptors,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';

@@ -16,7 +16,7 @@ export class UserRole extends AbstractSchema {
 		enum: ENUM_ROLES,
 		default: ENUM_ROLES.USER,
 	})
-	name: string;
+	name: ENUM_ROLES;
 
 	@Prop()
 	description: string;

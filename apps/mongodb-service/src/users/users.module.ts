@@ -1,19 +1,21 @@
 import { CONNECTION_NAME, MongooseDynamicModule } from '@app/shared';
 import {
-    Posts,
-    PostsSchema,
-    User,
-    UserSchemaFactory,
+	Posts,
+	PostsSchema,
+	User,
+	UserSchemaFactory,
 } from '@app/shared/schemas';
 import { Module, forwardRef } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { PostsModule } from '../posts/posts.module';
+import { UserRolesModule } from '../user-roles/user-roles.module';
 import { UserRepository } from './user.respository';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
 	imports: [
+		forwardRef(() => UserRolesModule),
 		MongooseDynamicModule.forFeatureAsync({
 			name: User.name,
 			useFactory: UserSchemaFactory,
