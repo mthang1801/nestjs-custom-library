@@ -1,27 +1,27 @@
 import { AbstractSchema } from '@app/shared/schemas';
 import {
-  ExtraUpdateOptions,
-  FindAllResponse,
-  ModelInfo,
-  RemoveOptions,
-  UpdateResponse,
+	ExtraUpdateOptions,
+	FindAllResponse,
+	ModelInfo,
+	RemoveOptions,
+	UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import moment from 'moment';
 import mongoose, {
-  Aggregate,
-  ClientSession,
-  Connection,
-  FilterQuery,
-  HydratedDocument,
-  Model,
-  ObjectId,
-  PipelineStage,
-  ProjectionType,
-  QueryOptions,
-  UpdateQuery,
+	Aggregate,
+	ClientSession,
+	Connection,
+	FilterQuery,
+	HydratedDocument,
+	Model,
+	ObjectId,
+	PipelineStage,
+	ProjectionType,
+	QueryOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { ENUM_DATE_TIME } from '../constants/enum';
 import { UtilService } from '../utils/util.service';
@@ -79,7 +79,12 @@ export abstract class AbstractRepository<
 	}
 
 	checkExistsOrCreateModelLog() {
-		const modelLogName = this.modelInfo.modelName.toLowerCase() + '_logs';
+		const modelName = this.modelInfo.modelName.toLowerCase();
+		const singularModelName = modelName.endsWith('s')
+			? modelName.slice(0, -1)
+			: modelName;
+
+		const modelLogName = [singularModelName + 'logs'].join('_');
 		console.log(modelLogName);
 		console.log(mongoose.connection.collection(this.modelInfo.modelName));
 		console.log(mongoose.connection.collection(modelLogName));
