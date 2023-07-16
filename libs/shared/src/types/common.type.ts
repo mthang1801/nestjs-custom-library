@@ -38,3 +38,15 @@ export type CookieToken = {
 	token: string;
 	cookie: string;
 };
+
+export type ReadOnly<T> = {
+	readonly [K in keyof T]: T[K];
+};
+
+export type Setters<T> = {
+	[K in keyof T & string as `set${Capitalize<K>}`]: (value: T[K]) => void;
+};
+
+export type Getters<T> = {
+	[K in keyof T & string as `get${Capitalize<K>}`]: () => T[K];
+};

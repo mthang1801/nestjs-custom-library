@@ -1,10 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as moment from 'moment';
-import {
-  ENUM_ACTION_TYPE,
-  ENUM_UNIT_TIMESTAMP,
-  ENUM_WEEK_DAY,
-} from '../constants/enum';
+import { ENUM_UNIT_TIMESTAMP, ENUM_WEEK_DAY } from '../constants/enum';
 import { DataType, GenerateRandomCode, UnitTimestamp, Weekday } from '../types';
 @Injectable()
 export class UtilService {
@@ -302,7 +298,13 @@ export class UtilService {
 		];
 	}
 
-	eventEmitterAction(modelName: string, action: ENUM_ACTION_TYPE) {
-		return [modelName, action].join('.');
+	// const arrLike = { 0: 'foo', 1: 'bar', 2: 'baz', length: 3 };
+	/**
+	 * return : [ 'foo', 'bar', 'baz' ]
+	 * @param {object} obj
+	 * @returns {string[]}
+	 */
+	convertObjectLikeArray(obj) {
+		return Array.from(obj);
 	}
 }
