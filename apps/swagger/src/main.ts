@@ -1,4 +1,5 @@
 import { SetupSwagger } from '@app/shared/swagger/setup';
+import { UtilService } from '@app/shared/utils/util.service';
 import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -30,4 +31,7 @@ import { AppModule } from './app.module';
 			'APPLICATION READY',
 		),
 	);
+
+	const utilService = app.get<UtilService>(UtilService);
+	console.log(utilService.getWeekInYear(new Date()));
 })();

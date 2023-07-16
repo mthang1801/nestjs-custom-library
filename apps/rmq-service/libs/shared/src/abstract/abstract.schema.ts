@@ -1,3 +1,4 @@
+import { ENUM_MODEL } from '@app/shared/constants/enum';
 import { User } from '@app/shared/schemas';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Expose, Transform } from 'class-transformer';
@@ -17,9 +18,12 @@ export class AbstractSchema {
 	@Prop({ default: null })
 	deleted_at: Date;
 
-	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: ENUM_MODEL.USER })
+	deleted_by: Date;
+
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: ENUM_MODEL.USER })
 	created_by?: User;
 
-	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: ENUM_MODEL.USER })
 	updated_by?: User;
 }

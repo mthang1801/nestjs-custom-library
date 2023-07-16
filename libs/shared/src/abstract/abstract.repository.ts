@@ -1,26 +1,32 @@
 import { AbstractSchema } from '@app/shared/schemas';
 import {
-	ExtraUpdateOptions,
-	FindAllResponse,
-	ModelInfo,
-	RemoveOptions,
-	UpdateResponse,
+  ExtraUpdateOptions,
+  FindAllResponse,
+  ModelInfo,
+  RemoveOptions,
+  UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
 import { Injectable, Logger } from '@nestjs/common';
-import {
-	Aggregate,
-	ClientSession,
-	Connection,
-	FilterQuery,
-	HydratedDocument,
-	Model,
-	ObjectId,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import moment from 'moment';
+import mongoose, {
+  Aggregate,
+  ClientSession,
+  Connection,
+  FilterQuery,
+  HydratedDocument,
+  Model,
+  ObjectId,
+  PipelineStage,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
+import { ENUM_DATE_TIME } from '../constants/enum';
+import { UtilService } from '../utils/util.service';
 import { IAbstractRepository } from './interfaces';
+import { AggregationLookup } from './types/abstract.type';
 
 @Injectable()
 export abstract class AbstractRepository<
@@ -34,6 +40,8 @@ export abstract class AbstractRepository<
 	public collectionName: string = null;
 	private aggregate: Aggregate<any> = null;
 	protected connection: Connection = null;
+	protected eventEmitter: EventEmitter2 = null;
+	protected utilService: UtilService = null;
 	constructor(
 		primaryModel: Model<T>,
 		secondaryModel: Model<T>,
@@ -41,12 +49,14 @@ export abstract class AbstractRepository<
 	) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
-		this.connection = connection;
+		this.connection = connection || mongoose.connection;
 		this.modelInfo = {
 			modelName: primaryModel.modelName,
 			collectionName: primaryModel.collection.name,
 			schema: primaryModel.schema,
 		};
+		this.eventEmitter = new EventEmitter2();
+		this.utilService = new UtilService();
 	}
 
 	async startTransaction(): Promise<ClientSession> {
@@ -56,7 +66,23 @@ export abstract class AbstractRepository<
 	}
 
 	async create(payload: Partial<T> | Partial<T>[]): Promise<T> {
-		return this.primaryModel.create(payload);
+		const newData = await (
+			await this.primaryModel.create(payload)
+		).populate(this.getPopulates());
+		// TODO: Create Create Action Log
+		this.createCreatedActionLog(newData);
+		return newData;
+	}
+
+	createCreatedActionLog(data: Partial<T>) {
+		this.checkExistsOrCreateModelLog();
+	}
+
+	checkExistsOrCreateModelLog() {
+		const modelLogName = this.modelInfo.modelName.toLowerCase() + '_logs';
+		console.log(modelLogName);
+		console.log(mongoose.connection.collection(this.modelInfo.modelName));
+		console.log(mongoose.connection.collection(modelLogName));
 	}
 
 	async update(
@@ -83,6 +109,7 @@ export abstract class AbstractRepository<
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<T> {
 		return this.primaryModel.findOneAndUpdate(filterQuery, updateData, {
+			populate: this.getPopulates(),
 			new: true,
 			...options,
 		});
@@ -94,6 +121,7 @@ export abstract class AbstractRepository<
 		options?: QueryOptions<T>,
 	): Promise<T> {
 		return this.primaryModel.findByIdAndUpdate(id, updateData, {
+			populate: this.getPopulates(),
 			new: true,
 			...options,
 		});
@@ -133,7 +161,7 @@ export abstract class AbstractRepository<
 			{
 				$set: { deleted_at: new Date() },
 			},
-			options,
+			{ populate: this.getPopulates(), ...options },
 		);
 	}
 
@@ -152,6 +180,7 @@ export abstract class AbstractRepository<
 
 		return this.secondaryModel
 			.findOne(filterQuery, projection, {
+				populate: this.getPopulates(),
 				...options,
 			})
 			.exec();
@@ -163,8 +192,10 @@ export abstract class AbstractRepository<
 		options?: QueryOptions<T>,
 	): Promise<T> {
 		const result = await this.secondaryModel.findById(id, projection, {
+			populate: this.getPopulates(),
 			...options,
 		});
+
 		return result?.deleted_at ? null : result;
 	}
 
@@ -175,7 +206,10 @@ export abstract class AbstractRepository<
 	): Promise<FindAllResponse<T>> {
 		const [items, count] = await Promise.all([
 			this.secondaryModel
-				.find({ ...filterQuery, deleted_at: null }, projection, options)
+				.find({ ...filterQuery, deleted_at: null }, projection, {
+					populate: this.getPopulates(),
+					...options,
+				})
 				.allowDiskUse(true),
 			this.secondaryModel.count({ ...filterQuery, deleted_at: null }),
 		]);
@@ -185,10 +219,113 @@ export abstract class AbstractRepository<
 		};
 	}
 
+	getPopulates(): string[] {
+		return Object.values(this.modelInfo.schema.paths).reduce(
+			(populates: string[], schemaPath: any) => {
+				if (['ObjectID', 'Array'].includes(schemaPath.instance)) {
+					console.log(schemaPath);
+				}
+				if (this.isValidPopulate(schemaPath)) populates.push(schemaPath.path);
+				return populates;
+			},
+			[],
+		) as string[];
+	}
+
+	isValidPopulate(schemaPath: any) {
+		return (
+			(schemaPath.instance === 'ObjectID' && schemaPath.path !== '_id') ||
+			(schemaPath.instance === 'Array' &&
+				schemaPath?.$embeddedSchemaType?.instance === 'ObjectID')
+		);
+	}
+
+	async getListIndex() {
+		return this.secondaryModel.listIndexes();
+	}
+
 	aggregateBuilder(): Aggregate<any> {
 		return (
 			this.aggregate ??
 			(this.aggregate = this.secondaryModel.aggregate().allowDiskUse(true))
 		);
+	}
+
+	/**
+	 * Find from_date, to_date in from_date, to_date
+	 * @param from_date
+	 * @param to_date
+	 */
+	filterFromDateToDateByField(field: string, from_date?: Date, to_date?: Date) {
+		const fieldFilter = {};
+
+		if (from_date)
+			fieldFilter[field].$lte = new Date(
+				moment(from_date).format(ENUM_DATE_TIME.YYYY_MM_DD) +
+					ENUM_DATE_TIME.START_OFFSET,
+			);
+
+		if (to_date)
+			fieldFilter[field].$lte = new Date(
+				moment(from_date).format(ENUM_DATE_TIME.YYYY_MM_DD_TIMEZONE) +
+					ENUM_DATE_TIME.END_OFFSET,
+			);
+
+		return fieldFilter;
+	}
+
+	aggregateLookup({
+		from,
+		localField,
+		foreignField,
+		as,
+		projection,
+	}: AggregationLookup): PipelineStage.Lookup {
+		return {
+			$lookup: {
+				from,
+				let: { refId: localField },
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ['$$refId', `$${foreignField}`],
+							},
+						},
+					},
+					{
+						$project: projection,
+					},
+				],
+				as,
+			},
+		};
+	}
+
+	aggregationOneToOneJoin(lookupProperty: AggregationLookup): PipelineStage[] {
+		const alias = lookupProperty.as || lookupProperty.from;
+		lookupProperty.as = alias;
+
+		return [
+			this.aggregateLookup(lookupProperty),
+			{
+				$set: {
+					[alias]: {
+						$cond: [
+							{ $eq: [{ $isArray: `$${alias}` }, true] },
+							{ $first: `$${alias}` },
+							`$${alias}`,
+						],
+					},
+				},
+			},
+		];
+	}
+
+	aggregationOneToManyJoin(lookupProperty: AggregationLookup): PipelineStage {
+		const alias = lookupProperty.as || lookupProperty.from;
+		lookupProperty.as = alias;
+
+		return this.aggregateLookup(lookupProperty);
 	}
 }

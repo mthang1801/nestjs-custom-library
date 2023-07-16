@@ -1,5 +1,5 @@
 export * from './common.type';
-export * from './data-type.type';
 export * from './mongodb-config.type';
 export * from './swagger.type';
+export * from './util.type';
 

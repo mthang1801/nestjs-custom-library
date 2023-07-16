@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 
+import { Category } from 'apps/rmq-service/libs/common/src/schemas/category.schema';
 import { AbstractSchema } from '.';
 import { ENUM_STATUS } from '../constants/enum';
 import { User } from './user.schema';
@@ -43,6 +44,12 @@ export class Posts extends AbstractSchema {
 	@Prop({ type: Number, default: 0 })
 	@Exclude()
 	view_count: number;
+
+	@Prop({
+		type: [{ type: mongoose.Schema.Types.ObjectId, ref: Category.name }],
+	})
+	@Type(() => Category)
+	categories: Category[];
 }
 
 export type PostsDocument = HydratedDocument<Document, Posts>;

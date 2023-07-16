@@ -1,8 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import * as Joi from 'joi';
 import { LibHttpModule } from '../http/http.module';
 import { LibTelegramModule } from '../telegram/telegram.module';
+import { LibUtilModule } from '../utils/util.module';
+
+@Global()
 @Module({
 	imports: [
 		ConfigModule.forRoot({
@@ -21,6 +25,8 @@ import { LibTelegramModule } from '../telegram/telegram.module';
 		}),
 		LibTelegramModule,
 		LibHttpModule,
+		LibUtilModule,
+		EventEmitterModule.forRoot(),
 	],
 })
 export class LibCoreModule {}

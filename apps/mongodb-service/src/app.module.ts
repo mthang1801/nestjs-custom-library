@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import * as Joi from 'joi';
+import { CategoriesModule } from './categories/categories.module';
 import { PostsModule } from './posts/posts.module';
 import { UserRolesModule } from './user-roles/user-roles.module';
 import { UsersModule } from './users/users.module';
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
 		MongooseDynamicModule.forRootAsync(),
 		UsersModule,
 		UserRolesModule,
+		CategoriesModule,
 		PostsModule,
 	],
 	controllers: [],

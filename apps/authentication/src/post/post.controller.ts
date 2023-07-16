@@ -1,13 +1,13 @@
 import { Public } from '@app/shared/decorators/permissions.decorator';
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Patch,
-    Post,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import JwtAuthGuard from '../auth/guards/jwt.guard';
 import { CreatePostDto } from './dto/create-post.dto';

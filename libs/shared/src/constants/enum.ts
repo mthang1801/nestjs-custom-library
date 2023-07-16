@@ -86,3 +86,61 @@ export enum ENUM_DATA_TYPE {
 	BUFFER = 'buffer',
 	JSON = 'json',
 }
+
+export enum ENUM_HASH_CODE_ALGORITHM {
+	cyrb53 = 'cyrb53',
+	hashFnv32a = 'hashFnv32a',
+}
+
+export enum ENUM_WEEK_DAY {
+	SUNDAY = 'SUNDAY',
+	MONDAY = 'MONDAY',
+	TUESDAY = 'TUESDAY',
+	WEDNESDAY = 'WEDNESDAY',
+	THURSDAY = 'THURSDAY',
+	FRIDAY = 'FRIDAY',
+	SATURDAY = 'SATURDAY',
+}
+
+export enum ENUM_UNIT_TIMESTAMP {
+	MILISECCONDS = 'MILISECCONDS',
+	SECONDS = 'SECONDS',
+	MINUTES = 'MINUTES',
+	HOURS = 'HOURS',
+	DAYS = 'DAYS',
+	WEEKS = 'WEEKS',
+	MONTHS = 'MONTHS',
+	YEARS = 'YEARS',
+}
+
+export enum ENUM_VALUE_DATA_TYPE {
+	STRING = 'string',
+	NUMBER = 'number',
+	ARRAY = 'array',
+	OBJECT = 'object',
+	SYMBOL = 'symbol',
+	BIGINT = 'bigint',
+	UNDEFINED = 'undefined',
+	NULL = 'null',
+	BOOLEAN = 'boolean',
+}
+
+export enum ENUM_DATE_TIME {
+	YYYY_MM_DD = 'YYYY-MM-DD',
+	YYYYMMDDHHMMSS = 'YYYYMMDDHHmmss',
+	START_OFFSET = 'T00:00:00.000+07:00',
+	END_OFFSET = 'T23:59:59.999+07:00',
+	YYYY_MM_DD_TIMEZONE = 'YYYY-MM-DD HH:mm:ss+07:00',
+	TIME_OFFSET = '+07:00',
+}
+
+export enum ENUM_MODEL {
+	PRODUCT = 'products',
+	USER = 'users',
+	POST = 'posts',
+	CATEGORY = 'categories',
+}
+
+export enum ENUM_ACTION_TYPE {
+	CREATE = 'created',
+}

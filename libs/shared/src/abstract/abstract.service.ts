@@ -81,4 +81,8 @@ export abstract class AbstractService<
 			...options,
 		});
 	}
+
+	protected async _getListIndexes() {
+		return this._getListIndexes();
+	}
 }

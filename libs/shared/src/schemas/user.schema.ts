@@ -1,11 +1,11 @@
 import { ENUM_GENDER, ENUM_LANGUAGES } from '@app/shared/constants/enum';
 import {
-	AbstractSchema,
-	Contact,
-	ContactSchema,
-	Posts,
-	PostsDocument,
-	UserRole,
+  AbstractSchema,
+  Contact,
+  ContactSchema,
+  Posts,
+  PostsDocument,
+  UserRole,
 } from '@app/shared/schemas';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
