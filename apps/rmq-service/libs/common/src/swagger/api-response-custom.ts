@@ -1,22 +1,22 @@
 import { HttpCode, Type, applyDecorators } from '@nestjs/common';
 import {
-  ApiBadGatewayResponse,
-  ApiBadRequestResponse,
-  ApiCreatedResponse,
-  ApiExtraModels,
-  ApiOkResponse,
-  ApiOperation,
-  ApiUnauthorizedResponse,
-  getSchemaPath,
+    ApiBadGatewayResponse,
+    ApiBadRequestResponse,
+    ApiCreatedResponse,
+    ApiExtraModels,
+    ApiOkResponse,
+    ApiOperation,
+    ApiUnauthorizedResponse,
+    getSchemaPath,
 } from '@nestjs/swagger';
 import {
-  AbstractResponseDto,
-  ApiHeadersResponse,
-  BadGatewayResponseDto,
-  BadRequestResponseDto,
-  CreatedResponseDto,
-  PaginatedResponseDto,
-  UnAuthorizedResponseDto,
+    AbstractResponseDto,
+    ApiHeadersResponse,
+    BadGatewayResponseDto,
+    BadRequestResponseDto,
+    CreatedResponseDto,
+    PaginatedResponseDto,
+    UnAuthorizedResponseDto,
 } from './response';
 
 type TApiResponse<TModel> = {
@@ -61,7 +61,7 @@ export const ApiListResponseCustom = <TModel extends Type<any>>({
 		}),
 	);
 
-export const ApiOkResponseCustom = <TModel extends Type<any>>({
+export const ApiResponseCustom = <TModel extends Type<any>>({
 	type,
 	summary,
 	httpCode,

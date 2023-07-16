@@ -2,7 +2,7 @@ import { Product } from '@app/shared/schemas/product.schema';
 import {
   ApiCreatedResponseCustom,
   ApiListResponseCustom,
-  ApiOkResponseCustom,
+  ApiResponseCustom,
 } from '@app/shared/swagger';
 import {
   Body,
@@ -41,7 +41,7 @@ export class ProductController {
 	}
 
 	@Get(':id')
-	@ApiOkResponseCustom<typeof Product>({
+	@ApiResponseCustom<typeof Product>({
 		type: Product,
 		summary: 'product by id',
 	})
@@ -50,7 +50,7 @@ export class ProductController {
 	}
 
 	@Patch(':id')
-	@ApiOkResponseCustom<typeof Product>({
+	@ApiResponseCustom<typeof Product>({
 		type: Product,
 		summary: 'update product by id',
 	})

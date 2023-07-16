@@ -17,7 +17,12 @@ import { AppModule } from './app.module';
 
 	const configServce = app.get<ConfigService>(ConfigService);
 
-	SetupSwagger(app, { theme: 'FLATTOP', title: 'NestJS API', icon: 'NT_OMS' });
+	SetupSwagger(app, {
+		apiEndpoint: 'documentation',
+		theme: 'FLATTOP',
+		title: 'NestJS API',
+		icon: 'DEFAULT',
+	});
 
 	await app.listen(configServce.get<string>('SWAGGER_PORT'), async () =>
 		Logger.log(

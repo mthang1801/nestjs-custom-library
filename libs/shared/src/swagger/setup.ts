@@ -15,6 +15,7 @@ export const SetupSwagger = (
 	options?: SwaggerSetupOptions,
 ) => {
 	app.useStaticAssets(join(process.cwd(), 'public'));
+
 	const swaggerConfig = new DocumentBuilder()
 		.setTitle(options?.title || 'API NestJS')
 		.setDescription(
@@ -44,7 +45,7 @@ export const SetupSwagger = (
 		swaggerOptions,
 	);
 
-	SwaggerModule.setup(options?.apiEndpoint || 'docs', app, document, {
+	SwaggerModule.setup(options?.apiEndpoint || 'documentation', app, document, {
 		explorer: true,
 		customCssUrl: options?.theme
 			? `../../swagger-ui/${ENUM_SWAGGER_THEME[options.theme]}`
