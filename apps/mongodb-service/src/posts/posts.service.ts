@@ -1,11 +1,11 @@
 import { AbstractService } from '@app/shared';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  forwardRef,
+	BadRequestException,
+	Inject,
+	Injectable,
+	Logger,
+	forwardRef,
 } from '@nestjs/common';
 import { ClientSession, ObjectId } from 'mongoose';
 import { UsersService } from '../users/users.service';
@@ -43,7 +43,9 @@ export class PostsService extends AbstractService<PostsDocument> {
 	}
 
 	async update(id: ObjectId, updatePostDto: UpdatePostDto) {
-		return this.postRepository.update({ _id: id }, updatePostDto);
+		return this.postRepository.update({ _id: id }, updatePostDto, {
+			updateOnlyOne: true,
+		});
 	}
 
 	async updateStatus(id: ObjectId, updatePostStatusDto: UpdatePostStatusDto) {

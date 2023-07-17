@@ -7,8 +7,16 @@ import {
 	UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+	HttpException,
+	Injectable,
+	Logger,
+	NotFoundException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import AbstractLogModel from 'apps/rmq-service/libs/shared/src/abstract/abstract-log.schema';
+import { IAbstractLog } from 'apps/rmq-service/libs/shared/src/abstract/interfaces/abstract-log.interface';
 import moment from 'moment';
 import mongoose, {
 	Aggregate,
@@ -24,6 +32,7 @@ import mongoose, {
 	UpdateQuery,
 } from 'mongoose';
 import { ENUM_DATE_TIME } from '../constants/enum';
+import { MongooseDynamicService } from '../mongoose/mongoose.service';
 import { UtilService } from '../utils/util.service';
 import { IAbstractRepository } from './interfaces';
 import { AggregationLookup } from './types/abstract.type';
@@ -42,6 +51,10 @@ export abstract class AbstractRepository<
 	protected connection: Connection = null;
 	protected eventEmitter: EventEmitter2 = null;
 	protected utilService: UtilService = null;
+	protected configService: ConfigService = null;
+	protected mongooseService: MongooseDynamicService = null;
+	private excludeFieldChanges = ['_id', 'created_at', 'updated_at'];
+
 	constructor(
 		primaryModel: Model<T>,
 		secondaryModel: Model<T>,
@@ -57,6 +70,8 @@ export abstract class AbstractRepository<
 		};
 		this.eventEmitter = new EventEmitter2();
 		this.utilService = new UtilService();
+		this.configService = new ConfigService();
+		this.mongooseService = new MongooseDynamicService(this.configService);
 	}
 
 	async startTransaction(): Promise<ClientSession> {
@@ -70,54 +85,139 @@ export abstract class AbstractRepository<
 			await this.primaryModel.create(payload)
 		).populate(this.getPopulates());
 		// TODO: Create Create Action Log
-		this.createCreatedActionLog(newData);
+		await this.createCreatedActionLog(newData);
 		return newData;
 	}
 
-	createCreatedActionLog(data: Partial<T>) {
-		this.checkExistsOrCreateModelLog();
+	async createCreatedActionLog(data: Partial<T>) {
+		const LogModel = await this.checkExistsOrCreateModelLog();
+		await new LogModel({
+			new_data: data.id,
+			new_data_desc: data,
+			model_reference: this.modelInfo.modelName,
+			created_by: data?.created_by,
+		}).save();
 	}
 
-	checkExistsOrCreateModelLog() {
-		const modelName = this.modelInfo.modelName.toLowerCase();
-		const singularModelName = modelName.endsWith('s')
-			? modelName.slice(0, -1)
-			: modelName;
-
-		const modelLogName = [singularModelName + 'logs'].join('_');
-		console.log(modelLogName);
-		console.log(mongoose.connection.collection(this.modelInfo.modelName));
-		console.log(mongoose.connection.collection(modelLogName));
+	async checkExistsOrCreateModelLog(): Promise<mongoose.Model<IAbstractLog>> {
+		return new Promise((resolve, reject) => {
+			try {
+				this.mongooseService.connect().then(() => {
+					const modelName = this.modelInfo.modelName.toLowerCase();
+					const singularModelName = modelName
+						.replace(/ies$/, 'y')
+						.replace(/s$/, '');
+					const modelLogName = `${singularModelName}_logs`;
+					const Model = AbstractLogModel(modelLogName);
+					resolve(Model);
+				});
+			} catch (error) {
+				throw new HttpException(error.message, error.status);
+			}
+		});
 	}
 
 	async update(
-		fitlerQuery: FilterQuery<T>,
-		payload: UpdateQuery<T> | UpdateQuery<T>,
+		filterQuery: FilterQuery<T>,
+		payload: UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
-	): Promise<UpdateResponse> {
-		if (options.updateOnlyOne) {
-			return this.primaryModel.updateOne(fitlerQuery, payload, {
-				new: true,
-				...options,
-			});
+	): Promise<UpdateResponse | T | any> {
+		if (options?.updateOnlyOne) {
+			const oldData = await this.secondaryModel.findOne(filterQuery);
+			if (!oldData) {
+				throw new NotFoundException();
+			}
+			const updateResponse = await this.primaryModel.findOneAndUpdate(
+				filterQuery,
+				{ ...payload },
+				{
+					new: true,
+					...options,
+				},
+			);
+			await this.createUpdatedOneActionLog(
+				oldData.toObject(),
+				updateResponse.toObject(),
+			);
+
+			return updateResponse;
 		}
 
-		return this.primaryModel.updateMany(fitlerQuery, payload, {
-			new: true,
-			...options,
+		const oldManyData = await this.secondaryModel.find(filterQuery);
+		const updateResponse = await this.primaryModel.updateMany(
+			filterQuery,
+			{ ...payload },
+			{
+				new: true,
+				...options,
+			},
+		);
+		// TODO: Create update log
+		await this.createUpdatedManyActionLog(oldManyData);
+		return updateResponse;
+	}
+
+	async createUpdatedManyActionLog(oldManyData: T[]) {
+		const newManyData = await this.find({
+			_id: { $in: oldManyData.map(({ _id }) => _id) },
 		});
+
+		for (let i = 0; i < newManyData.count; i += 20) {
+			await Promise.all(
+				newManyData.items.slice(i, i + 20).map(async (newData) => {
+					const oldData = oldManyData.find(
+						({ _id }) => String(_id) === String(newData._id),
+					);
+					if (oldData) {
+						await this.createUpdatedOneActionLog(
+							oldData.toObject(),
+							newData.toObject(),
+						);
+					}
+				}),
+			);
+		}
+	}
+
+	async createUpdatedOneActionLog(oldData: T, newData: T) {
+		const fieldChanges = Object.keys(newData)
+			.filter((key) => !this.excludeFieldChanges.includes(key))
+			.reduce((result, key) => {
+				if (JSON.stringify(newData[key]) !== JSON.stringify(oldData[key])) {
+					result[key] = `${String(key)} đã thay đổi: ${JSON.stringify(
+						newData[key],
+					)} -> ${JSON.stringify(oldData[key])}`;
+				}
+				return result;
+			}, {});
+		if (!Object.entries(fieldChanges).length) return;
+		const LogModel = await this.checkExistsOrCreateModelLog();
+		await new LogModel({
+			new_data: newData.id || oldData.id,
+			new_data_desc: newData,
+			old_data: oldData.id,
+			old_data_desc: oldData,
+			difference: fieldChanges,
+			model_reference: this.modelInfo.modelName,
+			created_by: oldData?.created_by,
+			updated_by: newData?.updated_by,
+		}).save();
 	}
 
 	async findOneAndUpdate(
 		filterQuery?: FilterQuery<T>,
-		updateData?: UpdateQuery<T> | UpdateQuery<T>,
+		updateData?: UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<T> {
-		return this.primaryModel.findOneAndUpdate(filterQuery, updateData, {
-			populate: this.getPopulates(),
-			new: true,
-			...options,
-		});
+		return this.primaryModel.findOneAndUpdate(
+			filterQuery,
+			{ ...updateData },
+			{
+				populate: this.getPopulates(),
+				new: true,
+				...options,
+			},
+		);
 	}
 
 	async findByIdAndUpdate(
@@ -125,11 +225,15 @@ export abstract class AbstractRepository<
 		updateData?: Partial<T> | UpdateQuery<T>,
 		options?: QueryOptions<T>,
 	): Promise<T> {
-		return this.primaryModel.findByIdAndUpdate(id, updateData, {
-			populate: this.getPopulates(),
-			new: true,
-			...options,
-		});
+		return this.primaryModel.findByIdAndUpdate(
+			id,
+			{ ...updateData },
+			{
+				populate: this.getPopulates(),
+				new: true,
+				...options,
+			},
+		);
 	}
 
 	async deleteMany(

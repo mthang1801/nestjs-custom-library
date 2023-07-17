@@ -40,7 +40,7 @@ export type CookieToken = {
 };
 
 export type ReadOnly<T> = {
-	readonly [K in keyof T]: T[K];
+	+readonly [K in keyof T]: T[K];
 };
 
 export type Setters<T> = {
@@ -49,4 +49,12 @@ export type Setters<T> = {
 
 export type Getters<T> = {
 	[K in keyof T & string as `get${Capitalize<K>}`]: () => T[K];
+};
+
+export type Mapped<T> = {
+	readonly [K in keyof T]+?: T[K];
+};
+
+export type DeepReadonly<T> = {
+	readonly [K in keyof T]: DeepReadonly<T[K]>;
 };
