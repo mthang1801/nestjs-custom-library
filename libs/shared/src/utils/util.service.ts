@@ -307,4 +307,19 @@ export class UtilService {
 	convertObjectLikeArray(obj) {
 		return Array.from(obj);
 	}
+
+	/**
+	 * Masking characters
+	 * @param {string} str
+	 * @param {number} showNumberLastChars
+	 * @returns {strring}
+	 */
+	maskedCharacters(
+		str: string,
+		showNumberLastChars: number = Math.ceil(str.length * 0.5),
+	) {
+		const lastNumberOfCharacters = str.slice(-showNumberLastChars);
+		const maskedCharacter = lastNumberOfCharacters.padStart(str.length, '*');
+		return maskedCharacter;
+	}
 }

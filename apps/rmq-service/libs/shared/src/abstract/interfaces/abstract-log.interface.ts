@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 
 export interface IAbstractLog {
-	old_data_desc?: mongoose.Schema.Types.Mixed;
-	new_data_desc?: mongoose.Schema.Types.Mixed;
+	old_data_desc?: any;
+	new_data_desc?: any;
 	old_data?: mongoose.Schema.Types.ObjectId;
 	new_data?: mongoose.Schema.Types.ObjectId;
-	difference?: mongoose.Schema.Types.Mixed;
-	extra_data?: mongoose.Schema.Types.Mixed;
+	difference?: any;
+	extra_data?: any;
 	model_reference?: string;
-	created_by?: mongoose.Schema.Types.ObjectId;
+	created_by?: mongoose.Schema.Types.ObjectId | string | any;
+	updated_by?: mongoose.Schema.Types.ObjectId | string | any;
 }

@@ -8,14 +8,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-import { TelegramService } from 'nestjs-telegram';
+import { LibTelegramService } from '../telegram/telegram.service';
 import { typeOf } from '../utils/function.utils';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
 	constructor(
 		protected readonly configService: ConfigService,
-		protected readonly telegramService: TelegramService,
+		protected readonly telegramService: LibTelegramService,
 	) {}
 	protected logger = new Logger(AllExceptionsFilter.name);
 	protected serviceName = AllExceptionsFilter.name;
@@ -95,13 +95,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	}
 
 	async sendToTelegram(exception: HttpException) {
-		this.logger.error(`🤬 [${this.serviceName}] ${exception}`);
+		this.logger.error(`❌[${this.serviceName}] ${exception}`);
 
-		await this.telegramService
-			.sendMessage({
-				chat_id: this.configService.get<string>('TELEGRAM_GROUP_ID'),
-				text: `🤬[${exception.name}]-->${exception.message}-->${exception.stack}`,
-			})
-			.toPromise();
+		await this.telegramService.sendMessage(
+			`❌[${exception.name}]-->${exception.message}-->${exception.stack}`,
+		);
 	}
 }

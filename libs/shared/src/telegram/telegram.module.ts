@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramModule } from 'nestjs-telegram';
+import { LibTelegramService } from './telegram.service';
 
 @Global()
 @Module({
@@ -18,6 +19,7 @@ import { TelegramModule } from 'nestjs-telegram';
 			},
 		}),
 	],
-	exports: [TelegramModule],
+	exports: [TelegramModule, LibTelegramService],
+	providers: [TelegramModule, LibTelegramService],
 })
 export class LibTelegramModule {}

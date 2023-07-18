@@ -12,6 +12,7 @@ const AbstractLogSchema = (modelName: string) =>
 			extra_data: { type: mongoose.Schema.Types.Mixed },
 			model_reference: { type: String },
 			created_by: { type: mongoose.Schema.Types.Mixed },
+			updated_by: { type: mongoose.Schema.Types.Mixed },
 		},
 		{
 			timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

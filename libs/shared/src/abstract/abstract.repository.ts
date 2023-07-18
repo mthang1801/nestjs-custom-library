@@ -1,17 +1,17 @@
 import { AbstractSchema } from '@app/shared/schemas';
 import {
-  ExtraUpdateOptions,
-  FindAllResponse,
-  ModelInfo,
-  RemoveOptions,
-  UpdateResponse,
+	ExtraUpdateOptions,
+	FindAllResponse,
+	ModelInfo,
+	RemoveOptions,
+	UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
 import {
-  HttpException,
-  Injectable,
-  Logger,
-  NotFoundException,
+	HttpException,
+	Injectable,
+	Logger,
+	NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -19,16 +19,16 @@ import AbstractLogModel from 'apps/rmq-service/libs/shared/src/abstract/abstract
 import { IAbstractLog } from 'apps/rmq-service/libs/shared/src/abstract/interfaces/abstract-log.interface';
 import moment from 'moment';
 import mongoose, {
-  Aggregate,
-  ClientSession,
-  FilterQuery,
-  HydratedDocument,
-  Model,
-  ObjectId,
-  PipelineStage,
-  ProjectionType,
-  QueryOptions,
-  UpdateQuery,
+	Aggregate,
+	ClientSession,
+	FilterQuery,
+	HydratedDocument,
+	Model,
+	ObjectId,
+	PipelineStage,
+	ProjectionType,
+	QueryOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { ENUM_DATE_TIME } from '../constants/enum';
 import { MongooseDynamicService } from '../mongoose/mongoose.service';
@@ -92,13 +92,12 @@ export abstract class AbstractRepository<
 	}
 
 	async createCreatedActionLog(data: Partial<T>) {
-		const LogModel = await this.checkExistsOrCreateModelLog();
-		await new LogModel({
+		await this.primaryLogModel.create<IAbstractLog>({
 			new_data: data.id,
 			new_data_desc: data,
 			model_reference: this.modelInfo.modelName,
 			created_by: data?.created_by,
-		}).save();
+		});
 	}
 
 	async checkExistsOrCreateModelLog(): Promise<mongoose.Model<IAbstractLog>> {
@@ -193,8 +192,8 @@ export abstract class AbstractRepository<
 				return result;
 			}, {});
 		if (!Object.entries(fieldChanges).length) return;
-		const LogModel = await this.checkExistsOrCreateModelLog();
-		await new LogModel({
+
+		await this.primaryLogModel.create<IAbstractLog>({
 			new_data: newData.id || oldData.id,
 			new_data_desc: newData,
 			old_data: oldData.id,
@@ -202,8 +201,8 @@ export abstract class AbstractRepository<
 			difference: fieldChanges,
 			model_reference: this.modelInfo.modelName,
 			created_by: oldData?.created_by,
-			updated_by: newData?.updated_by,
-		}).save();
+			updated_by: newData?.updated_by || newData?.created_by,
+		});
 	}
 
 	async findOneAndUpdate(
@@ -418,18 +417,9 @@ export abstract class AbstractRepository<
 		lookupProperty.as = alias;
 
 		return [
-			this.aggregateLookup(lookupProperty),
-			{
-				$set: {
-					[alias]: {
-						$cond: [
-							{ $eq: [{ $isArray: `$${alias}` }, true] },
-							{ $first: `$${alias}` },
-							`$${alias}`,
-						],
-					},
-				},
-			},
+			{ ...this.aggregateLookup(lookupProperty) },
+			{ $limit: 1 },
+			{ $unwind: { path: `$${alias}`, preserveNullAndEmptyArrays: true } },
 		];
 	}
 

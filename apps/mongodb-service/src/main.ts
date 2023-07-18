@@ -1,3 +1,4 @@
+import { LibTelegramService } from '@app/shared/telegram/telegram.service';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -9,12 +10,15 @@ async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	const configService = app.get<ConfigService>(ConfigService);
+	const telegramService = app.get<LibTelegramService>(LibTelegramService);
+	const enableTelegramNoti = configService.get<boolean>('TELEGRAM_ENALBE_NOTI');
 	mongoose.set('debug', true);
-	await app.listen(configService.get<number>('PORT'), async () =>
-		Logger.log(
-			`Server is running on ${await app.getUrl()}`,
-			'APPLICATION READY',
-		),
-	);
+	await app.listen(configService.get<number>('PORT'), async () => {
+		Logger.log(`Server is running on ${await app.getUrl()}`),
+			enableTelegramNoti &&
+				(await telegramService.sendMessage(
+					`🔥[DNI Excel Service] is running on ${await app.getUrl()}`,
+				));
+	});
 }
 bootstrap();
