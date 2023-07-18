@@ -429,4 +429,23 @@ export abstract class AbstractRepository<
 
 		return this.aggregateLookup(lookupProperty);
 	}
+
+	$getMetadataAggregate(
+		currentPage: number,
+		limit: number,
+		$totalItems: string,
+	) {
+		return {
+			limit: Number(limit),
+			currentPage: Number(currentPage),
+			totalItems: $totalItems,
+			totalPages: {
+				$cond: [
+					{ $eq: [{ $mod: [$totalItems, limit] }, 0] },
+					{ $divide: [$totalItems, limit] },
+					{ $ceil: { $divide: [$totalItems, limit] } },
+				],
+			},
+		};
+	}
 }

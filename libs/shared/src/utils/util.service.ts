@@ -322,4 +322,22 @@ export class UtilService {
 		const maskedCharacter = lastNumberOfCharacters.padStart(str.length, '*');
 		return maskedCharacter;
 	}
+
+	getPageSkipLimit = (
+		params: any,
+	): {
+		page: number;
+		skip: number;
+		limit: number;
+	} => {
+		// eslint-disable-next-line prefer-const
+		let { page, limit: per_page, is_paging } = params;
+		page = +page || 1;
+		const limit =
+			is_paging || per_page
+				? Math.min(per_page || 20, 100)
+				: Number.MAX_SAFE_INTEGER;
+		const skip = (page - 1) * limit;
+		return { page, skip, limit };
+	};
 }
