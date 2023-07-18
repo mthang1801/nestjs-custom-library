@@ -89,10 +89,11 @@ export class TransformInterceptor<T>
 	}
 
 	private serializeData(res) {
-		delete res.metadata;
 		if (res.items && (res.count || res.metadata)) {
 			return res.items;
 		}
+
+		delete res.metadata;
 
 		if (typeOf(res) === 'array' && _.isEmpty(res)) {
 			return [];

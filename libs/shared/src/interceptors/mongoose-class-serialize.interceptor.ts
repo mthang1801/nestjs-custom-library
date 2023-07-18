@@ -1,12 +1,12 @@
 import {
-  ClassSerializerContextOptions,
-  ClassSerializerInterceptor,
-  PlainLiteralObject,
-  Type,
+	ClassSerializerContextOptions,
+	ClassSerializerInterceptor,
+	PlainLiteralObject,
+	Type,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { Document } from 'mongoose';
-import { FindAllResponse } from '../types';
+import { FindAndCountAllResponse } from '../types';
 export function MongooseClassSerialzierInterceptor(
 	classToIntercept: Type,
 ): typeof ClassSerializerInterceptor {
@@ -22,7 +22,7 @@ export function MongooseClassSerialzierInterceptor(
 			response:
 				| PlainLiteralObject
 				| PlainLiteralObject[]
-				| FindAllResponse<PlainLiteralObject>,
+				| FindAndCountAllResponse<PlainLiteralObject>,
 		) {
 			if (!response) return null;
 

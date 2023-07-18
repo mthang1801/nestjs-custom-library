@@ -37,7 +37,7 @@ export class UsersService extends AbstractService<UserDocument> {
 	}
 
 	async findAll(filter?: object) {
-		return await this.userRepository.find(
+		return await this.userRepository.findAndCountAll(
 			{},
 			{},
 			{ skip: 0, limit: 4, populate: ['role'] },

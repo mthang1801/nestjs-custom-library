@@ -1,10 +1,10 @@
 import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-  Logger,
+	ArgumentsHost,
+	Catch,
+	ExceptionFilter,
+	HttpException,
+	HttpStatus,
+	Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
@@ -59,7 +59,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		} else if (exception instanceof Error) {
 			messageResponse =
 				exception['errors'] && typeOf(exception['errors']) === 'array'
-					? exception['errors'][0]
+					? exception['errors'].join(' ')
 					: exception;
 		} else {
 			messageResponse = exception['message'] || 'Internal server';

@@ -1,16 +1,16 @@
 import {
-	ExtraUpdateOptions,
-	FindAllResponse,
-	UpdateResponse,
+  ExtraUpdateOptions,
+  FindAndCountAllResponse,
+  UpdateResponse
 } from '@app/shared/types';
 import {
-	Aggregate,
-	ClientSession,
-	FilterQuery,
-	ObjectId,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+  Aggregate,
+  ClientSession,
+  FilterQuery,
+  ObjectId,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 
 export interface Write<T> {
@@ -62,11 +62,17 @@ export interface Read<T> {
 		options?: QueryOptions<T>,
 	): Promise<T>;
 
-	find(
+	findAll(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
 		options?: QueryOptions<T>,
-	): Promise<FindAllResponse<T>>;
+	): Promise<T[]>;
+
+	findAndCountAll(
+		filterQuery?: FilterQuery<T>,
+		projection?: ProjectionType<T> | string,
+		options?: QueryOptions<T>,
+	): Promise<FindAndCountAllResponse<T>>;
 
 	aggregateBuilder(): Aggregate<any>;
 }

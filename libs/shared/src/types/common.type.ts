@@ -3,6 +3,9 @@ import { User } from '../schemas';
 
 export type FindAllResponse<T> = {
 	items: T[];
+};
+
+export type FindAndCountAllResponse<T> = FindAllResponse<T> & {
 	count: number;
 };
 
@@ -59,6 +62,7 @@ export type DeepReadonly<T> = {
 	readonly [K in keyof T]: DeepReadonly<T[K]>;
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 declare type ClassDecorator = <TFunction extends Function>(
 	target: TFunction,
 ) => TFunction | void;

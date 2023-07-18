@@ -1,17 +1,17 @@
 import { AbstractSchema } from '@app/shared/schemas';
 import {
-	ExtraUpdateOptions,
-	FindAllResponse,
-	ModelInfo,
-	RemoveOptions,
-	UpdateResponse,
+  ExtraUpdateOptions,
+  FindAndCountAllResponse,
+  ModelInfo,
+  RemoveOptions,
+  UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
 import {
-	HttpException,
-	Injectable,
-	Logger,
-	NotFoundException,
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -19,16 +19,16 @@ import AbstractLogModel from 'apps/rmq-service/libs/shared/src/abstract/abstract
 import { IAbstractLog } from 'apps/rmq-service/libs/shared/src/abstract/interfaces/abstract-log.interface';
 import moment from 'moment';
 import mongoose, {
-	Aggregate,
-	ClientSession,
-	FilterQuery,
-	HydratedDocument,
-	Model,
-	ObjectId,
-	PipelineStage,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+  Aggregate,
+  ClientSession,
+  FilterQuery,
+  HydratedDocument,
+  Model,
+  ObjectId,
+  PipelineStage,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { ENUM_DATE_TIME } from '../constants/enum';
 import { MongooseDynamicService } from '../mongoose/mongoose.service';
@@ -83,9 +83,8 @@ export abstract class AbstractRepository<
 	}
 
 	async create(payload: Partial<T> | Partial<T>[]): Promise<T> {
-		const newData = await (
-			await this.primaryModel.create(payload)
-		).populate(this.getPopulates());
+		const newData = await this.primaryModel.create(payload);
+
 		// TODO: Create Create Action Log
 		await this.createCreatedActionLog(newData);
 		return newData;
@@ -133,9 +132,11 @@ export abstract class AbstractRepository<
 				{ ...payload },
 				{
 					new: true,
+					lean: true,
 					...options,
 				},
 			);
+			// TODO: Create Update Action
 			await this.createUpdatedOneActionLog(
 				oldData.toObject(),
 				updateResponse.toObject(),
@@ -159,7 +160,7 @@ export abstract class AbstractRepository<
 	}
 
 	async createUpdatedManyActionLog(oldManyData: T[]) {
-		const newManyData = await this.find({
+		const newManyData = await this.findAndCountAll({
 			_id: { $in: oldManyData.map(({ _id }) => _id) },
 		});
 
@@ -309,11 +310,26 @@ export abstract class AbstractRepository<
 		return result?.deleted_at ? null : result;
 	}
 
-	async find(
+	async findAll(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
 		options?: QueryOptions<T>,
-	): Promise<FindAllResponse<T>> {
+	): Promise<T[]> {
+		return await this.secondaryModel.find(
+			{ ...filterQuery, deleted_at: null },
+			projection,
+			{
+				populate: this.getPopulates(),
+				...options,
+			},
+		);
+	}
+
+	async findAndCountAll(
+		filterQuery?: FilterQuery<T>,
+		projection?: ProjectionType<T> | string,
+		options?: QueryOptions<T>,
+	): Promise<FindAndCountAllResponse<T>> {
 		const [items, count] = await Promise.all([
 			this.secondaryModel
 				.find({ ...filterQuery, deleted_at: null }, projection, {
