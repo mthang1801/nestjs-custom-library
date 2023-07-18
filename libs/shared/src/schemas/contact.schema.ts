@@ -1,7 +1,14 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
+import SchemaCustom from '../abstract/schema-option';
 
-@Schema({ versionKey: false, autoCreate: true, toJSON: { getters: true } })
+@SchemaCustom({
+	_id: false,
+	timestamps: false,
+	versionKey: false,
+	autoCreate: true,
+	toJSON: { getters: true },
+})
 @Expose()
 export class Contact {
 	@Prop()

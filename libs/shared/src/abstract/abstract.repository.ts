@@ -1,17 +1,17 @@
 import { AbstractSchema } from '@app/shared/schemas';
 import {
-	ExtraUpdateOptions,
-	FindAllResponse,
-	ModelInfo,
-	RemoveOptions,
-	UpdateResponse,
+  ExtraUpdateOptions,
+  FindAllResponse,
+  ModelInfo,
+  RemoveOptions,
+  UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
 import {
-	HttpException,
-	Injectable,
-	Logger,
-	NotFoundException,
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -19,21 +19,21 @@ import AbstractLogModel from 'apps/rmq-service/libs/shared/src/abstract/abstract
 import { IAbstractLog } from 'apps/rmq-service/libs/shared/src/abstract/interfaces/abstract-log.interface';
 import moment from 'moment';
 import mongoose, {
-	Aggregate,
-	ClientSession,
-	Connection,
-	FilterQuery,
-	HydratedDocument,
-	Model,
-	ObjectId,
-	PipelineStage,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+  Aggregate,
+  ClientSession,
+  FilterQuery,
+  HydratedDocument,
+  Model,
+  ObjectId,
+  PipelineStage,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { ENUM_DATE_TIME } from '../constants/enum';
 import { MongooseDynamicService } from '../mongoose/mongoose.service';
 import { UtilService } from '../utils/util.service';
+import { AbstractLogDocument } from './abstract-log';
 import { IAbstractRepository } from './interfaces';
 import { AggregationLookup } from './types/abstract.type';
 
@@ -45,10 +45,11 @@ export abstract class AbstractRepository<
 	protected abstract readonly logger: Logger;
 	public primaryModel: Model<T> = null;
 	public secondaryModel: Model<T> = null;
+	public primaryLogModel: Model<AbstractLogDocument<any>> = null;
+	public secondaryLogModel: Model<AbstractLogDocument<any>> = null;
 	public modelInfo: ModelInfo = null;
 	public collectionName: string = null;
 	private aggregate: Aggregate<any> = null;
-	protected connection: Connection = null;
 	protected eventEmitter: EventEmitter2 = null;
 	protected utilService: UtilService = null;
 	protected configService: ConfigService = null;
@@ -58,11 +59,14 @@ export abstract class AbstractRepository<
 	constructor(
 		primaryModel: Model<T>,
 		secondaryModel: Model<T>,
-		connection?: Connection,
+		primaryLogModel?: Model<AbstractLogDocument<any>>,
+		secondaryLogModel?: Model<AbstractLogDocument<any>>,
 	) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
-		this.connection = connection || mongoose.connection;
+		this.primaryLogModel = primaryLogModel;
+		this.secondaryLogModel = secondaryLogModel;
+
 		this.modelInfo = {
 			modelName: primaryModel.modelName,
 			collectionName: primaryModel.collection.name,
@@ -75,9 +79,7 @@ export abstract class AbstractRepository<
 	}
 
 	async startTransaction(): Promise<ClientSession> {
-		const session = await this.connection.startSession();
-		session.startTransaction();
-		return session;
+		return this.mongooseService.startTransaction();
 	}
 
 	async create(payload: Partial<T> | Partial<T>[]): Promise<T> {

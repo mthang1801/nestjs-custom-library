@@ -1,19 +1,14 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 
 import { Category } from 'apps/rmq-service/libs/common/src/schemas/category.schema';
 import { AbstractSchema } from '.';
+import SchemaCustom from '../abstract/schema-option';
 import { ENUM_STATUS } from '../constants/enum';
 import { User } from './user.schema';
 
-@Schema({
-	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
-	toJSON: { virtuals: true },
-	toObject: { virtuals: true },
-	collection: 'posts',
-	strict: false,
-})
+@SchemaCustom({ strict: false })
 export class Posts extends AbstractSchema {
 	@Prop({
 		type: String,

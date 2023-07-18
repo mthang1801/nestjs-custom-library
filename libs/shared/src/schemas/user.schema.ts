@@ -7,26 +7,15 @@ import {
   PostsDocument,
   UserRole,
 } from '@app/shared/schemas';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { NextFunction } from 'express';
 import * as _ from 'lodash';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
+import SchemaCustom from '../abstract/schema-option';
 
-@Schema({
-	timestamps: {
-		createdAt: 'created_at',
-		updatedAt: 'updated_at',
-	},
-	toJSON: {
-		virtuals: true,
-	},
-	toObject: {
-		virtuals: true,
-	},
-	collection: 'users',
-})
+@SchemaCustom()
 export class User extends AbstractSchema {
 	@Prop({
 		required: true,

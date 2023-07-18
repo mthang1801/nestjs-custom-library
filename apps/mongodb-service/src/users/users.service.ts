@@ -2,11 +2,11 @@ import { AbstractService } from '@app/shared';
 import { ENUM_ROLES } from '@app/shared/constants/enum';
 import { User, UserDocument } from '@app/shared/schemas';
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  forwardRef,
+	BadRequestException,
+	Inject,
+	Injectable,
+	Logger,
+	forwardRef,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { PostsService } from '../posts/posts.service';
@@ -58,8 +58,7 @@ export class UsersService extends AbstractService<UserDocument> {
 	}
 
 	async remove(id: ObjectId) {
-		const session = await this.userRepository.connection.startSession();
-		session.startTransaction();
+		const session = await this.userRepository.startTransaction();
 		try {
 			const deletedUser = await this.userRepository.findOneAndDelete(
 				{

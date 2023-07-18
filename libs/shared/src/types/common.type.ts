@@ -58,3 +58,7 @@ export type Mapped<T> = {
 export type DeepReadonly<T> = {
 	readonly [K in keyof T]: DeepReadonly<T[K]>;
 };
+
+declare type ClassDecorator = <TFunction extends Function>(
+	target: TFunction,
+) => TFunction | void;

@@ -1,12 +1,10 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 import { AbstractSchema } from '.';
+import SchemaCustom from '../abstract/schema-option';
 
-@Schema({
-	collection: 'categories',
-	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
-})
+@SchemaCustom({ collection: 'categories' })
 export class Category extends AbstractSchema {
 	@Prop()
 	@ApiProperty({ description: 'category name', example: 'Phone' })
