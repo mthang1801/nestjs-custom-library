@@ -1,17 +1,17 @@
 import { AbstractSchema } from '@app/shared/schemas';
 import {
-  ExtraUpdateOptions,
-  FindAndCountAllResponse,
-  ModelInfo,
-  RemoveOptions,
-  UpdateResponse,
+	ExtraUpdateOptions,
+	FindAndCountAllResponse,
+	ModelInfo,
+	RemoveOptions,
+	UpdateResponse,
 } from '@app/shared/types';
 import utils from '@app/shared/utils';
 import {
-  HttpException,
-  Injectable,
-  Logger,
-  NotFoundException,
+	HttpException,
+	Injectable,
+	Logger,
+	NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -19,16 +19,16 @@ import AbstractLogModel from 'apps/rmq-service/libs/shared/src/abstract/abstract
 import { IAbstractLog } from 'apps/rmq-service/libs/shared/src/abstract/interfaces/abstract-log.interface';
 import moment from 'moment';
 import mongoose, {
-  Aggregate,
-  ClientSession,
-  FilterQuery,
-  HydratedDocument,
-  Model,
-  ObjectId,
-  PipelineStage,
-  ProjectionType,
-  QueryOptions,
-  UpdateQuery,
+	Aggregate,
+	ClientSession,
+	FilterQuery,
+	HydratedDocument,
+	Model,
+	ObjectId,
+	PipelineStage,
+	ProjectionType,
+	QueryOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { ENUM_DATE_TIME } from '../constants/enum';
 import { MongooseDynamicService } from '../mongoose/mongoose.service';
@@ -86,6 +86,9 @@ export abstract class AbstractRepository<
 		const newData = await this.primaryModel.create(payload);
 
 		// TODO: Create Create Action Log
+		// FIXME: Need to fix in future
+		// BUG: Need to hot fix
+		// NOTE: This is the note
 		await this.createCreatedActionLog(newData);
 		return newData;
 	}
@@ -155,6 +158,7 @@ export abstract class AbstractRepository<
 			},
 		);
 		// TODO: Create update log
+		// [x]: Done task
 		await this.createUpdatedManyActionLog(oldManyData);
 		return updateResponse;
 	}
