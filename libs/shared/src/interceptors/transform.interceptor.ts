@@ -90,7 +90,7 @@ export class TransformInterceptor<T>
 
 	private serializeData(res) {
 		delete res.metadata;
-		if (res.items && res.count) {
+		if (res.items && (res.count || res.metadata)) {
 			return res.items;
 		}
 
