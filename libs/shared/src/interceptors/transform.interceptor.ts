@@ -1,10 +1,10 @@
 import {
-	CallHandler,
-	ExecutionContext,
-	HttpException,
-	Injectable,
-	Logger,
-	NestInterceptor,
+  CallHandler,
+  ExecutionContext,
+  HttpException,
+  Injectable,
+  Logger,
+  NestInterceptor,
 } from '@nestjs/common';
 import { Request } from 'express';
 import * as _ from 'lodash';
@@ -49,29 +49,22 @@ export class TransformInterceptor<T>
 		statusCode,
 	): ResponseData<T> {
 		const success = statusCode < 400;
-		const metadata = this.getMetadata(res, context);
-
-		const message =
-			res?.message ||
-			CONSTANT_HTTP_RESPONSE[statusCode] ||
-			CONSTANT_HTTP_RESPONSE['500'];
-
-		const serializedData = this.serializeData(res);
+		const message = res?.message || CONSTANT_HTTP_RESPONSE[statusCode || 200];
 
 		const response: ResponseData<T> = {
 			success,
 			statusCode,
-			data: serializedData,
+			data: this.serializeData(res),
 			message,
-			metadata,
+			metadata: this.getMetadata(res, context),
 		};
 
 		return response;
 	}
 
 	getMetadata(res: any, context: ExecutionContext) {
-		if (res.metadata) return res.metadata;
-		if (res.count) {
+		if (res?.metadata) return res.metadata;
+		if (res?.count) {
 			const totalItems = res.count;
 			const req: Request = context.switchToHttp().getRequest();
 			const { page, limit } = new UtilService().getPageSkipLimit(req.query);
@@ -89,15 +82,13 @@ export class TransformInterceptor<T>
 	}
 
 	private serializeData(res) {
-		if (res.items && (res.count || res.metadata)) {
+		if (!res) return null;
+
+		if (res?.items && (res?.count || res?.metadata)) {
 			return res.items;
 		}
 
 		delete res.metadata;
-
-		if (typeOf(res) === 'array' && _.isEmpty(res)) {
-			return [];
-		}
 
 		if (typeOf(res) === 'object' && _.isEmpty(res)) {
 			return null;

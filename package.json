@@ -60,8 +60,10 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "mongoose": "^6.4.1",
+    "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.4.0",
+    "nest-winston": "^1.9.3",
     "nestjs-i18n": "^10.2.6",
     "nestjs-telegram": "^1.2.0",
     "passport": "^0.6.0",
@@ -73,7 +75,8 @@
     "socket.io": "^4.7.1",
     "swagger-ui-express": "^4.6.3",
     "typeorm": "^0.3.16",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "winston": "^3.10.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

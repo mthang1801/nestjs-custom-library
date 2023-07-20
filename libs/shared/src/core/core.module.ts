@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import * as Joi from 'joi';
 import { LibHttpModule } from '../http/http.module';
+import { LibLogger } from '../logger/logger.module';
 import { LibTelegramModule } from '../telegram/telegram.module';
 import { LibUtilModule } from '../utils/util.module';
 
@@ -27,6 +28,7 @@ import { LibUtilModule } from '../utils/util.module';
 		LibHttpModule,
 		LibUtilModule,
 		EventEmitterModule.forRoot(),
+		LibLogger,
 	],
 })
 export class LibCoreModule {}
