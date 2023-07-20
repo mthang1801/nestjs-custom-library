@@ -1,10 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import * as moment from 'moment';
 import { ENUM_UNIT_TIMESTAMP, ENUM_WEEK_DAY } from '../constants/enum';
 import { DataType, GenerateRandomCode, UnitTimestamp, Weekday } from '../types';
 @Injectable()
 export class UtilService {
 	logger = new Logger(UtilService.name);
+	alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	integers = '0123456789';
+	exCharacters = '!@#$%^&*_-=+';
 
 	/**
 	 * generate random integer number
@@ -84,6 +88,19 @@ export class UtilService {
 		algorithm = 'hashFnv32a',
 	}: GenerateRandomCode) {
 		return [prefix, this[algorithm](str), suffix].filter(Boolean).join('_');
+	}
+
+	generateRandomString(length = 8, hasNumbers = true, hasSymbols = true) {
+		let chars = this.alpha;
+		if (hasNumbers) chars += this.integers;
+		if (hasSymbols) chars += this.exCharacters;
+
+		let randomString = '';
+		for (let i = 0; i < length; i++) {
+			randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+		}
+
+		return randomString;
 	}
 
 	/**
@@ -340,4 +357,12 @@ export class UtilService {
 		const skip = (page - 1) * limit;
 		return { page, skip, limit };
 	};
+
+	async hashedString(str: string) {
+		return await bcrypt.hash(str, 10);
+	}
+
+	async compareHashedString(str: string, hashedStr: string) {
+		return bcrypt.compare(str, hashedStr);
+	}
 }
