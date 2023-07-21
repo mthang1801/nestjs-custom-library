@@ -187,6 +187,7 @@ export abstract class AbstractRepository<
 	}
 
 	async createUpdatedOneActionLog(oldData: T, newData: T) {
+    if(!this.primaryLogModel) return;
 		const fieldChanges = Object.keys(newData)
 			.filter((key) => !this.excludeFieldChanges.includes(key))
 			.reduce((result, key) => {
