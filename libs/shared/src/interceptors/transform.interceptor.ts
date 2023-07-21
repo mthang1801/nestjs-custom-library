@@ -6,7 +6,7 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -25,8 +25,9 @@ export class TransformInterceptor<T>
 		next: CallHandler,
 	): Observable<ResponseData<T>> | Observable<any> {
 		const response = context.switchToHttp().getResponse();
-		const now = Date.now();
-		return next.handle().pipe(
+    const request = context.switchToHttp().getRequest();
+		const before = Date.now();
+		return next.handle().pipe(      
 			map(
 				(res) => {
 					const statusCode = response.statusCode || 200;
@@ -39,9 +40,11 @@ export class TransformInterceptor<T>
 					);
 				}),
 			),
-			tap(() => this.logger.log(`After... ${Date.now() - now}ms`)),
+			tap(() => this.logResponseData(request, response, Date.now() - before)),
 		);
 	}
+
+  logResponseData(req : Request, res : Response, duration: number){}
 
 	private responseData(
 		res: any,
@@ -49,6 +52,7 @@ export class TransformInterceptor<T>
 		statusCode,
 	): ResponseData<T> {
 		const success = statusCode < 400;
+
 		const message = res?.message || CONSTANT_HTTP_RESPONSE[statusCode || 200];
 
 		const response: ResponseData<T> = {

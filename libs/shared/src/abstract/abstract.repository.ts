@@ -94,12 +94,13 @@ export abstract class AbstractRepository<
 	}
 
 	async createCreatedActionLog(data: Partial<T>) {
-		await this.primaryLogModel.create<IAbstractLog>({
-			new_data: data.id,
-			new_data_desc: data,
-			model_reference: this.modelInfo.modelName,
-			created_by: data?.created_by,
-		});
+		this.primaryLogModel &&
+			(await this.primaryLogModel.create<IAbstractLog>({
+				new_data: data.id,
+				new_data_desc: data,
+				model_reference: this.modelInfo.modelName,
+				created_by: data?.created_by,
+			}));
 	}
 
 	async checkExistsOrCreateModelLog(): Promise<mongoose.Model<IAbstractLog>> {
@@ -285,20 +286,17 @@ export abstract class AbstractRepository<
 		projection?: ProjectionType<T> | string,
 		options?: QueryOptions<T>,
 	): Promise<T> {
-		if (utils.typeOf(projection) === 'string')
+		if (this.utilService.typeOf(projection) === 'string')
 			return this.secondaryModel
 				.findOne(filterQuery, {
 					...options,
 				})
-				.select(projection)
-				.exec();
+				.select(projection);
 
-		return this.secondaryModel
-			.findOne(filterQuery, projection, {
-				populate: this.getPopulates(),
-				...options,
-			})
-			.exec();
+		return this.secondaryModel.findOne(filterQuery, projection, {
+			populate: this.getPopulates(),
+			...options,
+		});
 	}
 
 	async findById(
@@ -352,9 +350,9 @@ export abstract class AbstractRepository<
 	getPopulates(): string[] {
 		return Object.values(this.modelInfo.schema.paths).reduce(
 			(populates: string[], schemaPath: any) => {
-				if (['ObjectID', 'Array'].includes(schemaPath.instance)) {
-					console.log(schemaPath);
-				}
+				// if (['ObjectID', 'Array'].includes(schemaPath.instance)) {
+				// 	console.log(schemaPath);
+				// }
 				if (this.isValidPopulate(schemaPath)) populates.push(schemaPath.path);
 				return populates;
 			},

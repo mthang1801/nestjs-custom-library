@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  rabbitmq: 
+    image : rabbitmq:3-management
+    environment: 
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=admin123
+    ports: 
+      - "5672:5672"    
+      - "15672:15672"
+      
+  mongodb:
+    image: mongo
+    environment:      
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+    volumes:
+      - 'mongodb_master_data:/data/db'
+    ports:
+      - '27017:27017'
+
+  redis: 
+    image : redis:latest
+    ports: 
+      - "6379:6979"
+      
+volumes:
+  mongodb_master_data: 
+    driver: local    

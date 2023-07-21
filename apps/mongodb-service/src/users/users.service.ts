@@ -32,6 +32,7 @@ export class UsersService extends AbstractService<UserDocument> {
 		const userRole = await this.userRoleService.findOne({
 			name: ENUM_ROLES.USER,
 		});
+		console.log('Create::', userRole);
 		const newUser = new User({ ...createUserDto, role: userRole });
 		return await this._create(newUser);
 	}

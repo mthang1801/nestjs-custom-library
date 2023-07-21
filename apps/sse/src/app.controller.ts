@@ -1,4 +1,12 @@
-import { Controller, Get, MessageEvent, Param, Res, Sse } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	MessageEvent,
+	Param,
+	Post,
+	Res,
+	Sse,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { Observable, interval } from 'rxjs';
 import { map } from 'rxjs/operators';

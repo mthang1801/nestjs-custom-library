@@ -14,14 +14,12 @@ async function bootstrap() {
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	const configService = app.get<ConfigService>(ConfigService);
 	const telegramService = app.get<LibTelegramService>(LibTelegramService);
-	const enableTelegramNoti = configService.get<boolean>('TELEGRAM_ENALBE_NOTI');
 	mongoose.set('debug', true);
 	await app.listen(configService.get<number>('PORT'), async () => {
 		Logger.log(`Server is running on ${await app.getUrl()}`),
-			enableTelegramNoti &&
-				(await telegramService.sendMessage(
-					`🔥[DNI Excel Service] is running on ${await app.getUrl()}`,
-				));
+			await telegramService.sendMessage(
+				`🔥[DNI Service] is running on ${await app.getUrl()}`,
+			);
 	});
 }
 bootstrap();

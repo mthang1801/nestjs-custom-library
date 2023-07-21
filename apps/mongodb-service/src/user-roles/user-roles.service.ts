@@ -20,7 +20,7 @@ export class UserRolesService extends AbstractService<UserRoleDocument> {
 		return `This action returns all userRoles`;
 	}
 
-	findOne(filterQuery: FilterQuery<any>) {
+	async findOne(filterQuery: FilterQuery<any>) {
 		return this._findOne(filterQuery);
 	}
 
