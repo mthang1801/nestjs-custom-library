@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IAbstractLog } from 'apps/rmq-service/libs/shared/src/abstract/interfaces/abstract-log.interface';
+
 import mongoose, { Document } from 'mongoose';
+import { IAbstractLog } from './interfaces/abstract-log.interface';
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
 export abstract class AbstractLog implements IAbstractLog {

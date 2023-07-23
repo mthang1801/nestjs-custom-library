@@ -1,4 +1,3 @@
-import { AbstractSchema } from '@app/shared/schemas';
 import {
 	ExtraUpdateOptions,
 	FindAndCountAllResponse,
@@ -6,7 +5,6 @@ import {
 	RemoveOptions,
 	UpdateResponse,
 } from '@app/shared/types';
-import utils from '@app/shared/utils';
 import {
 	HttpException,
 	Injectable,
@@ -30,12 +28,13 @@ import mongoose, {
 } from 'mongoose';
 import { ENUM_DATE_TIME } from '../constants/enum';
 import { MongooseDynamicService } from '../mongoose/mongoose.service';
+import { AbstractSchema } from '../schemas/abstract.schema';
 import { UtilService } from '../utils/util.service';
 import { AbstractLogDocument } from './abstract-log';
-import { IAbstractRepository } from './interfaces';
-import { AggregationLookup } from './types/abstract.type';
-import { IAbstractLog } from './interfaces/abstract-log.interface';
 import AbstractLogModel from './abstract-log.schema';
+import { IAbstractRepository } from './interfaces';
+import { IAbstractLog } from './interfaces/abstract-log.interface';
+import { AggregationLookup } from './types/abstract.type';
 
 @Injectable()
 export abstract class AbstractRepository<

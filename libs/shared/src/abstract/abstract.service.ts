@@ -1,5 +1,10 @@
-import { ExtraUpdateOptions, ModelInfo, UpdateResponse } from '@app/shared';
-import { AbstractSchema } from '@app/shared/schemas';
+import {
+	AbstractSchema,
+	ExtraUpdateOptions,
+	ModelInfo,
+	UpdateResponse,
+} from '@app/shared';
+
 import { Injectable, Logger } from '@nestjs/common';
 import {
 	FilterQuery,

@@ -1,9 +1,13 @@
 import { User } from '@app/shared/schemas';
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Expose, Transform } from 'class-transformer';
 import mongoose from 'mongoose';
+import SchemaCustom from '../abstract/schema-option';
 
-@Schema()
+@SchemaCustom({
+	strict: false,
+	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+})
 export class AbstractSchema {
 	@Expose()
 	@Transform(
@@ -23,3 +27,5 @@ export class AbstractSchema {
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
 	updated_by?: User;
 }
+
+export const _AbstractSchema = SchemaFactory.createForClass(AbstractSchema);

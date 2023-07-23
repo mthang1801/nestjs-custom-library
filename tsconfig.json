@@ -17,7 +17,6 @@
 		"strictBindCallApply": false,
 		"forceConsistentCasingInFileNames": false,
 		"noFallthroughCasesInSwitch": false,
-		"resolveJsonModule": true,
 		"paths": {
 			"@app/common": ["libs/common/src", "libs/common/src"],
 			"@app/common/*": ["libs/common/src/*", "libs/common/src/*"],

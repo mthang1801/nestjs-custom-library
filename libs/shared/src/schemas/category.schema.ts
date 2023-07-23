@@ -1,9 +1,8 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
-import { AbstractSchema } from '.';
 import SchemaCustom from '../abstract/schema-option';
-
+import { AbstractSchema } from '.';
 @SchemaCustom({ collection: 'categories' })
 export class Category extends AbstractSchema {
 	@Prop()

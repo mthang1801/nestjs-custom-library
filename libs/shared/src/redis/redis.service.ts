@@ -1,8 +1,8 @@
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
+	BadRequestException,
+	Inject,
+	Injectable,
+	Logger,
 } from '@nestjs/common';
 import { RedisCommandArgument } from '@redis/client/dist/lib/commands';
 import { RedisClientType, SetOptions, createClient } from 'redis';

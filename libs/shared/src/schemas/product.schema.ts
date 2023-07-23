@@ -1,10 +1,11 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { AbstractSchema } from '.';
+
 import SchemaCustom from '../abstract/schema-option';
 import { ENUM_PRODUCT_VISIBILITY, ENUM_STATUS } from '../constants/enum';
 import { typeOf } from '../utils/function.utils';
+import { AbstractSchema } from './abstract.schema';
 import { Category } from './category.schema';
 
 @SchemaCustom()
