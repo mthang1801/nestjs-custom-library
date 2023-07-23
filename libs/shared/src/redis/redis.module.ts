@@ -1,24 +1,33 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import redisConfig from '../config/redis.config';
+import { LibUtilModule } from '../utils/util.module';
 import { REDIS, REDIS_CONNECTION_OPTIONS } from './constants/constants';
 import { RedisModuleAsyncOptions, RedisOptionFactory } from './interfaces';
-import { RedisService } from './redis.service';
+import { LibRedisService } from './redis.service';
+import { LibRedisUtil } from './redis.utils';
 
-@Module({})
-export class RedisModule {
+@Module({
+	imports: [LibUtilModule],
+})
+export class LibRedisModule {
 	static registerAsync(
 		connectionOptions: RedisModuleAsyncOptions,
 	): DynamicModule {
 		return {
-			module: RedisModule,
-			imports: connectionOptions.imports || [],
+			module: LibRedisModule,
+			imports: connectionOptions.imports || [
+				ConfigModule.forRoot({ isGlobal: true, load: [redisConfig] }),
+			],
 			providers: [
-				RedisService,
+				LibRedisUtil,
+				LibRedisService,
 				connectionOptions.useClass || undefined,
 				connectionOptions.useExisting || undefined,
 				this.createConnectionProvider(connectionOptions),
 				this.createConnectFactory(),
 			].filter(Boolean),
-			exports: [RedisService],
+			exports: [LibRedisService],
 		};
 	}
 
@@ -45,9 +54,9 @@ export class RedisModule {
 	static createConnectFactory(): Provider {
 		return {
 			provide: REDIS,
-			useFactory: async (redisService: RedisService) =>
+			useFactory: async (redisService: LibRedisService) =>
 				await redisService.connect(),
-			inject: [RedisService],
+			inject: [LibRedisService],
 		};
 	}
 }

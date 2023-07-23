@@ -15,8 +15,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import AbstractLogModel from 'apps/rmq-service/libs/shared/src/abstract/abstract-log.schema';
-import { IAbstractLog } from 'apps/rmq-service/libs/shared/src/abstract/interfaces/abstract-log.interface';
 import moment from 'moment';
 import mongoose, {
 	Aggregate,
@@ -36,6 +34,8 @@ import { UtilService } from '../utils/util.service';
 import { AbstractLogDocument } from './abstract-log';
 import { IAbstractRepository } from './interfaces';
 import { AggregationLookup } from './types/abstract.type';
+import { IAbstractLog } from './interfaces/abstract-log.interface';
+import AbstractLogModel from './abstract-log.schema';
 
 @Injectable()
 export abstract class AbstractRepository<
@@ -187,7 +187,7 @@ export abstract class AbstractRepository<
 	}
 
 	async createUpdatedOneActionLog(oldData: T, newData: T) {
-    if(!this.primaryLogModel) return;
+		if (!this.primaryLogModel) return;
 		const fieldChanges = Object.keys(newData)
 			.filter((key) => !this.excludeFieldChanges.includes(key))
 			.reduce((result, key) => {

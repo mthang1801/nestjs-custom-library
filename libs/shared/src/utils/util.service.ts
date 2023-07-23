@@ -297,13 +297,17 @@ export class UtilService {
 			);
 	}
 
-	isJsonString(str: string) {
+	isJsonString(value: any) {
 		try {
-			JSON.parse(str);
+			JSON.parse(value);
 		} catch (e) {
 			return false;
 		}
 		return true;
+	}
+
+	jsonParse(value: any) {
+		return this.isJsonString(value) ? JSON.parse(value) : value;
 	}
 
 	mergeArray(initArr: any[], insertedArr: any[], index: number) {
