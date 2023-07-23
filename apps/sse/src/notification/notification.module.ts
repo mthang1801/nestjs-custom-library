@@ -5,6 +5,8 @@ import {
 } from '@app/shared/schemas/notification.schema';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationController } from './notification.controller';
+import { NotificationRepository } from './notification.repository';
 import { NotificationService } from './notification.service';
 
 @Module({
@@ -15,7 +17,8 @@ import { NotificationService } from './notification.service';
 			schema: NotificationSchema,
 		}),
 	],
-	providers: [NotificationService],
-	exports: [NotificationService],
+	controllers: [NotificationController],
+	providers: [NotificationService, NotificationRepository],
+	exports: [NotificationService, NotificationRepository],
 })
 export class NotificationModule {}

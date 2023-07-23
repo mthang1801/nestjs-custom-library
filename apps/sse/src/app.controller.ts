@@ -1,11 +1,10 @@
 import {
-	Controller,
-	Get,
-	MessageEvent,
-	Param,
-	Post,
-	Res,
-	Sse,
+  Controller,
+  Get,
+  MessageEvent,
+  Param,
+  Res,
+  Sse
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Observable, interval } from 'rxjs';
@@ -17,7 +16,7 @@ export class AppController {
 		res.send('index.html');
 	}
 
-	@Sse(':company/:userId')
+	@Sse('company/:company/user/:userId')
 	getUserInfoByCompanyAndId(
 		@Param('company') company: string,
 		@Param('userId') userId: string,
