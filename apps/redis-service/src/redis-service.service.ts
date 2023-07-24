@@ -5,7 +5,7 @@ import { Timeout } from '@nestjs/schedule';
 @Injectable()
 export class RedisServiceService {
 	constructor(private readonly redisService: LibRedisService) {}
-
+	@Timeout(Date.now().toString(), 500)
 	async RedisStringExample() {
 		const key = 'test';
 		const value = {
@@ -223,7 +223,6 @@ export class RedisServiceService {
 		// console.log(getDelResult);
 	}
 
-	@Timeout(Date.now().toString(), 500)
 	async RedisHashExample() {
 		//TODO : HSET
 		const hKey1 = 'hkey:1';
@@ -238,6 +237,7 @@ export class RedisServiceService {
 			{
 				catalog_feature_id: 1,
 				feature_name: 'Màn hình',
+				is_active: true,
 				catalog_feature_details: [
 					{
 						detail_code: 'sp_manhinh_congnghe',
@@ -374,6 +374,49 @@ export class RedisServiceService {
 
 		//TODO: HLen
 		const hKeysLen = await this.redisService.hLen(hKey1);
-		console.log(hKeysLen);
+		// console.log(hKeysLen);
+
+		//TODO: HVALS
+		const hValsList = await this.redisService.hVals(hKey1);
+		// console.log(hValsList);
+
+		//TODO: HIncrBy
+		const hIncrBy = await this.redisService.hIncrBy(hKey1, 'point2', 15);
+		// console.log(typeOf(hIncrBy), hIncrBy);
+
+		//TODO: HIncrByFloat
+		const hIncrByFloat = await this.redisService.hIncrByFloat(
+			hKey1,
+			'point4',
+			25.5,
+		);
+		// console.log(typeOf(hIncrByFloat), hIncrByFloat);
+
+		//TODO: HEXISTS
+		const hShoudExists = await this.redisService.hExists(hKey1, hKey1Field1);
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:398 ~ RedisServiceService ~ RedisHashExample ~ hShoudExists:',
+		// 	hShoudExists,
+		// );
+		const hShouldNotExists = await this.redisService.hExists(hKey1, 'tessst');
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:400 ~ RedisServiceService ~ RedisHashExample ~ hShouldNotExists:',
+		// 	hShouldNotExists,
+		// );
+
+		//TODO: HSCAN
+		const hScan = await this.redisService.hScan(hKey1);
+		console.log(hScan);
+
+		//TODO: HDEL
+		const deletedList = await this.redisService.hDel(
+			hKey1,
+			hKey1Field1,
+			hKey1Field2,
+			'test',
+			'point1',
+			'unknown',
+		);
+		// console.log(deletedList);
 	}
 }

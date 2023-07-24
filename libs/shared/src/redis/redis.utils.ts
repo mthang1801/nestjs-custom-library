@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RedisCommandArgument } from '@redis/client/dist/lib/commands';
 import * as lodash from 'lodash';
 import { UtilService } from '../utils/util.service';
+import { HScanReply, HScanResponse } from './types/redis-client.type';
 @Injectable()
 export class LibRedisUtil {
 	constructor(private readonly utilService: UtilService) {}
@@ -31,6 +32,10 @@ export class LibRedisUtil {
 		}, {});
 	}
 
+	hSetNotExists(value: any) {
+		return this.utilService.isJsonString(value) ? value : JSON.stringify(value);
+	}
+
 	hmGetValues(data: string[]) {
 		return data.map((item) => this.utilService.jsonParse(item));
 	}
@@ -40,5 +45,26 @@ export class LibRedisUtil {
 			res[key] = this.utilService.jsonParse(val);
 			return res;
 		}, {});
+	}
+
+	hVals(valueList: string[]) {
+		return valueList.map((valueItem) => this.utilService.jsonParse(valueItem));
+	}
+
+	hScan(data: HScanReply): HScanResponse {
+		const { cursor, tuples } = data;
+		const convertTuplesToObject = tuples.reduce(
+			(res, { field, value }: { field: string; value: any }) => {
+				res[this.utilService.jsonParse(field)] =
+					this.utilService.jsonParse(value);
+				return res;
+			},
+			{},
+		);
+
+		return {
+			cursor,
+			data: convertTuplesToObject,
+		};
 	}
 }

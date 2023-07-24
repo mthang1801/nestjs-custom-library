@@ -144,3 +144,9 @@ export enum ENUM_MODEL {
 export enum ENUM_ACTION_TYPE {
 	CREATE = 'created',
 }
+
+export const ENUM_NOTIFICATION_OBJECT = {
+	GROUP: 'GROUP',
+	PRIVATE: 'PRIVATE',
+	GLOBAL: 'GLOBAL',
+} as const;

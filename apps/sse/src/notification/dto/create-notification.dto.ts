@@ -1,5 +1,5 @@
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateNotificationsDto {
 	@IsString()
@@ -11,4 +11,8 @@ export class CreateNotificationsDto {
 	@Transform(({ value }: TransformFnParams) => value?.trim())
 	@IsNotEmpty()
 	readonly description: string;
+
+	@IsObject()
+	@IsOptional()
+	object: any;
 }

@@ -1,15 +1,21 @@
 import {
-	BadRequestException,
-	Inject,
-	Injectable,
-	Logger,
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
 } from '@nestjs/common';
 import { RedisCommandArgument } from '@redis/client/dist/lib/commands';
 import { RedisClientType, SetOptions, createClient } from 'redis';
 import { REDIS_CONNECTION_OPTIONS } from './constants/constants';
 import { RedisConnectionOptions } from './interfaces';
 import { LibRedisUtil } from './redis.utils';
-import type { ExpireMode, ExpireTime } from './types/redis-client.type';
+import type {
+  ExpireMode,
+  ExpireTime,
+  HScanReply,
+  HScanResponse,
+  ScanResponse,
+} from './types/redis-client.type';
 
 @Injectable()
 export class LibRedisService {
@@ -158,7 +164,7 @@ export class LibRedisService {
 	 * @returns {number}
 	 */
 	public async ttl(key: string) {
-		return this.redisClient.ttl(key);
+		return this.redisClient.TTL(key);
 	}
 
 	/**
@@ -215,10 +221,21 @@ export class LibRedisService {
 	 * @param {number} cursor
 	 * @param {string} match
 	 * @param {number} count
-	 * @returns
+	 * @returns {Promise<ScanResponse>}
 	 */
-	public async scan(match: string, cursor = 0, count = 20) {
-		return this.redisClient.SCAN(cursor, { MATCH: match, COUNT: count });
+	public async scan(
+		match = '*',
+		cursor = 0,
+		count = 20,
+	): Promise<ScanResponse> {
+		try {
+			return this.redisClient.SCAN(cursor, { MATCH: match, COUNT: count });
+		} catch (error) {
+			return {
+				cursor: 0,
+				keys: [],
+			};
+		}
 	}
 	//#endregion
 
@@ -238,7 +255,25 @@ export class LibRedisService {
 	}
 
 	/**
-	 * Return the value of fields  in hash\
+	 * Sets the specified fields to their respective values in the hash stored at key.
+	 * This command overwrites any specified fields already existing in the hash.
+	 * If key does not exist, a new key holding a hash is created.
+	 * @param {string} key
+	 * @param {field} string
+	 * @param { value} string
+	 * @returns
+	 */
+	public async hSetNotExists(
+		key: RedisCommandArgument,
+		field: RedisCommandArgument,
+		value: any,
+	) {
+		const formatHsetData = await this.redisUtil.hSetNotExists(value);
+		return this.redisClient.HSETNX(key, field, formatHsetData);
+	}
+
+	/**
+	 * Return the value of fields in hash
 	 * @param key
 	 * @param field
 	 * @returns
@@ -305,6 +340,114 @@ export class LibRedisService {
 			return await this.redisClient.HLEN(key);
 		} catch (error) {
 			return 0;
+		}
+	}
+
+	/**
+	 * Returns all values in hash
+	 * @param {string} key
+	 * @returns
+	 */
+	public async hVals(key: RedisCommandArgument): Promise<any[]> {
+		try {
+			const valuesList = await this.redisClient.HVALS(key);
+			return this.redisUtil.hVals(valuesList);
+		} catch (error) {
+			return [];
+		}
+	}
+
+	/**
+	 * Increments the integer value of a field in a hash by a number.
+	 * Uses 0 as initial value if the field doesn't exist.
+	 * @param {string} key
+	 * @param {field} string
+	 * @param {increment} number
+	 * @returns
+	 */
+	public async hIncrBy(
+		key: RedisCommandArgument,
+		field: RedisCommandArgument,
+		increment?: number,
+	): Promise<number> {
+		return await this.redisClient.HINCRBY(key, field, increment ?? 0);
+	}
+
+	/**
+	 * Increments the floating point value of a field by a number.
+	 * Uses 0 as initial value if the field doesn't exist.
+	 * @param {string} key
+	 * @param {field} string
+	 * @param {increment} number
+	 * @returns
+	 */
+	public async hIncrByFloat(
+		key: RedisCommandArgument,
+		field: RedisCommandArgument,
+		increment?: number,
+	): Promise<number> {
+		return Number(
+			await this.redisClient.HINCRBYFLOAT(key, field, increment ?? 0),
+		);
+	}
+
+	/**
+	 * Deternmines whether a field exists in the hash
+	 * @param {string} key
+	 * @param {string} field
+	 * @returns {Promise<boolean>}
+	 */
+	public async hExists(
+		key: RedisCommandArgument,
+		field: RedisCommandArgument,
+	): Promise<boolean> {
+		return await this.redisClient.HEXISTS(key, field);
+	}
+
+	/**
+	 * Removes the specified fields from the hash stored at key.
+	 * Specified fields that do not exist within this hash are ignored.
+	 * If key does not exist, it is treated as an empty hash and this command returns 0.
+	 * @param {string} key
+	 * @param {string[]} fields
+	 * @returns {Promise<number>}
+	 */
+	public async hDel(
+		key: RedisCommandArgument,
+		...fields: RedisCommandArgument[]
+	) {
+		return await this.redisClient.HDEL(key, fields);
+	}
+
+	/**
+	 * Removes the specified fields from the hash stored at key.
+	 * Specified fields that do not exist within this hash are ignored.
+	 * If key does not exist, it is treated as an empty hash and this command returns 0.
+	 * @param {string} key
+	 * @param {string[]} fields
+	 * @returns {Promise<HScanResponse>}
+	 */
+	public async hScan(
+		key: string,
+		match = '*',
+		cursor = 0,
+		count = 20,
+	): Promise<HScanResponse> {
+		try {
+			const hScanResponse: HScanReply = await this.redisClient.HSCAN(
+				key,
+				cursor,
+				{
+					MATCH: match,
+					COUNT: count,
+				},
+			);
+			return await this.redisUtil.hScan(hScanResponse);
+		} catch (error) {
+			return {
+				cursor: 0,
+				data: null,
+			};
 		}
 	}
 	//#endregion
