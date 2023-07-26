@@ -21,7 +21,6 @@ export class LibRedisUtil {
 			const value = JSON.stringify(item[key]);
 			return { [key]: value };
 		});
-
 		return mDataConvert.flatMap(Object.entries).flat(1);
 	}
 
