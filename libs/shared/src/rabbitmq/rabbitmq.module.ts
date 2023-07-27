@@ -3,7 +3,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import rabbitmqConfig from '../config/rabbitmq.config';
-import { RabbitMQService } from './rabbitmq.service';
+import { RabbitMQClientService } from './rabbitmq-client.service';
 import { RMQDynamicModuleOptions } from './types/rabbitmq-dynamic-module-options.type';
 @Module({})
 export class RabbitMQModule {
@@ -56,8 +56,8 @@ export class RabbitMQModule {
 					},
 				]),
 			],
-			providers: [RabbitMQService],
-			exports: [RabbitMQService, ClientsModule, RabbitMQModule],
+			providers: [RabbitMQClientService],
+			exports: [RabbitMQClientService, ClientsModule, RabbitMQModule],
 		};
 	}
 

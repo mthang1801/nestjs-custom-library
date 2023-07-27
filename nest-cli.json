@@ -207,6 +207,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/cache-service/tsconfig.app.json"
       }
+    },
+    "log-service": {
+      "type": "application",
+      "root": "apps/log-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/log-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/log-service/tsconfig.app.json"
+      }
     }
   }
 }

@@ -4,13 +4,20 @@ import { ConfigService } from '@nestjs/config';
 import { RmqContext, RmqOptions, Transport } from '@nestjs/microservices';
 import { HealthIndicatorResult } from '@nestjs/terminus';
 import { Observable, fromEvent, lastValueFrom, mapTo, merge, of } from 'rxjs';
+import { RmqClientOptions } from './types/rabbitmq-client-options.type';
 @Injectable()
-export class RabbitMQService {
+export class RabbitMQClientService {
 	constructor(
 		private readonly configService: ConfigService,
 		private readonly amqpConnection: AmqpConnection,
 	) {}
 
+	/**
+	 * Apply for old version
+	 * @param {string} name
+	 * @param {boolean} noAck
+	 * @returns
+	 */
 	getOptions(name: string, noAck = true): RmqOptions {
 		return {
 			transport: Transport.RMQ,
@@ -23,6 +30,26 @@ export class RabbitMQService {
 				queueOptions: {
 					durable: true,
 				},
+			},
+		};
+	}
+
+	/**
+	 * Apply for new version
+	 * @param {RmqClientOptions} properties
+	 */
+	getConsumer(properties: RmqClientOptions): RmqOptions {
+		return {
+			transport: Transport.RMQ,
+			options: {
+				urls: [this.getUrl()],
+				prefetchCount: 10,
+				isGlobalPrefetchCount: true,
+				queueOptions: {
+					durable: true,
+				},
+				...properties,
+				noAck: properties.isAck ? false : true,
 			},
 		};
 	}
