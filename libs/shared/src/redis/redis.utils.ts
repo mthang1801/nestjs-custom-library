@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RedisCommandArgument } from '@redis/client/dist/lib/commands';
 import * as lodash from 'lodash';
+import { typeOf } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
 import { HScanReply, HScanResponse } from './types/redis-client.type';
 @Injectable()
@@ -15,13 +16,23 @@ export class LibRedisUtil {
 		return this.utilService.jsonParse(value);
 	}
 
-	mSetValue(mData: Array<Record<string, any>>): Array<string> {
-		const mDataConvert = mData.map((item) => {
-			const [key] = lodash.keys(item);
-			const value = JSON.stringify(item[key]);
-			return { [key]: value };
-		});
-		return mDataConvert.flatMap(Object.entries).flat(1);
+	mSetValue(
+		mData: Array<Record<string, any>> | Record<string, any>,
+	): Array<string> {
+		if (typeOf(mData) === 'array') {
+			const mDataConvert = mData.map((item) => {
+				const [key] = lodash.keys(item);
+				const value = JSON.stringify(item[key]);
+				return { [key]: value };
+			});
+
+			return mDataConvert.flatMap(Object.entries).flat(1);
+		}
+		return Object.entries(mData).reduce((result, [key, val]: [string, any]) => {
+			result.push(key);
+			result.push(this.utilService.stringify(val));
+			return result;
+		}, []);
 	}
 
 	formatHsetData(data) {

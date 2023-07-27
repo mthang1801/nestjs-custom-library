@@ -306,6 +306,10 @@ export class UtilService {
 		return true;
 	}
 
+	stringify(value: any) {
+		return JSON.stringify(value);
+	}
+
 	jsonParse(value: any) {
 		return this.isJsonString(value) ? JSON.parse(value) : value;
 	}

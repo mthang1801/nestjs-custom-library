@@ -155,15 +155,15 @@ export class RedisServiceService {
 		// console.log(result);
 
 		// TODO: MSET Example
-		const mKey1 = 'key:1';
+		const mKey1 = 'nSetKey:1';
 		const mValue1 = 'value1';
-		const mKey2 = 'key:2';
+		const mKey2 = 'nSetKey:2';
 		const mValue2 = value;
-		const mKey3 = 'key:3';
+		const mKey3 = 'nSetKey:3';
 		const mValue3 = 123;
-		const mKey4 = 'key:4';
+		const mKey4 = 'nSetKey:4';
 		const mValue4 = productFeature;
-		const mKey5 = 'key:5';
+		const mKey5 = 'nSetKey:5';
 		const mValue5 = true;
 		const mData = [
 			{ [mKey1]: mValue1 },
@@ -175,15 +175,35 @@ export class RedisServiceService {
 		const mKey6 = 'key:6';
 		await this.redisService.mSet(mData);
 
+		const msetObjectData = {
+			[mKey1 + 'obj']: mValue1,
+			[mKey2 + 'obj']: mValue2,
+			[mKey3 + 'obj']: mValue3,
+			[mKey4 + 'obj']: mValue4,
+			[mKey5 + 'obj']: mValue5,
+		};
+		await this.redisService.mSet(msetObjectData);
+		const mGetObjectdata = await this.redisService.mGet([
+			mKey1 + 'obj',
+			mKey2 + 'obj',
+		]);
+		console.log(
+			'🚀 ~ file: redis-service.service.ts:187 ~ RedisServiceService ~ RedisStringExample ~ mGetObjectdata:',
+			mGetObjectdata,
+		);
+
 		// TODO: MGET Example
-		const mgetData = await this.redisService.mGet(
+		const mgetData = await this.redisService.mGet([
 			mKey1,
 			mKey6,
 			mKey3,
 			mKey4,
 			mKey5,
-		);
-		// console.log(mgetData)
+		]);
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:186 ~ RedisServiceService ~ RedisStringExample ~ mgetData:',
+		// 	mgetData,
+		// );
 
 		// TODO: Keys List Example
 		const keysList = await this.redisService.keys('key:*');
@@ -195,7 +215,10 @@ export class RedisServiceService {
 		}));
 		await this.redisService.mSet(scanListData);
 		const scanDataResult = await this.redisService.scan('scan:*', 0);
-		console.log(scanDataResult);
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:198 ~ RedisServiceService ~ RedisStringExample ~ scanDataResult:',
+		// 	scanDataResult,
+		// );
 
 		// TODO: INCR
 		const postKey = 'POST:1:LIKE';

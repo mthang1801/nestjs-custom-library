@@ -79,9 +79,13 @@ export class LibRedisService {
 		return this.redisUtil.getValue(value);
 	}
 
-	public async mSet(mData: Array<Record<string, any>>) {
+	public async mSet(mData: Array<Record<string, any>> | Record<string, any>) {
 		try {
 			const mSetValue = this.redisUtil.mSetValue(mData);
+			console.log(
+				'🚀 ~ file: redis.service.ts:85 ~ LibRedisService ~ mSet ~ mSetValue:',
+				mSetValue,
+			);
 			return this.redisClient.MSET(mSetValue);
 		} catch (error) {
 			throw new BadRequestException(error);
@@ -91,15 +95,24 @@ export class LibRedisService {
 	public async mSetNotExists(mData: Array<Record<string, any>>) {
 		try {
 			const mSetValue = this.redisUtil.mSetValue(mData);
+			console.log(
+				'🚀 ~ file: redis.service.ts:98 ~ LibRedisService ~ mSetNotExists ~ mData:',
+				mData,
+			);
+			console.log(
+				'🚀 ~ file: redis.service.ts:94 ~ LibRedisService ~ mSetNotExists ~ mSetValue:',
+				mSetValue,
+			);
 			return this.redisClient.MSETNX(mSetValue);
 		} catch (error) {
 			throw new BadRequestException(error);
 		}
 	}
 
-	public async mGet(...keys: string[]): Promise<Record<string, any>[]> {
-		const mGetData = await this.redisClient.MGET(keys);
-		return mGetData.map((data, i) => ({ [keys[i]]: data }));
+	public async mGet(args: string[]): Promise<Record<string, any>[]> {
+		const mGetData = await this.redisClient.MGET(args);
+
+		return mGetData.map((data, i) => ({ [args[i]]: data }));
 	}
 
 	public async keys(pattern: string): Promise<string[]> {
