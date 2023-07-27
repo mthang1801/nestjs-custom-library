@@ -307,7 +307,7 @@ export class UtilService {
 	}
 
 	stringify(value: any) {
-		return JSON.stringify(value);
+		return  JSON.stringify(value);
 	}
 
 	jsonParse(value: any) {
