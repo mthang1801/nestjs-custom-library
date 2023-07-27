@@ -5,7 +5,7 @@ import { Timeout } from '@nestjs/schedule';
 @Injectable()
 export class RedisServiceService {
 	constructor(private readonly redisService: LibRedisService) {}
-	@Timeout(Date.now().toString(), 500)
+
 	async RedisStringExample() {
 		const key = 'test';
 		const value = {
@@ -200,10 +200,10 @@ export class RedisServiceService {
 			mKey4,
 			mKey5,
 		]);
-		// console.log(
-		// 	'🚀 ~ file: redis-service.service.ts:186 ~ RedisServiceService ~ RedisStringExample ~ mgetData:',
-		// 	mgetData,
-		// );
+		console.log(
+			'🚀 ~ file: redis-service.service.ts:186 ~ RedisServiceService ~ RedisStringExample ~ mgetData:',
+			mgetData,
+		);
 
 		// TODO: Keys List Example
 		const keysList = await this.redisService.keys('key:*');
@@ -246,6 +246,7 @@ export class RedisServiceService {
 		// console.log(getDelResult);
 	}
 
+	@Timeout(Date.now().toString(), 500)
 	async RedisHashExample() {
 		//TODO : HSET
 		const hKey1 = 'hkey:1';
@@ -385,7 +386,20 @@ export class RedisServiceService {
 			hKey1Field1,
 			hKey1Field2,
 		);
-		// console.log(getHMValues);
+		console.log(
+			'🚀 ~ file: redis-service.service.ts:389 ~ RedisServiceService ~ RedisHashExample ~ getHMValues:',
+			getHMValues,
+		);
+
+		// TODO: HMGET
+		const getHMValuesArray = await this.redisService.hmGet(hKey1, [
+			hKey1Field1,
+			hKey1Field2,
+		]);
+		console.log(
+			'🚀 ~ file: redis-service.service.ts:400 ~ RedisServiceService ~ RedisHashExample ~ getHMValuesArray:',
+			getHMValuesArray,
+		);
 
 		//TODO: HGetAll
 		const hGetAllValues = await this.redisService.hGetAll(hKey1);
