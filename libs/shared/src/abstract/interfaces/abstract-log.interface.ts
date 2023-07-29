@@ -7,6 +7,7 @@ export interface IAbstractLog {
 	new_data?: mongoose.Schema.Types.ObjectId;
 	difference?: any;
 	extra_data?: any;
+	context?: any;
 	model_reference?: string;
 	created_by?: mongoose.Schema.Types.ObjectId | string | any;
 	updated_by?: mongoose.Schema.Types.ObjectId | string | any;

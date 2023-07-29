@@ -1,13 +1,13 @@
 import { MongoIdValidationPipe } from '@app/shared/pipes';
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
+	Put,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -15,7 +15,7 @@ import { UpdatePostStatusDto } from './dto/update-post-status.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 
-@Controller('posts')
+@Controller('/api/v2/posts')
 export class PostsController {
 	constructor(private readonly postsService: PostsService) {}
 

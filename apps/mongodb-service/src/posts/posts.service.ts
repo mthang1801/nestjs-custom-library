@@ -1,12 +1,15 @@
 import { AbstractService } from '@app/shared';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  forwardRef,
+	BadRequestException,
+	ExecutionContext,
+	Inject,
+	Injectable,
+	Logger,
+	Scope,
+	forwardRef,
 } from '@nestjs/common';
+import { CONTEXT } from '@nestjs/microservices';
 import { ClientSession, ObjectId } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -14,13 +17,14 @@ import { UpdatePostStatusDto } from './dto/update-post-status.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsRepository } from './posts.repository';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class PostsService extends AbstractService<PostsDocument> {
 	protected logger = new Logger(PostsService.name);
 	constructor(
 		private readonly postRepository: PostsRepository,
 		@Inject(forwardRef(() => UsersService))
 		private readonly userService: UsersService,
+		@Inject(CONTEXT) private readonly context: ExecutionContext,
 	) {
 		super(postRepository);
 	}

@@ -13,6 +13,6 @@ export class ProductRepository extends AbstractRepository<ProductDocument> {
 		@InjectModel(Product.name, CONNECTION_NAME.PRIMARY)
 		readonly secondaryModel: Model<ProductDocument>,
 	) {
-		super(primaryModel, secondaryModel);
+		super({ primaryModel, secondaryModel });
 	}
 }

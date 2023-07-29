@@ -14,6 +14,6 @@ export class UserRoleRepository extends AbstractRepository<UserRoleDocument> {
 		@InjectModel(UserRole.name, CONNECTION_NAME.SECONDARY)
 		readonly secondaryModel: Model<UserRoleDocument>,
 	) {
-		super(primaryModel, secondaryModel);
+		super({ primaryModel, secondaryModel });
 	}
 }

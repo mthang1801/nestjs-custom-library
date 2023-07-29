@@ -1,4 +1,4 @@
-import { CONNECTION_NAME, QUEUES } from '@app/shared';
+import { CONNECTION_NAME, ENUM_QUEUES } from '@app/shared';
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy, RmqOptions, Transport } from '@nestjs/microservices';
@@ -29,7 +29,7 @@ export class HealthController {
 		private primaryConnection: Connection,
 		@InjectConnection(CONNECTION_NAME.SECONDARY)
 		private secondaryConnection: Connection,
-		@Inject(QUEUES.HEALTH_CHECK) private readonly rmqClient: ClientProxy,
+		@Inject(ENUM_QUEUES.HEALTH_CHECK) private readonly rmqClient: ClientProxy,
 		private readonly microserviceHealthIndicator: MicroserviceHealthIndicator,
 		private readonly configService: ConfigService,
 		private readonly httpHealthIndicator: HttpHealthIndicator,

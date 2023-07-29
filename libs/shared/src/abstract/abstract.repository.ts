@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ClientProxy } from '@nestjs/microservices';
 import moment from 'moment';
 import mongoose, {
 	Aggregate,
@@ -26,15 +27,25 @@ import mongoose, {
 	QueryOptions,
 	UpdateQuery,
 } from 'mongoose';
-import { ENUM_DATE_TIME } from '../constants/enum';
+import { ENUM_PATTERN, ENUM_QUEUES } from '../constants';
+import {
+	ENUM_ACTION_TYPE,
+	ENUM_DATE_TIME,
+	ENUM_MODEL,
+} from '../constants/enum';
 import { MongooseDynamicService } from '../mongoose/mongoose.service';
+import { RMQClientService } from '../rabbitmq';
 import { AbstractSchema } from '../schemas/abstract.schema';
 import { UtilService } from '../utils/util.service';
 import { AbstractLogDocument } from './abstract-log';
 import AbstractLogModel from './abstract-log.schema';
 import { IAbstractRepository } from './interfaces';
 import { IAbstractLog } from './interfaces/abstract-log.interface';
-import { AggregationLookup } from './types/abstract.type';
+import {
+	AggregationLookup,
+	InitAbstractRepository,
+	LogActionPayload,
+} from './types/abstract.type';
 
 @Injectable()
 export abstract class AbstractRepository<
@@ -47,6 +58,7 @@ export abstract class AbstractRepository<
 	public primaryLogModel: Model<AbstractLogDocument<any>> = null;
 	public secondaryLogModel: Model<AbstractLogDocument<any>> = null;
 	public modelInfo: ModelInfo = null;
+	public logModelInfo: ModelInfo = null;
 	public collectionName: string = null;
 	private aggregate: Aggregate<any> = null;
 	protected eventEmitter: EventEmitter2 = null;
@@ -54,27 +66,41 @@ export abstract class AbstractRepository<
 	protected configService: ConfigService = null;
 	protected mongooseService: MongooseDynamicService = null;
 	private excludeFieldChanges = ['_id', 'created_at', 'updated_at'];
+	protected context: any;
+	protected rmqClient: ClientProxy;
+	protected rmqClientService: RMQClientService;
 
-	constructor(
-		primaryModel: Model<T>,
-		secondaryModel: Model<T>,
-		primaryLogModel?: Model<AbstractLogDocument<any>>,
-		secondaryLogModel?: Model<AbstractLogDocument<any>>,
-	) {
+	constructor({
+		primaryModel,
+		secondaryModel,
+		primaryLogModel,
+		secondaryLogModel,
+		context,
+	}: InitAbstractRepository<T>) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
 		this.primaryLogModel = primaryLogModel;
 		this.secondaryLogModel = secondaryLogModel;
-
+		this.context = context;
 		this.modelInfo = {
 			modelName: primaryModel.modelName,
 			collectionName: primaryModel.collection.name,
 			schema: primaryModel.schema,
 		};
+		this.logModelInfo = {
+			modelName: primaryLogModel?.modelName,
+			collectionName: primaryLogModel?.collection?.name,
+			schema: primaryLogModel?.schema,
+		};
 		this.eventEmitter = new EventEmitter2();
 		this.utilService = new UtilService();
 		this.configService = new ConfigService();
 		this.mongooseService = new MongooseDynamicService(this.configService);
+		this.rmqClientService = new RMQClientService(this.configService);
+		this.rmqClient = this.rmqClientService.createClient({
+			queue: ENUM_QUEUES.SAVE_ACTION,
+			urls: [this.rmqClientService.getUrl()],
+		});
 	}
 
 	async startTransaction(): Promise<ClientSession> {
@@ -84,34 +110,70 @@ export abstract class AbstractRepository<
 	async create(payload: Partial<T> | Partial<T>[]): Promise<T> {
 		const newData = await this.primaryModel.create(payload);
 
-		// TODO: Create Create Action Log
-		// FIXME: Need to fix in future
-		// BUG: Need to hot fix
-		// NOTE: This is the note
-		await this.createCreatedActionLog(newData);
+		await this.saveIntoLog<T>({
+			newData,
+			actionType: ENUM_ACTION_TYPE.CREATE,
+		});
 		return newData;
 	}
 
-	async createCreatedActionLog(data: Partial<T>) {
-		this.primaryLogModel &&
-			(await this.primaryLogModel.create<IAbstractLog>({
-				new_data: data.id,
-				new_data_desc: data,
-				model_reference: this.modelInfo.modelName,
-				created_by: data?.created_by,
-			}));
+	async saveIntoLog<T>({
+		newData,
+		oldData,
+		actionType,
+		extraData,
+	}: LogActionPayload<T>) {
+		const payload: LogActionPayload<T> | any = {
+			newData: newData?.toJSON(),
+			oldData: oldData?.toJSON(),
+			context: this.getContext(),
+			actionType,
+			extraData,
+			collectionName:
+				this.logModelInfo.collectionName ?? this.generateLogCollectionName(),
+		};
+
+		const rmqBuilder = this.rmqClientService.crerateBuilder(payload);
+		this.rmqClient.emit({ cmd: ENUM_PATTERN.SAVE_ACTION }, rmqBuilder);
 	}
 
-	async checkExistsOrCreateModelLog(): Promise<mongoose.Model<IAbstractLog>> {
+	generateLogCollectionName(): `${string}_logs` {
+		const modelName = this.modelInfo.modelName.toLowerCase();
+		const singularModelName = modelName.replace(/ies$/, 'y').replace(/s$/, '');
+		return `${singularModelName}_logs`;
+	}
+
+	getContext() {
+		return {
+			path: this.context.route.path,
+			url: this.context.url,
+			method: this.context.method,
+			body: this.context.body,
+			params: this.context['params'],
+			query: this.context['query'],
+		};
+	}
+
+	async checkExistsOrCreateCollection(
+		collectionName: string,
+	): Promise<mongoose.Model<IAbstractLog>> {
+		// if (this.logModelInfo.schema) {
+		// 	return this.logModelInfo.schema;
+		// }
+		return new Promise(async (resolve, reject) => {
+			try {
+				const client = await this.mongooseService.mongoClientConnect();
+			} catch (error) {
+				throw new HttpException(error.message, error.status);
+			}
+		});
+	}
+
+	async createSystemModelLog() {
 		return new Promise((resolve, reject) => {
 			try {
 				this.mongooseService.connect().then(() => {
-					const modelName = this.modelInfo.modelName.toLowerCase();
-					const singularModelName = modelName
-						.replace(/ies$/, 'y')
-						.replace(/s$/, '');
-					const modelLogName = `${singularModelName}_logs`;
-					const Model = AbstractLogModel(modelLogName);
+					const Model = AbstractLogModel(ENUM_MODEL.SYSTEM_LOG);
 					resolve(Model);
 				});
 			} catch (error) {

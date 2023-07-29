@@ -1,4 +1,4 @@
-import { QUEUES, RabbitMQClientService } from '@app/shared';
+import { ENUM_QUEUES, RMQClientService } from '@app/shared';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
@@ -6,8 +6,8 @@ import { RmqServiceModule } from './app.module';
 
 async function bootstrap() {
 	const app = await NestFactory.create(RmqServiceModule);
-	const rmqService = app.get<RabbitMQClientService>(RabbitMQClientService);
-	[QUEUES.TEST, QUEUES.BROAD_CAST].map((item) =>
+	const rmqService = app.get<RMQClientService>(RMQClientService);
+	[ENUM_QUEUES.TEST, ENUM_QUEUES.BROAD_CAST].map((item) =>
 		app.connectMicroservice<MicroserviceOptions>(rmqService.getOptions(item)),
 	);
 	await app.startAllMicroservices();

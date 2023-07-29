@@ -1,6 +1,10 @@
-export const QUEUES = {
+export const ENUM_QUEUES = {
 	TEST: 'TEST',
 	BROAD_CAST: 'BROAD_CAST',
 	HEALTH_CHECK: 'HEALTH_CHECK',
 	SAVE_ACTION: 'SAVE_ACTION',
-};
+} as const;
+
+export const ENUM_PATTERN = {
+	SAVE_ACTION: 'SAVE_ACTION',
+} as const;

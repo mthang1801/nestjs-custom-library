@@ -1,24 +1,24 @@
-import { QUEUES } from '@app/shared';
+import { ENUM_QUEUES } from '@app/shared';
 import { COMMAND } from '@app/shared/constants/command';
 import { Body, Controller, Post } from '@nestjs/common';
 import {
-    ClientProxy,
-    ClientProxyFactory,
-    Ctx,
-    MessagePattern,
-    Payload,
-    RmqContext,
-    RmqRecordBuilder,
-    Transport,
+  ClientProxy,
+  ClientProxyFactory,
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+  RmqRecordBuilder,
+  Transport,
 } from '@nestjs/microservices';
 import {
-    Observable,
-    delay,
-    from,
-    lastValueFrom,
-    of,
-    scan,
-    timeout,
+  Observable,
+  delay,
+  from,
+  lastValueFrom,
+  of,
+  scan,
+  timeout,
 } from 'rxjs';
 import { RmqServiceService } from './app.service';
 @Controller()
@@ -29,7 +29,7 @@ export class RmqServiceController {
 			transport: Transport.RMQ,
 			options: {
 				urls: ['amqp://root:admin123@localhost:5672/'],
-				queue: QUEUES.TEST,
+				queue: ENUM_QUEUES.TEST,
 				queueOptions: { durable: true },
 				socketOptions: { noDelay: true },
 			},
@@ -107,7 +107,7 @@ export class RmqServiceController {
 					'amqp://root:admin123@localhost:5672/',
 					'amqp://root:admin123@localhost:5672/',
 				],
-				queue: QUEUES.TEST,
+				queue: ENUM_QUEUES.TEST,
 				queueOptions: { durable: true },
 				socketOptions: { noDelay: true },
 			},
@@ -140,7 +140,7 @@ export class RmqServiceController {
 			transport: Transport.RMQ,
 			options: {
 				urls: ['amqp://root:admin123@localhost:5672/'],
-				queue: QUEUES.BROAD_CAST,
+				queue: ENUM_QUEUES.BROAD_CAST,
 				queueOptions: { durable: true },
 				socketOptions: { noDelay: true },
 			},

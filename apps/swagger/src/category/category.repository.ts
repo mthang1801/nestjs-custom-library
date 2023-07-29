@@ -15,6 +15,6 @@ export class CategoryRepository extends AbstractRepository<CategoryDocument> {
 		@InjectModel(Posts.name, CONNECTION_NAME.SECONDARY)
 		readonly secondaryModel: Model<CategoryDocument>,
 	) {
-		super(primaryModel, secondaryModel);
+		super({ primaryModel, secondaryModel });
 	}
 }

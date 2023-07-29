@@ -9,12 +9,12 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-		logger: WinstonLogger('Nest Library'),
+		logger: WinstonLogger('MONGODB SVC'),
 	});
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	const configService = app.get<ConfigService>(ConfigService);
 	const telegramService = app.get<LibTelegramService>(LibTelegramService);
-	mongoose.set('debug', true);
+	mongoose.set('debug', { color: true, shell: true });
 	await app.listen(configService.get<number>('PORT'), async () => {
 		Logger.log(`Server is running on ${await app.getUrl()}`),
 			await telegramService.sendMessage(

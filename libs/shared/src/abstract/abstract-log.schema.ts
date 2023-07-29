@@ -10,6 +10,7 @@ const AbstractLogSchema = (modelName: string) =>
 			old_data: { type: mongoose.Schema.Types.ObjectId },
 			new_data: { type: mongoose.Schema.Types.ObjectId },
 			extra_data: { type: mongoose.Schema.Types.Mixed },
+			context: { type: mongoose.Schema.Types.Mixed },
 			model_reference: { type: String },
 			created_by: { type: mongoose.Schema.Types.Mixed },
 			updated_by: { type: mongoose.Schema.Types.Mixed },
@@ -23,6 +24,8 @@ const AbstractLogSchema = (modelName: string) =>
 	);
 
 const AbstractLogModel = (modelName: string) =>
-	mongoose.model(modelName, AbstractLogSchema(modelName));
+	mongoose.model[modelName]
+		? mongoose.model(modelName)
+		: mongoose.model(modelName, AbstractLogSchema(modelName));
 
 export default AbstractLogModel;

@@ -13,6 +13,7 @@
     "start:dev": "NODE_ENV=development nest start --watch",
     "start:debug": "NODE_ENV=development nest start --debug --watch",
     "start:prod": "NODE_ENV=production node dist/apps/nestjs-rabbitmq/main",
+    "dev": "concurrently \"npm run start:dev\" \"npm run start:dev log-service\" ",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -56,6 +57,7 @@
     "cache-manager-redis-store": "^2.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "concurrently": "^8.2.0",
     "cookie-parser": "^1.4.6",
     "exceljs": "^4.3.0",
     "fs-extra": "^11.1.1",
@@ -63,6 +65,7 @@
     "joi": "^17.9.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
+    "mongodb": "^5.7.0",
     "mongoose": "^6.4.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
@@ -80,7 +83,8 @@
     "swagger-ui-express": "^4.6.3",
     "typeorm": "^0.3.16",
     "uuid": "^9.0.0",
-    "winston": "^3.10.0"
+    "winston": "^3.10.0",
+    "winston-mongodb": "^5.1.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -91,6 +95,7 @@
     "@types/cron": "^2.0.1",
     "@types/express": "^4.17.17",
     "@types/jest": "29.2.4",
+    "@types/mongodb": "^4.0.7",
     "@types/mongoose": "^5.11.97",
     "@types/multer": "^1.4.7",
     "@types/node": "18.11.18",

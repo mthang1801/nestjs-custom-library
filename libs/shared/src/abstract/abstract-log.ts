@@ -34,6 +34,10 @@ export abstract class AbstractLog implements IAbstractLog {
 	@ApiPropertyOptional()
 	model_reference?: string;
 
+	@Prop({ type: {} })
+	@ApiPropertyOptional()
+	context: any;
+
 	@Prop({ type: mongoose.Schema.Types.ObjectId, default: null })
 	@ApiPropertyOptional()
 	created_by?: mongoose.Schema.Types.ObjectId;

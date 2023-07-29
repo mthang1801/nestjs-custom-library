@@ -1,19 +1,19 @@
 import {
-	AbstractSchema,
-	ExtraUpdateOptions,
-	ModelInfo,
-	UpdateResponse,
+  AbstractSchema,
+  ExtraUpdateOptions,
+  ModelInfo,
+  UpdateResponse,
 } from '@app/shared';
 
 import { Injectable, Logger } from '@nestjs/common';
 import {
-	FilterQuery,
-	HydratedDocument,
-	Model,
-	ObjectId,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+  FilterQuery,
+  HydratedDocument,
+  Model,
+  ObjectId,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
 

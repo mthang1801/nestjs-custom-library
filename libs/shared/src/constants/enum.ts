@@ -139,14 +139,23 @@ export enum ENUM_MODEL {
 	USER = 'users',
 	POST = 'posts',
 	CATEGORY = 'categories',
+	SYSTEM_LOG = 'system_logs',
 }
 
-export enum ENUM_ACTION_TYPE {
-	CREATE = 'created',
-}
+export const ENUM_ACTION_TYPE = {
+	CREATE: 'CREATE',
+	UPDATE: 'UPDATE',
+	DELETE: 'DELATE',
+} as const;
 
 export const ENUM_NOTIFICATION_OBJECT = {
 	GROUP: 'GROUP',
 	PRIVATE: 'PRIVATE',
 	GLOBAL: 'GLOBAL',
+} as const;
+
+export const ENUM_EVENTS = {
+	CREATE: 'CREATE',
+	UPDATE: 'UPDATE',
+	DELETE: 'DELATE',
 } as const;

@@ -28,7 +28,7 @@ export type ExtraUpdateOptions = {
 export type ModelInfo = {
 	modelName: string;
 	collectionName: string;
-	schema: any;
+	schema?: any;
 };
 
 export type UserRequest = Request & User;
