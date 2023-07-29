@@ -1,7 +1,4 @@
-import {
-  AllExceptionsFilter,
-  MongooseDynamicModule
-} from '@app/shared';
+import { AllExceptionsFilter, LibMongoModule } from '@app/shared';
 import { LibCoreModule } from '@app/shared/core/core.module';
 import { TransformInterceptor } from '@app/shared/interceptors/transform.interceptor';
 import { Module } from '@nestjs/common';
@@ -31,7 +28,7 @@ import { UsersModule } from './users/users.module';
 			expandVariables: true,
 			envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
 		}),
-		MongooseDynamicModule.forRootAsync(),
+		LibMongoModule.forRootAsync(),
 		LibCoreModule,
 		UsersModule,
 		UserRolesModule,

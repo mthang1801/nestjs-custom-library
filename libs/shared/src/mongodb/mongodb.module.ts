@@ -3,8 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule, MongooseModuleFactoryOptions } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { CONNECTION_NAME } from './constants/connection-name';
-import { MongooseDynamicModuleForFeatureOptions } from './interfaces/mongoose-dynamic-module-options.interface';
-import { MongooseDynamicService } from './mongoose.service';
+import { LibMongoModuleForFeatureOptions } from './interfaces/mongoose-dynamic-module-options.interface';
+import { LibMongoService } from './mongodb.service';
 
 @Module({
 	imports: [
@@ -27,13 +27,13 @@ import { MongooseDynamicService } from './mongoose.service';
 			envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
 		}),
 	],
-	providers: [MongooseDynamicService],
-	exports: [MongooseDynamicService],
+	providers: [LibMongoService],
+	exports: [LibMongoService],
 })
-export class MongooseDynamicModule {
+export class LibMongoModule {
 	static forRootAsync(): DynamicModule {
 		return {
-			module: MongooseDynamicModule,
+			module: LibMongoModule,
 			imports: [
 				ConfigModule.forRoot({
 					isGlobal: true,
@@ -83,9 +83,9 @@ export class MongooseDynamicModule {
 		useFactory,
 		inject,
 		imports,
-	}: MongooseDynamicModuleForFeatureOptions): DynamicModule {
+	}: LibMongoModuleForFeatureOptions): DynamicModule {
 		return {
-			module: MongooseDynamicModule,
+			module: LibMongoModule,
 			imports: Object.values(CONNECTION_NAME).map((connectionName) =>
 				this.forFeatureAsyncFactory({
 					name,
@@ -104,9 +104,9 @@ export class MongooseDynamicModule {
 		name,
 		schema,
 		connectionName = CONNECTION_NAME.PRIMARY,
-	}: MongooseDynamicModuleForFeatureOptions): DynamicModule {
+	}: LibMongoModuleForFeatureOptions): DynamicModule {
 		return {
-			module: MongooseDynamicModule,
+			module: LibMongoModule,
 			imports: [
 				this.forFeatureFactory({
 					name,
@@ -122,7 +122,7 @@ export class MongooseDynamicModule {
 		name,
 		schema,
 		connectionName,
-	}: MongooseDynamicModuleForFeatureOptions) {
+	}: LibMongoModuleForFeatureOptions) {
 		return MongooseModule.forFeature(
 			[
 				{
@@ -141,7 +141,7 @@ export class MongooseDynamicModule {
 		useFactory,
 		inject,
 		imports,
-	}: MongooseDynamicModuleForFeatureOptions) {
+	}: LibMongoModuleForFeatureOptions) {
 		return MongooseModule.forFeatureAsync(
 			[
 				{

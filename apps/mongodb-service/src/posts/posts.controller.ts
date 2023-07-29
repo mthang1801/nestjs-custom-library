@@ -15,7 +15,7 @@ import { UpdatePostStatusDto } from './dto/update-post-status.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 
-@Controller('/api/v2/posts')
+@Controller('posts')
 export class PostsController {
 	constructor(private readonly postsService: PostsService) {}
 

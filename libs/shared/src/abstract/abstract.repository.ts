@@ -1,50 +1,49 @@
 import {
-	ExtraUpdateOptions,
-	FindAndCountAllResponse,
-	ModelInfo,
-	RemoveOptions,
-	UpdateResponse,
+  ExtraUpdateOptions,
+  FindAndCountAllResponse,
+  ModelInfo,
+  RemoveOptions,
+  UpdateResponse,
 } from '@app/shared/types';
 import {
-	HttpException,
-	Injectable,
-	Logger,
-	NotFoundException,
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import moment from 'moment';
-import mongoose, {
-	Aggregate,
-	ClientSession,
-	FilterQuery,
-	HydratedDocument,
-	Model,
-	ObjectId,
-	PipelineStage,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+import {
+  Aggregate,
+  ClientSession,
+  FilterQuery,
+  HydratedDocument,
+  Model,
+  ObjectId,
+  PipelineStage,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { ENUM_PATTERN, ENUM_QUEUES } from '../constants';
 import {
-	ENUM_ACTION_TYPE,
-	ENUM_DATE_TIME,
-	ENUM_MODEL,
+  ENUM_ACTION_TYPE,
+  ENUM_DATE_TIME,
+  ENUM_MODEL,
 } from '../constants/enum';
-import { MongooseDynamicService } from '../mongoose/mongoose.service';
+import { LibMongoService } from '../mongodb/mongodb.service';
 import { RMQClientService } from '../rabbitmq';
 import { AbstractSchema } from '../schemas/abstract.schema';
 import { UtilService } from '../utils/util.service';
 import { AbstractLogDocument } from './abstract-log';
 import AbstractLogModel from './abstract-log.schema';
 import { IAbstractRepository } from './interfaces';
-import { IAbstractLog } from './interfaces/abstract-log.interface';
 import {
-	AggregationLookup,
-	InitAbstractRepository,
-	LogActionPayload,
+  AggregationLookup,
+  InitAbstractRepository,
+  LogActionPayload,
 } from './types/abstract.type';
 
 @Injectable()
@@ -64,7 +63,7 @@ export abstract class AbstractRepository<
 	protected eventEmitter: EventEmitter2 = null;
 	protected utilService: UtilService = null;
 	protected configService: ConfigService = null;
-	protected mongooseService: MongooseDynamicService = null;
+	protected mongooseService: LibMongoService = null;
 	private excludeFieldChanges = ['_id', 'created_at', 'updated_at'];
 	protected context: any;
 	protected rmqClient: ClientProxy;
@@ -95,7 +94,7 @@ export abstract class AbstractRepository<
 		this.eventEmitter = new EventEmitter2();
 		this.utilService = new UtilService();
 		this.configService = new ConfigService();
-		this.mongooseService = new MongooseDynamicService(this.configService);
+		this.mongooseService = new LibMongoService(this.configService);
 		this.rmqClientService = new RMQClientService(this.configService);
 		this.rmqClient = this.rmqClientService.createClient({
 			queue: ENUM_QUEUES.SAVE_ACTION,
@@ -124,11 +123,13 @@ export abstract class AbstractRepository<
 		extraData,
 	}: LogActionPayload<T>) {
 		const payload: LogActionPayload<T> | any = {
-			newData: newData?.toJSON(),
-			oldData: oldData?.toJSON(),
+			newData: newData ? newData?.toJSON() : undefined,
+			oldData: oldData ? oldData?.toJSON() : undefined,
 			context: this.getContext(),
 			actionType,
 			extraData,
+			populates: this.getPopulates(),
+			metaCollectionName: this.modelInfo.collectionName,
 			collectionName:
 				this.logModelInfo.collectionName ?? this.generateLogCollectionName(),
 		};
@@ -154,21 +155,6 @@ export abstract class AbstractRepository<
 		};
 	}
 
-	async checkExistsOrCreateCollection(
-		collectionName: string,
-	): Promise<mongoose.Model<IAbstractLog>> {
-		// if (this.logModelInfo.schema) {
-		// 	return this.logModelInfo.schema;
-		// }
-		return new Promise(async (resolve, reject) => {
-			try {
-				const client = await this.mongooseService.mongoClientConnect();
-			} catch (error) {
-				throw new HttpException(error.message, error.status);
-			}
-		});
-	}
-
 	async createSystemModelLog() {
 		return new Promise((resolve, reject) => {
 			try {
@@ -184,7 +170,7 @@ export abstract class AbstractRepository<
 
 	async update(
 		filterQuery: FilterQuery<T>,
-		payload: UpdateQuery<T>,
+		payload: UpdateQuery<T> | Partial<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<UpdateResponse | T | any> {
 		if (options?.updateOnlyOne) {
@@ -201,16 +187,10 @@ export abstract class AbstractRepository<
 					...options,
 				},
 			);
-			// TODO: Create Update Action
-			await this.createUpdatedOneActionLog(
-				oldData.toObject(),
-				updateResponse.toObject(),
-			);
 
 			return updateResponse;
 		}
 
-		const oldManyData = await this.secondaryModel.find(filterQuery);
 		const updateResponse = await this.primaryModel.updateMany(
 			filterQuery,
 			{ ...payload },
@@ -219,58 +199,8 @@ export abstract class AbstractRepository<
 				...options,
 			},
 		);
-		// TODO: Create update log
-		// [x]: Done task
-		await this.createUpdatedManyActionLog(oldManyData);
+
 		return updateResponse;
-	}
-
-	async createUpdatedManyActionLog(oldManyData: T[]) {
-		const newManyData = await this.findAndCountAll({
-			_id: { $in: oldManyData.map(({ _id }) => _id) },
-		});
-
-		for (let i = 0; i < newManyData.count; i += 20) {
-			await Promise.all(
-				newManyData.items.slice(i, i + 20).map(async (newData) => {
-					const oldData = oldManyData.find(
-						({ _id }) => String(_id) === String(newData._id),
-					);
-					if (oldData) {
-						await this.createUpdatedOneActionLog(
-							oldData.toObject(),
-							newData.toObject(),
-						);
-					}
-				}),
-			);
-		}
-	}
-
-	async createUpdatedOneActionLog(oldData: T, newData: T) {
-		if (!this.primaryLogModel) return;
-		const fieldChanges = Object.keys(newData)
-			.filter((key) => !this.excludeFieldChanges.includes(key))
-			.reduce((result, key) => {
-				if (JSON.stringify(newData[key]) !== JSON.stringify(oldData[key])) {
-					result[key] = `${String(key)} đã thay đổi: ${JSON.stringify(
-						newData[key],
-					)} -> ${JSON.stringify(oldData[key])}`;
-				}
-				return result;
-			}, {});
-		if (!Object.entries(fieldChanges).length) return;
-
-		await this.primaryLogModel.create<IAbstractLog>({
-			new_data: newData.id || oldData.id,
-			new_data_desc: newData,
-			old_data: oldData.id,
-			old_data_desc: oldData,
-			difference: fieldChanges,
-			model_reference: this.modelInfo.modelName,
-			created_by: oldData?.created_by,
-			updated_by: newData?.updated_by || newData?.created_by,
-		});
 	}
 
 	async findOneAndUpdate(
@@ -278,15 +208,24 @@ export abstract class AbstractRepository<
 		updateData?: UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<T> {
-		return this.primaryModel.findOneAndUpdate(
+		const isReturnNewData = options.new !== false;
+		const oldData = isReturnNewData && (await this.findOne(filterQuery));
+		const updatedData = await this.primaryModel.findOneAndUpdate(
 			filterQuery,
-			{ ...updateData },
+			updateData,
 			{
 				populate: this.getPopulates(),
 				new: true,
 				...options,
 			},
 		);
+		await this.saveIntoLog<T>({
+			newData: isReturnNewData && updatedData,
+			oldData: oldData || updatedData,
+			actionType: ENUM_ACTION_TYPE.UPDATE,
+		});
+
+		return updatedData;
 	}
 
 	async findByIdAndUpdate(
@@ -412,9 +351,6 @@ export abstract class AbstractRepository<
 	getPopulates(): string[] {
 		return Object.values(this.modelInfo.schema.paths).reduce(
 			(populates: string[], schemaPath: any) => {
-				// if (['ObjectID', 'Array'].includes(schemaPath.instance)) {
-				// 	console.log(schemaPath);
-				// }
 				if (this.isValidPopulate(schemaPath)) populates.push(schemaPath.path);
 				return populates;
 			},

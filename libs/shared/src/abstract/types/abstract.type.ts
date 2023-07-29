@@ -31,4 +31,6 @@ export type LogActionPayload<T> = {
 	context?: ExecutionContext | any;
 	actionType: ActionType;
 	collectionName?: string;
+	metaCollectionName?: string;
+	populates?: string[];
 };

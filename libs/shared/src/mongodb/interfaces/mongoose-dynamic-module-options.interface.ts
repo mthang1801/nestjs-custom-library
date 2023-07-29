@@ -1,11 +1,11 @@
 import { ModuleMetadata } from '@nestjs/common';
 import { ModelDefinition } from '@nestjs/mongoose';
 import { CONNECTION_NAME } from '../constants/connection-name';
-export interface MongooseDynamicModuleOptions {
+export interface LibMongoModuleOptions {
 	connectionName?: CONNECTION_NAME;
 }
 
-export interface MongooseDynamicModuleForFeatureOptions
+export interface LibMongoModuleForFeatureOptions
 	extends Pick<ModuleMetadata, 'imports'> {
 	name: string;
 	schema?: any;

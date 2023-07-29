@@ -1,4 +1,4 @@
-import { MongooseDynamicModule } from '@app/shared';
+import { LibMongoModule } from '@app/shared';
 import { LibCoreModule } from '@app/shared/core/core.module';
 import {
   MiddlewareConsumer,
@@ -18,7 +18,7 @@ import { ProductModule } from './product/product.module';
 			isGlobal: true,
 			envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
 		}),
-		MongooseDynamicModule.forRootAsync(),
+		LibMongoModule.forRootAsync(),
 		ProductModule,
 		CategoryModule,
 	],

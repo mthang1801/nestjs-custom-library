@@ -1,4 +1,4 @@
-import { MongooseDynamicModule } from '@app/shared';
+import { LibMongoModule } from '@app/shared';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
@@ -24,7 +24,7 @@ import { UserModule } from './user/user.module';
 		UserModule,
 		PostModule,
 		AuthModule,
-		MongooseDynamicModule.forRootAsync(),
+		LibMongoModule.forRootAsync(),
 	],
 	controllers: [],
 	providers: [],

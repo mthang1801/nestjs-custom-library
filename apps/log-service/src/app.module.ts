@@ -1,10 +1,7 @@
-import {
-  ENUM_QUEUES,
-  LibRabbitMQModule,
-  MongooseDynamicModule,
-} from '@app/shared';
+import { ENUM_QUEUES, LibMongoModule, LibRabbitMQModule } from '@app/shared';
 import { LibCoreModule } from '@app/shared/core/core.module';
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { PostsModule } from 'apps/mongodb-service/src/posts/posts.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -12,7 +9,8 @@ import { AppService } from './app.service';
 	imports: [
 		LibCoreModule,
 		LibRabbitMQModule.registerAsync({ name: ENUM_QUEUES.SAVE_ACTION }),
-		MongooseDynamicModule.forRootAsync(),
+		LibMongoModule.forRootAsync(),
+		forwardRef(() => PostsModule),
 	],
 	controllers: [AppController],
 	providers: [AppService],

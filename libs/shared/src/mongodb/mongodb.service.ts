@@ -1,11 +1,11 @@
 import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MongoClient } from 'mongodb';
+import { Document, Filter, MongoClient } from 'mongodb';
 import mongoose, { ClientSession } from 'mongoose';
 import { Db } from 'typeorm';
 
 @Injectable()
-export class MongooseDynamicService implements OnModuleInit {
+export class LibMongoService implements OnModuleInit {
 	mongoose: typeof mongoose = null;
 	constructor(private readonly configService: ConfigService) {}
 
@@ -61,7 +61,7 @@ export class MongooseDynamicService implements OnModuleInit {
 			this.configService.get<string>('MONGO_DATABASE'),
 		);
 		try {
-			return fn(db);
+			return await fn(db);
 		} catch (error) {
 			throw new HttpException(error.message, error.status);
 		} finally {
@@ -75,5 +75,17 @@ export class MongooseDynamicService implements OnModuleInit {
 				.collection(collectionName)
 				.insertOne({ ...payload, created_at: new Date() }),
 		);
+	}
+
+	async findOne(collectionName: string, queryFilter: Filter<Document>) {
+		return this.mongoClientWrapper(async (db: Db) => {
+			console.log(collectionName, queryFilter);
+			const res = await db.collection(collectionName).findOne(queryFilter);
+			console.log(
+				'🚀 ~ file: mongodb.service.ts:83 ~ LibMongoService ~ returnthis.mongoClientWrapper ~ res:',
+				res,
+			);
+			return res;
+		});
 	}
 }

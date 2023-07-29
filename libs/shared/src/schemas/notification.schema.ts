@@ -1,5 +1,5 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import SchemaCustom from '../abstract/schema-option';
 import { AbstractSchema } from './abstract.schema';
 import { NotificationObject } from './notification-object.schema';

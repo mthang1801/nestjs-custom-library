@@ -1,4 +1,4 @@
-import { MongooseDynamicModule } from '@app/shared';
+import { LibMongoModule } from '@app/shared';
 import {
   Notification,
   NotificationSchema,
@@ -12,7 +12,7 @@ import { NotificationService } from './notification.service';
 @Module({
 	imports: [
 		ScheduleModule.forRoot(),
-		MongooseDynamicModule.forFeatureAsync({
+		LibMongoModule.forFeatureAsync({
 			name: Notification.name,
 			schema: NotificationSchema,
 		}),

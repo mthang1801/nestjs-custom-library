@@ -1,9 +1,9 @@
-import { CONNECTION_NAME, MongooseDynamicModule } from '@app/shared';
+import { CONNECTION_NAME, LibMongoModule } from '@app/shared';
 import {
-	Posts,
-	PostsSchema,
-	User,
-	UserSchemaFactory,
+  Posts,
+  PostsSchema,
+  User,
+  UserSchemaFactory,
 } from '@app/shared/schemas';
 import { Module, forwardRef } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
@@ -16,12 +16,12 @@ import { UsersService } from './users.service';
 @Module({
 	imports: [
 		forwardRef(() => UserRolesModule),
-		MongooseDynamicModule.forFeatureAsync({
+		LibMongoModule.forFeatureAsync({
 			name: User.name,
 			useFactory: UserSchemaFactory,
 			inject: [getModelToken(Posts.name, CONNECTION_NAME.PRIMARY)],
 			imports: [
-				MongooseDynamicModule.forFeature({
+				LibMongoModule.forFeature({
 					name: Posts.name,
 					schema: PostsSchema,
 					connectionName: CONNECTION_NAME.PRIMARY,

@@ -1,7 +1,7 @@
 import {
   ENUM_QUEUES,
+  LibMongoModule,
   LibRabbitMQModule,
-  MongooseDynamicModule,
 } from '@app/shared';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
@@ -18,7 +18,7 @@ import { HealthService } from './health.service';
 		}),
 		HttpModule,
 		TerminusModule.forRoot({ logger: true, errorLogStyle: 'pretty' }),
-		MongooseDynamicModule.forRootAsync(),
+		LibMongoModule.forRootAsync(),
 		LibRabbitMQModule.registerAsync({
 			name: ENUM_QUEUES.HEALTH_CHECK,
 		}),

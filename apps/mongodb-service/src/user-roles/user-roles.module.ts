@@ -1,4 +1,4 @@
-import { MongooseDynamicModule } from '@app/shared';
+import { LibMongoModule } from '@app/shared';
 import { UserRole, UserRoleSchema } from '@app/shared/schemas';
 import { Module } from '@nestjs/common';
 import { UserRolesController } from './user-roles.controller';
@@ -7,7 +7,7 @@ import { UserRolesService } from './user-roles.service';
 
 @Module({
 	imports: [
-		MongooseDynamicModule.forFeatureAsync({
+		LibMongoModule.forFeatureAsync({
 			name: UserRole.name,
 			useFactory: () => ({ schema: UserRoleSchema }),
 		}),

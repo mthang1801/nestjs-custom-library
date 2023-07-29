@@ -3,7 +3,7 @@ export * from './constants';
 export * from './dto';
 export * from './filter';
 export * from './interceptors';
-export * from './mongoose';
+export * from './mongodb';
 export * from './rabbitmq';
 export * from './redis';
 export * from './schemas';
