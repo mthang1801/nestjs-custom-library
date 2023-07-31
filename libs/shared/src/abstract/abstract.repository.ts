@@ -19,13 +19,12 @@ import {
   Aggregate,
   ClientSession,
   FilterQuery,
-  HydratedDocument,
   Model,
   ObjectId,
   PipelineStage,
   ProjectionType,
   QueryOptions,
-  UpdateQuery,
+  UpdateQuery
 } from 'mongoose';
 import { ENUM_PATTERN, ENUM_QUEUES } from '../constants';
 import {
@@ -47,9 +46,8 @@ import {
 } from './types/abstract.type';
 
 @Injectable()
-export abstract class AbstractRepository<
-	T extends HydratedDocument<Document, AbstractSchema>,
-> implements IAbstractRepository<T>
+export abstract class AbstractRepository<T extends AbstractSchema>
+	implements IAbstractRepository<T>
 {
 	protected abstract readonly logger: Logger;
 	public primaryModel: Model<T> = null;

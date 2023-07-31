@@ -1,7 +1,6 @@
 import { ENUM_ROLES } from '@app/shared/constants/enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { AbstractSchema } from './abstract.schema';
+import { AbstractDocument, AbstractSchema } from './abstract.schema';
 
 @Schema({
 	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
@@ -22,6 +21,6 @@ export class UserRole extends AbstractSchema {
 	description: string;
 }
 
-export type UserRoleDocument = HydratedDocument<Document, UserRole>;
+export type UserRoleDocument = AbstractDocument<UserRole>;
 
 export const UserRoleSchema = SchemaFactory.createForClass(UserRole);

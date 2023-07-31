@@ -1,7 +1,7 @@
 import {
-	AbstractLog,
-	AbstractLogDocument,
-	AbstractLogSchema,
+  AbstractLog,
+  AbstractLogDocument,
+  AbstractLogSchema,
 } from '../abstract';
 import SchemaCustom from '../abstract/schema-option';
 

@@ -1,18 +1,19 @@
 import { ENUM_GENDER, ENUM_LANGUAGES } from '@app/shared/constants/enum';
 import {
-	Contact,
-	ContactSchema,
-	Posts,
-	PostsDocument,
-	UserRole,
-	AbstractSchema,
+  AbstractDocument,
+  AbstractSchema,
+  Contact,
+  ContactSchema,
+  Posts,
+  PostsDocument,
+  UserRole,
 } from '@app/shared/schemas';
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { NextFunction } from 'express';
 import * as _ from 'lodash';
-import mongoose, { HydratedDocument, Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import SchemaCustom from '../abstract/schema-option';
 
 @SchemaCustom()
@@ -143,7 +144,7 @@ export class User extends AbstractSchema {
 	}
 }
 
-export type UserDocument = HydratedDocument<Document, User>;
+export type UserDocument = AbstractDocument<User>;
 
 export const UserSchema = SchemaFactory.createForClass(User);
 

@@ -1,6 +1,7 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
 import SchemaCustom from '../abstract/schema-option';
+import { AbstractDocument } from './abstract.schema';
 
 @SchemaCustom({
 	_id: false,
@@ -48,6 +49,6 @@ export class Contact {
 	email: string;
 }
 
-export type ContactDocument = Contact & Document;
+export type ContactDocument = AbstractDocument<Contact>;
 
 export const ContactSchema = SchemaFactory.createForClass(Contact);

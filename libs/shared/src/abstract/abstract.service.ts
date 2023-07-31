@@ -1,25 +1,25 @@
 import {
-	AbstractSchema,
-	ExtraUpdateOptions,
-	ModelInfo,
-	UpdateResponse,
+  AbstractDocument,
+  AbstractSchema,
+  ExtraUpdateOptions,
+  ModelInfo,
+  UpdateResponse,
 } from '@app/shared';
 
 import { Injectable, Logger } from '@nestjs/common';
 import {
-	FilterQuery,
-	HydratedDocument,
-	Model,
-	ObjectId,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+  FilterQuery,
+  Model,
+  ObjectId,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
 
 @Injectable()
 export abstract class AbstractService<
-	T extends HydratedDocument<Document, AbstractSchema>,
+	T extends AbstractDocument<AbstractSchema>,
 > {
 	protected abstract logger: Logger;
 	protected writeModel: Model<T> = null;

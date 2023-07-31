@@ -1,10 +1,10 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Type } from 'class-transformer';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose from 'mongoose';
 
 import SchemaCustom from '../abstract/schema-option';
 import { ENUM_STATUS } from '../constants/enum';
-import { AbstractSchema } from './abstract.schema';
+import { AbstractDocument, AbstractSchema } from './abstract.schema';
 import { Category } from './category.schema';
 import { User } from './user.schema';
 
@@ -47,7 +47,7 @@ export class Posts extends AbstractSchema {
 	categories: Category[];
 }
 
-export type PostsDocument = HydratedDocument<Document, Posts>;
+export type PostsDocument = AbstractDocument<Posts>;
 
 export const PostsSchema = SchemaFactory.createForClass(Posts);
 
