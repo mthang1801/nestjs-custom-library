@@ -31,6 +31,6 @@ export class AbstractSchema {
 	updated_by?: User;
 }
 
-export type AbstractDocument<T> = Document & T;
+export type AbstractDocument<T extends AbstractSchema> = Document & T;
 
 export const _AbstractSchema = SchemaFactory.createForClass(AbstractSchema);

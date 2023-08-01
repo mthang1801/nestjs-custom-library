@@ -15,7 +15,7 @@ async function bootstrap() {
 	const configService = app.get<ConfigService>(ConfigService);
 	const telegramService = app.get<LibTelegramService>(LibTelegramService);
 	mongoose.set('debug', { color: true, shell: true });
-	await app.listen(configService.get<number>('SEND_FILE_PORT'), async () => {
+	await app.listen(configService.get<number>('UPLOAD_FILE_PORT'), async () => {
 		Logger.log(`Server is running on ${await app.getUrl()}`),
 			await telegramService.sendMessage(
 				`🔥[DNI Service] is running on ${await app.getUrl()}`,

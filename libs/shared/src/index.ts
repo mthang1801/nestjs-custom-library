@@ -9,5 +9,6 @@ export * from './redis';
 export * from './schemas';
 export * from './typeorm';
 export * from './types';
+export * from './upload';
 export * from './utils';
 

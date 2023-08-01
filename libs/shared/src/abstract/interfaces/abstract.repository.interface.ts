@@ -1,7 +1,7 @@
 import {
   ExtraUpdateOptions,
   FindAndCountAllResponse,
-  UpdateResponse
+  UpdateResponse,
 } from '@app/shared/types';
 import {
   Aggregate,

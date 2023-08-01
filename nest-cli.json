@@ -216,6 +216,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/log-service/tsconfig.app.json"
       }
+    },
+    "upload-service": {
+      "type": "application",
+      "root": "apps/upload-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/upload-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/upload-service/tsconfig.app.json"
+      }
     }
   }
 }

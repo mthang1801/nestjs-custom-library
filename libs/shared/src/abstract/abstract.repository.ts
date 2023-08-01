@@ -24,7 +24,7 @@ import {
   PipelineStage,
   ProjectionType,
   QueryOptions,
-  UpdateQuery
+  UpdateQuery,
 } from 'mongoose';
 import { ENUM_PATTERN, ENUM_QUEUES } from '../constants';
 import {
@@ -204,7 +204,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	async findOneAndUpdate(
 		filterQuery?: FilterQuery<T>,
 		updateData?: UpdateQuery<T>,
-		options?: QueryOptions<T> & ExtraUpdateOptions,
+		options?: QueryOptions<T>,
 	): Promise<T> {
 		const isReturnNewData = options.new !== false;
 		const oldData = isReturnNewData && (await this.findOne(filterQuery));

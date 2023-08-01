@@ -1,3 +1,4 @@
+import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { Request } from 'express';
 import { User } from '../schemas';
 
@@ -66,3 +67,10 @@ export type DeepReadonly<T> = {
 declare type ClassDecorator = <TFunction extends Function>(
 	target: TFunction,
 ) => TFunction | void;
+
+export type UploadFileOptions = {
+	fieldName: string;
+	path: string;
+	limit?: MulterOptions['limits'];
+	fileFilter?: MulterOptions['fileFilter'];
+};

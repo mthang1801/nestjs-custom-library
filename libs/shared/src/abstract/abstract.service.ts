@@ -68,7 +68,7 @@ export abstract class AbstractService<
 	protected async _findByIdAndUpdate(
 		id: string | ObjectId,
 		payload: Partial<T> | UpdateQuery<T>,
-		options?: QueryOptions<T> & ExtraUpdateOptions,
+		options?: QueryOptions<T>,
 	): Promise<T> {
 		return this.repository.findByIdAndUpdate(id, payload, options);
 	}
@@ -76,7 +76,7 @@ export abstract class AbstractService<
 	protected async _findOneAndUpdate(
 		filterQuery: FilterQuery<T>,
 		payload: Partial<T> | UpdateQuery<T>,
-		options?: QueryOptions<T> & ExtraUpdateOptions,
+		options?: QueryOptions<T>,
 	): Promise<T> {
 		return this.repository.findOneAndUpdate(filterQuery, payload, options);
 	}
