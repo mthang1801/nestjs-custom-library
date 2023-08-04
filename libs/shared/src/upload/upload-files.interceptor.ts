@@ -1,22 +1,18 @@
 import { Injectable, NestInterceptor, Type, mixin } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { diskStorage } from 'multer';
 import { join } from 'path';
-import { UploadFileOptions } from '../types';
+import { Observable } from 'rxjs';
+import { UploadFilesOptions } from '../types';
 
-/**
- * Upload Single file
- * @param options
- * @returns
- */
-function UploadFileInterceptor(
-	options: UploadFileOptions,
+function UploadFilesInterceptor(
+	options: UploadFilesOptions,
 ): Type<NestInterceptor> {
 	@Injectable()
 	class Interceptor implements NestInterceptor {
-		fileInterceptor: NestInterceptor;
+		fileInterceptors: NestInterceptor;
 		constructor(configService: ConfigService) {
 			const destination = join(
 				process.cwd(),
@@ -28,23 +24,26 @@ function UploadFileInterceptor(
 				storage: diskStorage({
 					destination,
 					filename(req, file, callback) {
-						console.log(file);
 						return callback(null, file.originalname);
 					},
 				}),
 				...options,
 			};
 
-			this.fileInterceptor = new (FileInterceptor(
+			this.fileInterceptors = new (FilesInterceptor(
 				options.fieldName,
+				options.maxCount || 10,
 				multerOptions,
 			))();
 		}
-		intercept(...args: Parameters<NestInterceptor['intercept']>) {
-			return this.fileInterceptor.intercept(...args);
+		intercept(
+			...args: Parameters<NestInterceptor['intercept']>
+		): Observable<any> | Promise<Observable<any>> {
+			return this.fileInterceptors.intercept(...args);
 		}
 	}
+
 	return mixin(Interceptor);
 }
 
-export default UploadFileInterceptor;
+export default UploadFilesInterceptor;

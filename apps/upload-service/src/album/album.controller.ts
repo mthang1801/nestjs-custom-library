@@ -1,4 +1,5 @@
 import UploadFileInterceptor from '@app/shared/upload/upload-file.interceptor';
+import UploadFilesInterceptor from '@app/shared/upload/upload-files.interceptor';
 import {
   BadRequestException,
   Controller,
@@ -8,6 +9,7 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -48,5 +50,24 @@ export class AlbumController {
 		});
 
 		return new StreamableFile(stream);
+	}
+
+	@Post('upload-multi')
+	@UseInterceptors(
+		UploadFilesInterceptor({
+			fieldName: 'files',
+			path: 'images',
+			maxCount: 100,
+			fileFilter(req, file, callback) {
+				if (!file.mimetype.includes('image'))
+					return callback(new BadRequestException(), false);
+				return callback(null, true);
+			},
+		}),
+	)
+	uploadArrayOfAlbums(@UploadedFiles() files: Express.Multer.File[]) {
+		return {
+			status: 'Success',
+		};
 	}
 }

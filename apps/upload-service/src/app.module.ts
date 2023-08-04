@@ -28,7 +28,6 @@ import { AlbumModule } from './album/album.module';
 		}),
 		LibMongoModule.forRootAsync(),
 		LibCoreModule,
-		LibMongoModule.forRootAsync(),
 		AlbumModule,
 	],
 	controllers: [],

@@ -74,3 +74,11 @@ export type UploadFileOptions = {
 	limit?: MulterOptions['limits'];
 	fileFilter?: MulterOptions['fileFilter'];
 };
+
+export type UploadFilesOptions = {
+	fieldName: string;
+	maxCount?: number;
+	path: string;
+	limit?: MulterOptions['limits'];
+	fileFilter?: MulterOptions['fileFilter'];
+};

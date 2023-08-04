@@ -41,7 +41,7 @@ export class LibMongoModule {
 						NODE_ENV: Joi.string()
 							.valid('development', 'production', 'test', 'provision')
 							.default('development'),
-						PORT: Joi.number().port().required(),
+						MONGO_DATABASE: Joi.string().required(),
 						MONGO_URI_PRIMARY: Joi.string().required(),
 						MONGO_URI_SECONDARY: Joi.string().optional(),
 					}),
@@ -67,7 +67,6 @@ export class LibMongoModule {
 			useFactory: (
 				configService: ConfigService,
 			): MongooseModuleFactoryOptions => {
-				console.log(configService.get<string>(connectionName));
 				return {
 					uri: configService.get<string>(connectionName),
 					dbName: configService.get<string>('MONGO_DATABASE'),
