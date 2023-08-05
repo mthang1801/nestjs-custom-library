@@ -1,17 +1,17 @@
-version: "3.9"
+version: '3.9'
 services:
-  rabbitmq: 
-    image : rabbitmq:3-management
-    environment: 
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
       - RABBITMQ_DEFAULT_USER=root
       - RABBITMQ_DEFAULT_PASS=admin123
-    ports: 
-      - "5672:5672"    
-      - "15672:15672"
-      
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
   mongodb:
     image: mongo
-    environment:      
+    environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=admin123
     volumes:
@@ -19,11 +19,67 @@ services:
     ports:
       - '27017:27017'
 
-  redis: 
-    image : redis:latest
-    ports: 
-      - "6379:6979"
-      
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6979'
+
+  zookeeper:
+    container_name: test-zookeeper
+    hostname: zookeeper
+    image: confluentinc/cp-zookeeper:7.3.2
+    ports:
+      - '2181:2181'
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    container_name: test-kafka
+    hostname: kafka
+    image: confluentinc/cp-kafka:7.3.2
+    depends_on:
+      - zookeeper
+    ports:
+      - '29092:29092'
+      - '9092:9092'
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+
+  mysql:
+    image: mysql:8.0.32
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+    ports:
+      - '3306:3306'
+    restart: always
+
+  nats:
+    container_name: test-nats
+    image: nats
+    ports:
+      - '8222:8222'
+      - '4222:4222'
+      - '6222:6222'
+    restart: always
+
+  mqtt:
+    container_name: test-mqtt
+    image: eclipse-mosquitto
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    ports:
+      - '1883:1883'
+      - '9001:9001'
+    restart: always
+
 volumes:
-  mongodb_master_data: 
-    driver: local    
+  mongodb_master_data:
+    driver: local
