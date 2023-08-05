@@ -225,6 +225,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/upload-service/tsconfig.app.json"
       }
+    },
+    "video-stream": {
+      "type": "application",
+      "root": "apps/video-stream",
+      "entryFile": "main",
+      "sourceRoot": "apps/video-stream/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/video-stream/tsconfig.app.json"
+      }
     }
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import * as fsExtra from 'fs-extra';
 import * as moment from 'moment';
 import { ENUM_UNIT_TIMESTAMP, ENUM_WEEK_DAY } from '../constants/enum';
 import { DataType, GenerateRandomCode, UnitTimestamp, Weekday } from '../types';
@@ -307,7 +308,7 @@ export class UtilService {
 	}
 
 	stringify(value: any) {
-		return  JSON.stringify(value);
+		return JSON.stringify(value);
 	}
 
 	jsonParse(value: any) {
@@ -372,5 +373,10 @@ export class UtilService {
 
 	async compareHashedString(str: string, hashedStr: string) {
 		return bcrypt.compare(str, hashedStr);
+	}
+
+	getFileSize(path: string) {
+		const file = fsExtra.statSync(path);
+		return file.size;
 	}
 }

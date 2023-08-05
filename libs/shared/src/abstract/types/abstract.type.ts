@@ -1,5 +1,6 @@
 import { ENUM_ACTION_TYPE } from '@app/shared/constants/enum';
 import { ExecutionContext } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
 import { Model, PipelineStage } from 'mongoose';
 import { AbstractLogDocument } from '../abstract-log';
 
@@ -13,12 +14,14 @@ export type AggregationLookup = {
 	projection?: any;
 };
 
+export type ExpressContext = Request & Response & NextFunction;
+
 export type InitAbstractRepository<T> = {
 	primaryModel: Model<T>;
 	secondaryModel: Model<T>;
 	primaryLogModel?: Model<AbstractLogDocument<any>>;
 	secondaryLogModel?: Model<AbstractLogDocument<any>>;
-	context?: ExecutionContext;
+	context?: ExpressContext;
 };
 
 export type ActionTypeKey = keyof typeof ENUM_ACTION_TYPE;

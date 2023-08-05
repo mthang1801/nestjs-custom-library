@@ -41,6 +41,7 @@ import AbstractLogModel from './abstract-log.schema';
 import { IAbstractRepository } from './interfaces';
 import {
   AggregationLookup,
+  ExpressContext,
   InitAbstractRepository,
   LogActionPayload,
 } from './types/abstract.type';
@@ -63,7 +64,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	protected configService: ConfigService = null;
 	protected mongooseService: LibMongoService = null;
 	private excludeFieldChanges = ['_id', 'created_at', 'updated_at'];
-	protected context: any;
+	protected context: ExpressContext;
 	protected rmqClient: ClientProxy;
 	protected rmqClientService: RMQClientService;
 
@@ -144,12 +145,12 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 
 	getContext() {
 		return {
-			path: this.context.route.path,
-			url: this.context.url,
-			method: this.context.method,
-			body: this.context.body,
-			params: this.context['params'],
-			query: this.context['query'],
+			path: this?.context?.route?.path,
+			url: this?.context?.url,
+			method: this?.context?.method,
+			body: this?.context?.body,
+			params: this?.context?.['params'],
+			query: this?.context?.['query'],
 		};
 	}
 
