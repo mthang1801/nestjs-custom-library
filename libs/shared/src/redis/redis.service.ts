@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { RedisCommandArgument } from '@redis/client/dist/lib/commands';
 import { RedisClientType, SetOptions, createClient } from 'redis';
+import { UtilService } from '../utils/util.service';
 import { REDIS_CONNECTION_OPTIONS } from './constants/constants';
 import { RedisConnectionOptions } from './interfaces';
 import { LibRedisUtil } from './redis.utils';
@@ -25,6 +26,7 @@ export class LibRedisService {
 		@Inject(REDIS_CONNECTION_OPTIONS)
 		protected readonly redisConnectionOptions: RedisConnectionOptions,
 		private readonly redisUtil: LibRedisUtil,
+		private readonly utilService: UtilService,
 	) {}
 
 	getUrl() {
@@ -41,7 +43,14 @@ export class LibRedisService {
 				username: this.redisConnectionOptions.username || undefined,
 				password: this.redisConnectionOptions.password || undefined,
 			}));
-		await this.redisClient.connect();
+		await this.redisClient.connect().then((value) => {
+			this.redisClient.on('error', function (error) {
+				console.log(error);
+			});
+			this.redisClient.on('connect', function (connect) {
+				console.log('connected::', connect);
+			});
+		});
 		this.logger.log(`Redis Server has connected to ${this.getUrl()}`);
 	}
 
@@ -105,9 +114,9 @@ export class LibRedisService {
 		}
 	}
 
-	public async mGet(...args: string[] | any): Promise<Record<string, any>[]> {
+	public async mGet(...args: string[] | any): Promise<Record<string, any>> {
 		const mGetData = await this.redisClient.MGET(args.flat(1));
-		return mGetData.map((data, i) => ({ [args.flat(1)[i]]: data }));
+		return this.redisUtil.responseMGetData(args.flat(1), mGetData);
 	}
 
 	public async keys(pattern: string): Promise<string[]> {
@@ -296,13 +305,10 @@ export class LibRedisService {
 	 * @param field
 	 * @returns
 	 */
-	public async hmGet(
-		key: RedisCommandArgument,
-		...fields: RedisCommandArgument[] | Array<RedisCommandArgument[]>
-	) {
+	public async hmGet(key: RedisCommandArgument, ...fields: any[]) {
 		try {
 			const data = await this.redisClient.HMGET(key, fields.flat(1));
-			return this.redisUtil.hmGetValues(data);
+			return this.redisUtil.hmGetValues(fields.flat(1), data);
 		} catch (error) {
 			return null;
 		}
@@ -459,4 +465,169 @@ export class LibRedisService {
 		}
 	}
 	//#endregion
+
+	/********************************************************
+	 ************************* LIST ***********************
+	 ********************************************************/
+	/**
+	 * Append One or more elements into a list. Create a key if it does not exists
+	 * @param key
+	 * @param elements
+	 * @returns
+	 */
+	async push(key: string, ...elements: any[]) {
+		const stringifyElementList = this.redisUtil.stringifyElementList(
+			elements.flat(1),
+		);
+		return this.redisClient.RPUSH(key, stringifyElementList);
+	}
+
+	/**
+	 * Inserts specified values at the tail of the list stored at key,
+	 * only if key already exists and holds a list. In contrary to RPUSH,
+	 * no operation will be performed when key does not yet exist.
+	 * @param key
+	 * @param elements
+	 * @returns
+	 */
+	async pushExists(key: string, ...elements: any[]) {
+		const stringifyElementList = this.redisUtil.stringifyElementList(
+			elements.flat(1),
+		);
+		return this.redisClient.RPUSHX(key, stringifyElementList);
+	}
+
+	/**
+	 * Remove and return the last element of the list stored a key
+	 * @param {string} key
+	 * @returns {Promise<any>}
+	 */
+	async pop(key: string): Promise<any> {
+		const popElement = await this.redisClient.RPOP(key);
+		return popElement && this.utilService.parseData(popElement);
+	}
+
+	/**
+	 * Insert all the specified values at the head of the list stored at key.
+	 * If key does not exist, it is created as empty list before performing the push operations.
+	 * When key holds a value that is not a list, an error is returned.
+	 * @param {string} key
+	 * @param {any[]} elements
+	 * @returns {Promise<number>}
+	 */
+	async unshift(key: string, ...elements: any[]): Promise<number> {
+		const stringifyElementList = this.redisUtil.stringifyElementList(
+			elements.flat(1),
+		);
+		return this.redisClient.LPUSH(key, stringifyElementList);
+	}
+
+	/**
+	 * Removes and returns the first elements of the list stored at key.
+	 * @param {string} key
+	 * @returns {Promise<any>}
+	 */
+	async shift(key: string): Promise<any> {
+		const shiftElement = await this.redisClient.LPOP(key);
+		return shiftElement && this.utilService.parseData(shiftElement);
+	}
+
+	/**
+	 * Inserts specified values at the head of the list stored at key,
+	 * only if key already exists and holds a list. In contrary to LPUSH,
+	 * no operation will be performed when key does not yet exist.
+	 * @param {string} key
+	 * @param {any[]} elements
+	 * @returns {Promise<number>}
+	 */
+	async unshiftExists(key: string, ...elements: any[]): Promise<number> {
+		const stringifyElementList = this.redisUtil.stringifyElementList(
+			elements.flat(1),
+		);
+		return this.redisClient.LPUSHX(key, stringifyElementList);
+	}
+
+	/**
+	 * Sets the list element at index to element.
+	 * For more information on the index argument, see LINDEX.
+	 * @param {string} key
+	 * @param {number} index
+	 * @param {any} element
+	 * @returns {Promise<boolean>}
+	 */
+	async lSet(key: string, index: number, element: any): Promise<boolean> {
+		const formatElement = this.utilService.stringify(element);
+		return (await this.redisClient.LSET(key, index, formatElement)) === 'OK';
+	}
+
+	/**
+	 * Returns the specified elements of the list stored at key.
+	 * The offsets start and stop are zero-based indexes,
+	 * with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
+	 * @param {string} key
+	 * @param {number} start
+	 * @param {number} end
+	 * @returns {Promise<any[]>}
+	 */
+	async lRange(key: string, start = 0, end = -1): Promise<any[]> {
+		const responseData = await this.redisClient.LRANGE(key, start, end);
+		return this.redisUtil.parseElementList(responseData);
+	}
+
+	/**
+	 *Removes the first count occurrences of elements equal to element from the list stored at key. 
+   The count argument influences the operation in the following ways:
+  * count > 0: Remove elements equal to element moving from head to tail.
+  * count < 0: Remove elements equal to element moving from tail to head.
+  * count = 0: Remove all elements equal to element.
+  For example, LREM list -2 "hello" will remove the last two occurrences of "hello" in the list stored at list.
+
+  Note that non-existing keys are treated like empty lists, so when key does not exist, the command will always return 0.
+	 * @param {string} key
+	 * @param {any} element
+	 * @param {number} count
+	 * @returns {Promise<number>}
+	 */
+	async lRem(key: string, element: any, count = 0) {
+		return this.redisClient.LREM(
+			key,
+			count,
+			this.utilService.stringify(element),
+		);
+	}
+
+	/**
+	 * Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned. An error is returned when the value stored at key is not a list.
+	 * @param {string} key
+	 * @returns {Promise<number>}
+	 */
+	async lLen(key: string) {
+		return this.redisClient.LLEN(key);
+	}
+
+	/**
+	 * Inserts element in the list stored at key either before or after the reference value pivot.
+	 * When key does not exist, it is considered an empty list and no operation is performed.\
+	 * An error is returned when key exists but does not hold a list value.
+	 * @param {string} key
+	 * @param {any} pivot
+	 * @param {any} element
+	 * @param { 'BEFORE' | 'AFTER' } position
+	 * @returns
+	 */
+	async lInsert(
+		key: string,
+		pivot: any,
+		element: any,
+		position: 'BEFORE' | 'AFTER' = 'BEFORE',
+	): Promise<boolean> {
+		return (
+			(await this.redisClient.LINSERT(
+				key,
+				position,
+				this.utilService.stringify(pivot),
+				this.utilService.stringify(element),
+			)) > 0
+		);
+	}
 }

@@ -311,7 +311,7 @@ export class UtilService {
 		return JSON.stringify(value);
 	}
 
-	jsonParse(value: any) {
+	parseData(value: any) {
 		return this.isJsonString(value) ? JSON.parse(value) : value;
 	}
 

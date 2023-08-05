@@ -6,6 +6,7 @@ import { Timeout } from '@nestjs/schedule';
 export class RedisServiceService {
 	constructor(private readonly redisService: LibRedisService) {}
 
+	// COMMENT: RedisStringExample
 	async RedisStringExample() {
 		const key = 'test';
 		const value = {
@@ -246,7 +247,7 @@ export class RedisServiceService {
 		// console.log(getDelResult);
 	}
 
-	@Timeout(Date.now().toString(), 500)
+	//COMMENT: RedisHashExample
 	async RedisHashExample() {
 		//TODO : HSET
 		const hKey1 = 'hkey:1';
@@ -378,8 +379,10 @@ export class RedisServiceService {
 
 		// TODO: HGET
 		const getHKey1Name = await this.redisService.hget(hKey1, hKey1Field1);
-		// console.log(getHKey1Name);
-
+		console.log(
+			'🚀 ~ file: redis-service.service.ts:381 ~ RedisServiceService ~ RedisHashExample ~ getHKey1Name:',
+			getHKey1Name,
+		);
 		// TODO: HMGET
 		const getHMValues = await this.redisService.hmGet(
 			hKey1,
@@ -455,5 +458,120 @@ export class RedisServiceService {
 			'unknown',
 		);
 		// console.log(deletedList);
+	}
+
+	// COMMENT: RedisListExample
+
+	@Timeout(Date.now().toString(), 500)
+	async RedisListExample() {
+		// TODO : RPUSH
+		// const imageListData = [
+		// 	'files/products/2023/6/17/1/1689588059627_samsung_galaxy_s23_ultra_1_didongviet.jpg',
+		// 	'files/products/2023/4/31/1/1685524193541_samsung_galaxy_s23_ultra_thumb_didongviet_new.jpg',
+		// 	'files/media/catalog/product/s/a/samsung-galaxy-s23-ultra-5g-mau-xanh_4.png',
+		// 	'files/media/catalog/product/s/a/samsung-galaxy-s23-ultra-5g-didongviet_4.png',
+		// 	'files/media/catalog/product/s/a/samsung-galaxy-s23-ultra-5g-mau-den-didongviet_4.png',
+		// 	'files/media/catalog/product/s/a/samsung-galaxy-s23-ultra-5g-mau-trang-didongviet_4.png',
+		// ];
+		// const keyRight = 'list:push';
+		// await this.redisService.push(keyRight, imageListData);
+		//TODO: RPUSHX
+		// const pushToUniqListResponse = await this.redisService.pushExists(
+		// 	keyRight,
+		// 	imageListData,
+		// );
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:477 ~ RedisServiceService ~ RedisListExample ~ pushToUniqListResponse:',
+		// 	pushToUniqListResponse,
+		// );
+		//TODO: RPOP
+		// const resultRpop = await this.redisService.pop(keyRight);
+		// console.log(resultRpop);
+		//TODO: LPUSH
+		// const keyLeft = 'list:unshift';
+		// const dataList = 2;
+		// const resultUnshift = await this.redisService.unshift(keyLeft, dataList);
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:493 ~ RedisServiceService ~ RedisListExample ~ resultUnshift:',
+		// 	resultUnshift,
+		// );
+		//TODO : LPOP
+		// const keyLeft = 'list:shift';
+		// const dataShiftList = [5, 3];
+		// await this.redisService.unshift(keyLeft, dataShiftList);
+		// for (let i = 0; i < 100; i++) {
+		// 	const result = await this.redisService.shift(keyLeft);
+		// 	console.log(result);
+		// }
+		// const resultUnshift = await this.redisService.unshift(keyLeft, dataList);
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:493 ~ RedisServiceService ~ RedisListExample ~ resultUnshift:',
+		// 	resultUnshift,
+		// );
+		// TODO: LPUSHX
+		// const resultUnshiftExists = await this.redisService.unshiftExists(
+		// 	keyLeft,
+		// 	dataList,
+		// );
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:493 ~ RedisServiceService ~ RedisListExample ~ resultUnshiftExists:',
+		// 	resultUnshiftExists,
+		// );
+		//TODO: LSET
+		// const listSetKey = 'list:set';
+		// const listSetData = [1, 2, 3, 4, 5];
+		// await this.redisService.push(listSetKey, listSetData);
+		// const lSetResponse = await this.redisService.lSet(listSetKey, 1, 10);
+		// console.log(lSetResponse);
+		//TODO: LRANGE
+		// const lRangeKey = 'list:lrange';
+		// const startIdx = 1;
+		// const endIdx = -1;
+		// const listRangeData = [
+		// 	1,
+		// 	2,
+		// 	3,
+		// 	4,
+		// 	5,
+		// 	'a',
+		// 	null,
+		// 	undefined,
+		// 	{},
+		// 	true,
+		// 	false,
+		// ];
+		// await this.redisService.push(lRangeKey, listRangeData);
+		// const lRangeResponse = await this.redisService.lRange(
+		// 	lRangeKey,
+		// 	startIdx,
+		// 	endIdx,
+		// );
+		// console.log(lRangeResponse);
+
+		//TODO: LREM
+		// const keyLrem = 'list:lrem';
+		// const lremData = [1, 2, 3, 4, 5, 5, 6, 6, 7, 7, 5];
+		// await this.redisService.push(keyLrem, lremData);
+		// const lremResult = await this.redisService.lRem(keyLrem, 5);
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:556 ~ RedisServiceService ~ RedisListExample ~ lremResult:',
+		// 	lremResult,
+		// );
+
+		//TODO: LLEN
+		// const keyLLen = 'list:llen';
+		// const llenData = Array.from({ length: 20 }).map((_, i) => i + 1);
+		// await this.redisService.push(keyLLen, llenData);
+		// const listSize = await this.redisService.lLen(keyLLen);
+		// console.log(
+		// 	'🚀 ~ file: redis-service.service.ts:566 ~ RedisServiceService ~ RedisListExample ~ listSize:',
+		// 	listSize,
+		// );
+
+		//TODO: LINSERT
+		// const keyLInsert = 'list:insert';
+		// const lInsertData = Array.from({ length: 20 }).map((_, i) => i + 1);
+		// await this.redisService.push(keyLInsert, lInsertData);
+		// await this.redisService.lInsert(keyLInsert, 10, 100, 'BEFORE');
 	}
 }
