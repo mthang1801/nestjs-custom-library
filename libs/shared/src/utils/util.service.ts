@@ -367,6 +367,14 @@ export class UtilService {
 		return { page, skip, limit };
 	};
 
+	async debounce(milliseconds = 3000) {
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				resolve(true);
+			}, milliseconds);
+		});
+	}
+
 	async hashedString(str: string) {
 		return await bcrypt.hash(str, 10);
 	}

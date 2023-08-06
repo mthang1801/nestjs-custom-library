@@ -10,104 +10,104 @@ services:
       - '5672:5672'
       - '15672:15672'
 
-  # mongodb:
-  #   container_name: mongodb
-  #   image: mongo
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=root
-  #     - MONGO_INITDB_ROOT_PASSWORD=admin123
-  #   volumes:
-  #     - 'mongodb_master_data:/data/db'
-  #   ports:
-  #     - '27017:27017'
-
   redis:
     container_name: redis
     image: redis:latest
     ports:
       - '6379:6979'
 
-  mongo1:
-    container_name: mongo-primary
-    hostname: mongo1
+  mongo:
+    container_name: mongo
     image: mongo
     expose:
       - 27017
     ports:
       - 27017:27017
     restart: always
-    command: mongod --replSet mongo-set
-    networks:
-      - mongo-cluster
+    environment: 
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
 
-  mongo2:
-    container_name: mongo-secondary-1
-    hostname: mongo2
-    image: mongo
-    expose:
-      - 27017
-    ports:
-      - 27018:27017
-    restart: always
-    command: mongod --replSet mongo-set
-    networks:
-      - mongo-cluster
-    depends_on:
-      - mongo1
+  # mongo-primary:
+  #   container_name: mongo-primary
+  #   hostname: mongo-primary
+  #   image: mongo
+  #   expose:
+  #     - 27017
+  #   ports:
+  #     - 27017:27017
+  #   restart: always
+  #   command: >
+  #     mongod --replSet mongo-set
+  #   networks:
+  #     - mongo-cluster
 
-  mongo3:
-    container_name: mongo-secondary-2
-    hostname: mongo3
-    image: mongo
-    expose:
-      - 27017
-    ports:
-      - 27019:27017
-    restart: always
-    command: mongod --replSet mongo-set
-    networks:
-      - mongo-cluster
-    depends_on:
-      - mongo1
+  # mongo-secondary:
+  #   container_name: mongo-secondary
+  #   hostname: mongo-secondary
+  #   image: mongo
+  #   expose:
+  #     - 27017
+  #   ports:
+  #     - 27018:27017
+  #   restart: always
+  #   command: mongod --replSet mongo-set
+  #   networks:
+  #     - mongo-cluster
+  #   depends_on:
+  #     - mongo-primary
 
-  # finally, we can define the initialization server
-  # this runs the `rs.initiate` command to intialize
-  # the replica set and connect the three servers to each other
-  mongoinit:
-    image: mongo
-    # this container will exit after executing the command
-    restart: "no"
-    networks:
-      - mongo-cluster
-    depends_on:
-      - mongo1
-      - mongo2
-      - mongo3
-    command: >
-      mongosh --host mongo1:27017 --eval 
-      '
-      db = (new Mongo("mongo1:27017")).getDB("test");
-      config = {
-      "_id" : "mongo-set",
-      "members" : [
-        {
-          "_id" : 0,
-          "host" : "mongo1:27017"
-        },
-        {
-          "_id" : 1,
-          "host" : "mongo2:27017"
-        },
-        {
-          "_id" : 2,
-          "host" : "mongo3:27017"
-        }
-      ]
-      };
-      rs.initiate(config);
-      '    
-      
+  # mongo-arbiter:
+  #   container_name: mongo-arbiter
+  #   hostname: mongo-arbiter
+  #   image: mongo
+  #   expose:
+  #     - 27017
+  #   ports:
+  #     - 27019:27017
+  #   restart: always
+  #   command: mongod --replSet mongo-set
+  #   networks:
+  #     - mongo-cluster
+  #   depends_on:
+  #     - mongo-primary
 
+  # # # finally, we can define the initialization server
+  # # # this runs the `rs.initiate` command to intialize
+  # # # the replica set and connect the three servers to each other
+  # mongoinit:
+  #   image: mongo
+  #   # this container will exit after executing the command
+  #   restart: 'no'
+  #   networks:
+  #     - mongo-cluster
+  #   depends_on:
+  #     - mongo-primary
+  #     - mongo-secondary
+  #     - mongo-arbiter
+  #   command: >
+  #     mongosh --host mongo-primary:27017 --eval
+  #     '
+  #     db = (new Mongo("mongo-primary:27017")).getDB("test");
+  #     config = {
+  #     "_id" : "mongo-set",
+  #     "members" : [
+  #       {
+  #         "_id" : 0,
+  #         "host" : "mongo-primary:27017"
+  #       },
+  #       {
+  #         "_id" : 1,
+  #         "host" : "mongo-secondary:27017"
+  #       },
+  #       {
+  #         "_id" : 2,
+  #         "host" : "mongo-arbiter:27017"
+  #       }
+  #     ]
+  #     };
+  #     rs.initiate(config);
+  #     '
 
   # mysql:
   #   container_name: mysql

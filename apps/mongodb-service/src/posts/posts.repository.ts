@@ -1,5 +1,6 @@
 import { CONNECTION_NAME } from '@app/shared';
 import { AbstractRepository } from '@app/shared/abstract';
+import { ExpressContext } from '@app/shared/abstract/types/abstract.type';
 import { Posts, PostsDocument } from '@app/shared/schemas';
 import {
 	ExecutionContext,
@@ -25,7 +26,7 @@ export class PostsRepository extends AbstractRepository<PostsDocument> {
 		// readonly primaryLogModel: Model<PostLogDocument>,
 		// @InjectModel(PostLog.name, CONNECTION_NAME.SECONDARY)
 		// readonly secondaryLogModel: Model<PostLogDocument>,
-		@Inject(CONTEXT) readonly context: ExecutionContext,
+		@Inject(CONTEXT) readonly context: ExpressContext,
 	) {
 		super({
 			primaryModel,

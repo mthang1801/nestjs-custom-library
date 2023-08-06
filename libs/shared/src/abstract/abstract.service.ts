@@ -17,6 +17,7 @@ import {
 	UpdateQuery,
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
+import { ExpressContext } from './types/abstract.type';
 @Injectable({ scope: Scope.REQUEST })
 export abstract class AbstractService<
 	T extends AbstractDocument<AbstractSchema>,
@@ -25,7 +26,7 @@ export abstract class AbstractService<
 	protected writeModel: Model<T> = null;
 	protected readModel: Model<T> = null;
 	protected modelInfo: ModelInfo = null;
-	@Inject(CONTEXT) protected context: Request;
+	@Inject(CONTEXT) protected context: ExpressContext;
 	constructor(readonly repository: AbstractRepository<T>) {
 		this.writeModel = repository.primaryModel;
 		this.readModel = repository.secondaryModel;

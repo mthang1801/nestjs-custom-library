@@ -10,7 +10,10 @@ async function bootstrap() {
 	[ENUM_QUEUES.TEST, ENUM_QUEUES.BROAD_CAST].map((item) =>
 		app.connectMicroservice<MicroserviceOptions>(rmqService.getOptions(item)),
 	);
-	await app.startAllMicroservices();
+	app.connectMicroservice<MicroserviceOptions>(
+		rmqService.getConsumer({ queue: ENUM_QUEUES.TEST_ACK, isAck: true }),
+	),
+		await app.startAllMicroservices();
 	await app.listen(5002, async () =>
 		Logger.log(
 			`Server is running on ${await app.getUrl()}`,
