@@ -49,7 +49,7 @@ export class RMQClientService {
 			transport: Transport.RMQ,
 			options: {
 				urls: [this.getUrl()],
-				prefetchCount: 1,
+				prefetchCount: 2,
 				isGlobalPrefetchCount: true,
 				queueOptions: {
 					durable: true,
