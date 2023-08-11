@@ -2,11 +2,11 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-	ClientProxyFactory,
-	RmqContext,
-	RmqOptions,
-	RmqRecordBuilder,
-	Transport,
+  ClientProxyFactory,
+  RmqContext,
+  RmqOptions,
+  RmqRecordBuilder,
+  Transport,
 } from '@nestjs/microservices';
 import { HealthIndicatorResult } from '@nestjs/terminus';
 import { Observable, fromEvent, lastValueFrom, mapTo, merge, of } from 'rxjs';
@@ -49,7 +49,7 @@ export class RMQClientService {
 			transport: Transport.RMQ,
 			options: {
 				urls: [this.getUrl()],
-				prefetchCount: 2,
+				prefetchCount: 10,
 				isGlobalPrefetchCount: true,
 				queueOptions: {
 					durable: true,

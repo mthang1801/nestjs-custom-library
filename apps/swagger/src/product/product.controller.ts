@@ -28,21 +28,21 @@ export class ProductController {
 	@Post()
 	@ApiCreatedResponseCustom({
 		summary: 'create product',
-		type: CreateProductDto,
+		responseType: CreateProductDto,
 	})
 	create(@Body() createProductDto: CreateProductDto) {
 		return this.productService.create(createProductDto);
 	}
 
 	@Get()
-	@ApiListResponseCustom({ summary: 'product list', type: Product })
+	@ApiListResponseCustom({ summary: 'product list', responseType: Product })
 	findAll(@Query() query: FindProductListDto) {
 		return this.productService.findAll();
 	}
 
 	@Get(':id')
 	@ApiResponseCustom<typeof Product>({
-		type: Product,
+		responseType: Product,
 		summary: 'product by id',
 	})
 	findOne(@Param('id') id: string) {
@@ -51,7 +51,7 @@ export class ProductController {
 
 	@Patch(':id')
 	@ApiResponseCustom<typeof Product>({
-		type: Product,
+		responseType: Product,
 		summary: 'update product by id',
 	})
 	update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {

@@ -41,7 +41,7 @@ export class CreatedResponseDto<TData> extends AbstractResponseDto<TData[]> {
 	metadata: Metadata = null;
 }
 
-export class ErrorResponseDto<TData> extends AbstractResponseDto<TData> {
+export class SwaggerErrorResponseDto<TData> extends AbstractResponseDto<TData> {
 	@ApiProperty({ example: 500 })
 	protected statusCode?: number;
 
@@ -55,7 +55,7 @@ export class ErrorResponseDto<TData> extends AbstractResponseDto<TData> {
 	protected message?: string;
 }
 
-export class BadRequestResponseDto extends ErrorResponseDto<any> {
+export class SwaggerBadRequestResponseDto extends SwaggerErrorResponseDto<any> {
 	@ApiProperty({ example: 400 })
 	protected statusCode?: number;
 
@@ -63,7 +63,7 @@ export class BadRequestResponseDto extends ErrorResponseDto<any> {
 	protected message?: string = 'Bad Request Exception';
 }
 
-export class BadGatewayResponseDto extends ErrorResponseDto<any> {
+export class SwaggerBadGatewayResponseDto extends SwaggerErrorResponseDto<any> {
 	@ApiProperty({ example: 502 })
 	protected statusCode?: number;
 
@@ -74,7 +74,7 @@ export class BadGatewayResponseDto extends ErrorResponseDto<any> {
 	protected message?: string = 'Bad Gateway Exception';
 }
 
-export class UnAuthorizedResponseDto extends ErrorResponseDto<any> {
+export class SwaggerUnAuthorizedResponseDto extends SwaggerErrorResponseDto<any> {
 	@ApiProperty({ example: 401 })
 	protected statusCode?: number;
 
@@ -82,7 +82,7 @@ export class UnAuthorizedResponseDto extends ErrorResponseDto<any> {
 	protected message?: string = 'Unauthorized Exception';
 }
 
-export class BadRequestException extends ErrorResponseDto<any> {
+export class SwaggerBadRequestException extends SwaggerErrorResponseDto<any> {
 	@ApiProperty({ example: 400 })
 	protected statusCode?: number;
 
@@ -90,7 +90,7 @@ export class BadRequestException extends ErrorResponseDto<any> {
 	protected message?: string = 'Bad Request Exception';
 }
 
-export class NotFoundResponseDto extends ErrorResponseDto<any> {
+export class SwaggerNotFoundResponseDto extends SwaggerErrorResponseDto<any> {
 	@ApiProperty({ example: 404 })
 	protected statusCode?: number;
 
@@ -104,18 +104,7 @@ export const ApiHeadersResponse = () =>
 			name: 'Authorization',
 			description: 'Access Token',
 			example:
-				'ZWYzN2RkMmM3MDZkZDNjMzgyZDZiMDllNzVhZDE5MDIxYjkwMTAxODUyZWFkNTQ0NzM1MDQxMDVhMDM3NmM3MzBlZDQ1ZDc1N2JhOGU4NTA1NzI1OGMxNGM5YjhjZTk4NmY5MDJlNWRjZjViNTkwZTNmM2I3NmVjOGU0MjkzYjY=',
-		},
-		{
-			name: 'Refresh Token',
-			description: 'Refresh Token',
-			example:
-				'ZWYzN2RkMmM3MDZkZDNjMzgyZDZiMDllNzVhZDE5MDIxYjkwMTAxODUyZWFkNTQ0NzM1MDQxMDVhMDM3NmM3MzBlZDQ1ZDc1N2JhOGU4NTA1NzI1OGMxNGM5YjhjZTk4NmY5MDJlNWRjZjViNTkwZTNmM2I3NmVjOGU0MjkzYjY=',
-		},
-		{
-			name: 'x-api-key',
-			required: true,
-			example: 'This is an api key',
+				'Bearer ZWYzN2RkMmM3MDZkZDNjMzgyZDZiMDllNzVhZDE5MDIxYjkwMTAxODUyZWFkNTQ0NzM1MDQxMDVhMDM3NmM3MzBlZDQ1ZDc1N2JhOGU4NTA1NzI1OGMxNGM5YjhjZTk4NmY5MDJlNWRjZjViNTkwZTNmM2I3NmVjOGU0MjkzYjY=',
 		},
 		{
 			name: 'Content-Type',

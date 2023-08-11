@@ -2,6 +2,7 @@ import { LibMongoModule } from '@app/shared';
 import { Product, ProductSchema } from '@app/shared/schemas/product.schema';
 import { Module } from '@nestjs/common';
 import { ProductController } from './product.controller';
+import { ProductRepository } from './product.repository';
 import { ProductService } from './product.service';
 
 @Module({
@@ -12,6 +13,6 @@ import { ProductService } from './product.service';
 		}),
 	],
 	controllers: [ProductController],
-	providers: [ProductService],
+	providers: [ProductService, ProductRepository],
 })
 export class ProductModule {}

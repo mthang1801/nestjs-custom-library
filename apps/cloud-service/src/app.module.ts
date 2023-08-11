@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppService } from './app.service';
+import { PublishModule } from './publish/publish.module';
 
 @Module({
 	imports: [
@@ -12,6 +13,7 @@ import { AppService } from './app.service';
 		}),
 		ScheduleModule.forRoot(),
 		LibTelegramModule,
+		PublishModule,
 	],
 	controllers: [],
 	providers: [AppService],

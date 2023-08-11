@@ -11,10 +11,17 @@ services:
       - '15672:15672'
 
   redis:
-    container_name: redis
-    image: redis:latest
-    ports:
-      - '6379:6979'
+    image: bitnami/redis:latest
+    hostname: redis 
+    container_name: redis 
+    volumes:
+      - redis-data:/bitnami/redis/data
+    environment: 
+      - ALLOW_EMPTY_PASSWORD=yes
+      # - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+    ports: 
+      - 6379:63799
+
 
   mongo:
     container_name: mongo
@@ -150,6 +157,7 @@ services:
 volumes:
   mongodb_master_data:
     driver: local
-
+  redis-data : 
+    driver: local
 networks:
   mongo-cluster: {}

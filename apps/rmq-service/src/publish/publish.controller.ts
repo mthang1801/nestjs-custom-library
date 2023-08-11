@@ -20,17 +20,17 @@ export class PublishController {
 		private readonly RMQClientService: RMQClientService,
 	) {}
 	status = 'PROCESSING';
-	@EventPattern(ENUM_PATTERN.PUSH_MANY_NOTI_ORDER)
-	async onPushNotiOrder(@Payload() payload, @Ctx() context: RmqContext) {
-		try {
-			await this.publishService.onPushNotiOrder(payload);
-			this.RMQClientService.ack(context);
-		} catch (error) {
-			console.log('onPushNotiOrder::', error.message);
-			// throw new RpcException(error.message);
-			return;
-		}
-	}
+	// @EventPattern(ENUM_PATTERN.PUSH_MANY_NOTI_ORDER)
+	// async onPushNotiOrder(@Payload() payload, @Ctx() context: RmqContext) {
+	// 	try {
+	// 		await this.publishService.onPushNotiOrder(payload);
+	// 		this.RMQClientService.ack(context);
+	// 	} catch (error) {
+	// 		console.log('onPushNotiOrder::', error.message);
+	// 		// throw new RpcException(error.message);
+	// 		return;
+	// 	}
+	// }
 
 	@Post()
 	generatePayload(@Body() payload: any) {

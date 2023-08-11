@@ -2,6 +2,7 @@ import { LibMongoModule } from '@app/shared';
 import { Category, CategorySchema } from '@app/shared/schemas/category.schema';
 import { Module } from '@nestjs/common';
 import { CategoryController } from './category.controller';
+import { CategoryRepository } from './category.repository';
 import { CategoryService } from './category.service';
 
 @Module({
@@ -12,6 +13,6 @@ import { CategoryService } from './category.service';
 		}),
 	],
 	controllers: [CategoryController],
-	providers: [CategoryService],
+	providers: [CategoryService, CategoryRepository],
 })
 export class CategoryModule {}
