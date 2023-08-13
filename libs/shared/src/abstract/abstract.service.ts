@@ -38,8 +38,7 @@ export abstract class AbstractService<
 	}
 
 	protected async startSession(): Promise<ClientSession> {
-		const session = await this.repository.startSession();
-		return session;
+		return await this.repository.startSession();
 	}
 
 	protected async _create(
