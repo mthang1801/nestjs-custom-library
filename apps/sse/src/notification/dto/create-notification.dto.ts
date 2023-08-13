@@ -15,4 +15,7 @@ export class CreateNotificationsDto {
 	@IsObject()
 	@IsOptional()
 	object: any;
+
+	@IsString()
+	receiver: string;
 }

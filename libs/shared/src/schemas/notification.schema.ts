@@ -16,6 +16,9 @@ export class Notification extends AbstractSchema {
 
 	@Prop({ type: NotificationObject })
 	object: NotificationObject;
+
+	@Prop()
+	receiver: string;
 }
 
 export type NotificationDocument = AbstractDocument<Notification>;

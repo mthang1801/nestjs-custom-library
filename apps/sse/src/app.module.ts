@@ -5,12 +5,14 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { NotificationModule } from './notification/notification.module';
+import { MessengerModule } from './messenger/messenger.module';
 
 @Module({
 	imports: [
 		LibCoreModule,
 		LibMongoModule.forRootAsync(),
 		NotificationModule,
+		MessengerModule,
 	],
 	controllers: [AppController],
 	providers: [

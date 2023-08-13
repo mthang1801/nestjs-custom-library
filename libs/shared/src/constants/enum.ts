@@ -159,3 +159,16 @@ export const ENUM_EVENTS = {
 	UPDATE: 'UPDATE',
 	DELETE: 'DELATE',
 } as const;
+
+export const ENUM_MESSENGER_TYPE = {
+	TEXT: 'TEXT',
+	IMAGE: 'IMAGE',
+	DOCUMENT: 'DOCUMENT',
+	VIDEO: 'VIDEO',
+};
+
+export const ENUM_MESSENGER_SCOPE = {
+	PRIVATE: 'PRIVATE',
+	GROUP: 'GROUP',
+	GLOBAL: 'GLOBAL',
+};

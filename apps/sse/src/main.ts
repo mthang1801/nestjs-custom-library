@@ -18,5 +18,6 @@ async function bootstrap() {
 	await app.listen(configService.get<number>('SSE_PORT'), async () =>
 		Logger.log(`Server is running on ${await app.getUrl()}`),
 	);
+  await app.init()
 }
 bootstrap();

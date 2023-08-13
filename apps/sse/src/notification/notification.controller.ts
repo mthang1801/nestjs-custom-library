@@ -1,4 +1,5 @@
-import { Body, Controller, Post, Sse } from '@nestjs/common';
+import { Body, Controller, Param, Post, Sse } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { CreateNotificationsDto } from './dto/create-notification.dto';
 import { NotificationService } from './notification.service';
 @Controller('notifications')
@@ -6,8 +7,13 @@ export class NotificationController {
 	constructor(private readonly notificationService: NotificationService) {}
 
 	@Sse('listener')
-	async sseNotification() {
-		return this.notificationService.sseNotification();
+	notificationListener(): Observable<Notification> {
+		return this.notificationService.notificationListener();
+	}
+
+	@Sse('listener/:id')
+	notificationListenerById(@Param('id') id: string): Observable<Notification> {
+		return this.notificationService.notificationListenerById(id);
 	}
 
 	@Post()

@@ -7,7 +7,6 @@ import {
 } from '@app/shared';
 import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { CONTEXT } from '@nestjs/microservices';
-import { Request } from 'express';
 import {
 	FilterQuery,
 	Model,
@@ -16,21 +15,24 @@ import {
 	QueryOptions,
 	UpdateQuery,
 } from 'mongoose';
+import { Subject } from 'rxjs';
 import { AbstractRepository } from './abstract.repository';
 import { ExpressContext } from './types/abstract.type';
-@Injectable({ scope: Scope.REQUEST })
+@Injectable({ scope: Scope.REQUEST, durable: true })
 export abstract class AbstractService<
 	T extends AbstractDocument<AbstractSchema>,
 > {
-	protected abstract logger: Logger;
+	protected abstract logger?: Logger;
 	protected writeModel: Model<T> = null;
 	protected readModel: Model<T> = null;
 	protected modelInfo: ModelInfo = null;
 	@Inject(CONTEXT) protected context: ExpressContext;
-	constructor(readonly repository: AbstractRepository<T>) {
-		this.writeModel = repository.primaryModel;
-		this.readModel = repository.secondaryModel;
-		this.modelInfo = repository.modelInfo;
+	constructor(readonly repository?: AbstractRepository<T>) {
+		if (repository) {
+			this.writeModel = repository.primaryModel;
+			this.readModel = repository.secondaryModel;
+			this.modelInfo = repository.modelInfo;
+		}
 	}
 
 	protected async _create(

@@ -1,7 +1,7 @@
 import { User } from '@app/shared/schemas';
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Expose, Transform } from 'class-transformer';
-import mongoose, { SchemaTypes } from 'mongoose';
+import mongoose from 'mongoose';
 import SchemaCustom from '../abstract/schema-option';
 
 @SchemaCustom({
@@ -9,9 +9,6 @@ import SchemaCustom from '../abstract/schema-option';
 	timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
 export class AbstractSchema {
-	@Prop({ type: SchemaTypes.ObjectId })
-	_id: mongoose.Types.ObjectId;
-
 	@Expose()
 	@Transform(
 		({ value }) => {
