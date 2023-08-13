@@ -1,37 +1,37 @@
 import {
-  ExtraUpdateOptions,
-  FindAndCountAllResponse,
-  ModelInfo,
-  RemoveOptions,
-  UpdateResponse,
+	ExtraUpdateOptions,
+	FindAndCountAllResponse,
+	ModelInfo,
+	RemoveOptions,
+	UpdateResponse,
 } from '@app/shared/types';
 import {
-  HttpException,
-  Injectable,
-  Logger,
-  NotFoundException,
+	HttpException,
+	Injectable,
+	Logger,
+	NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import moment from 'moment';
 import {
-  Aggregate,
-  ClientSession,
-  FilterQuery,
-  Model,
-  ObjectId,
-  PipelineStage,
-  ProjectionType,
-  QueryOptions,
-  SaveOptions,
-  UpdateQuery,
+	Aggregate,
+	ClientSession,
+	FilterQuery,
+	Model,
+	ObjectId,
+	PipelineStage,
+	ProjectionType,
+	QueryOptions,
+	SaveOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { ENUM_PATTERN, ENUM_QUEUES } from '../constants';
 import {
-  ENUM_ACTION_TYPE,
-  ENUM_DATE_TIME,
-  ENUM_MODEL,
+	ENUM_ACTION_TYPE,
+	ENUM_DATE_TIME,
+	ENUM_MODEL,
 } from '../constants/enum';
 import { LibMongoService } from '../mongodb/mongodb.service';
 import { RMQClientService } from '../rabbitmq';
@@ -41,12 +41,7 @@ import { UtilService } from '../utils/util.service';
 import { AbstractLogDocument } from './abstract-log';
 import AbstractLogModel from './abstract-log.schema';
 import { IAbstractRepository } from './interfaces';
-import {
-  AggregationLookup,
-  ExpressContext,
-  InitAbstractRepository,
-  LogActionPayload,
-} from './types/abstract.type';
+import { AbstractType } from './types/abstract.type';
 
 @Injectable()
 export abstract class AbstractRepository<T extends AbstractSchema>
@@ -66,7 +61,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	protected configService: ConfigService = null;
 	protected mongooseService: LibMongoService = null;
 	private excludeFieldChanges = ['_id', 'created_at', 'updated_at'];
-	protected context: ExpressContext;
+	protected context: AbstractType.ExpressContext;
 	protected rmqClient: ClientProxy;
 	protected rmqClientService: RMQClientService;
 
@@ -76,7 +71,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		primaryLogModel,
 		secondaryLogModel,
 		context,
-	}: InitAbstractRepository<T>) {
+	}: AbstractType.InitAbstractRepository<T>) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
 		this.primaryLogModel = primaryLogModel;
@@ -129,8 +124,8 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		oldData,
 		actionType,
 		extraData,
-	}: LogActionPayload<T>) {
-		const payload: LogActionPayload<T> | any = {
+	}: AbstractType.LogActionPayload<T>) {
+		const payload: AbstractType.LogActionPayload<T> | any = {
 			newData: newData ? JSON.stringify(newData) : undefined,
 			oldData: oldData ? JSON.stringify(oldData) : undefined,
 			context: this.getContext(),
@@ -414,7 +409,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		foreignField,
 		as,
 		projection,
-	}: AggregationLookup): PipelineStage.Lookup {
+	}: AbstractType.AggregationLookup): PipelineStage.Lookup {
 		return {
 			$lookup: {
 				from,
@@ -436,7 +431,9 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		};
 	}
 
-	aggregationOneToOneJoin(lookupProperty: AggregationLookup): PipelineStage[] {
+	aggregationOneToOneJoin(
+		lookupProperty: AbstractType.AggregationLookup,
+	): PipelineStage[] {
 		const alias = lookupProperty.as || lookupProperty.from;
 		lookupProperty.as = alias;
 
@@ -447,7 +444,9 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		];
 	}
 
-	aggregationOneToManyJoin(lookupProperty: AggregationLookup): PipelineStage {
+	aggregationOneToManyJoin(
+		lookupProperty: AbstractType.AggregationLookup,
+	): PipelineStage {
 		const alias = lookupProperty.as || lookupProperty.from;
 		lookupProperty.as = alias;
 

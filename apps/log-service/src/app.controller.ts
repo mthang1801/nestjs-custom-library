@@ -1,12 +1,14 @@
 import { ENUM_PATTERN, RMQClientService } from '@app/shared';
-import { LogActionPayload } from '@app/shared/abstract/types/abstract.type';
+import {
+  AbstractType
+} from '@app/shared/abstract/types/abstract.type';
 import { Controller, Logger } from '@nestjs/common';
 import {
-	Ctx,
-	MessagePattern,
-	Payload,
-	RmqContext,
-	RpcException,
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+  RpcException,
 } from '@nestjs/microservices';
 import { AppService } from './app.service';
 @Controller()
@@ -19,7 +21,7 @@ export class AppController {
 	) {}
 	@MessagePattern({ cmd: ENUM_PATTERN.SAVE_ACTION })
 	async saveLogAction(
-		@Payload() payload: LogActionPayload<any>,
+		@Payload() payload: AbstractType.LogActionPayload<any>,
 		@Ctx() context: RmqContext,
 	) {
 		this.logger.log(

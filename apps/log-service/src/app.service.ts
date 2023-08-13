@@ -1,4 +1,4 @@
-import { LogActionPayload } from '@app/shared/abstract/types/abstract.type';
+import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import { LibMongoService } from '@app/shared/mongodb/mongodb.service';
 import { typeOf } from '@app/shared/utils/function.utils';
 import { Injectable } from '@nestjs/common';
@@ -8,7 +8,7 @@ import { ObjectId } from 'mongodb';
 export class AppService {
 	constructor(private readonly mongooseDynamicService: LibMongoService) {}
 
-	async saveLogAction(payload: LogActionPayload<any>) {
+	async saveLogAction(payload: AbstractType.LogActionPayload<any>) {
 		if (
 			payload.actionType === 'UPDATE' &&
 			payload.oldData &&

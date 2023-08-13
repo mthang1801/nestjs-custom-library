@@ -142,11 +142,11 @@ export enum ENUM_MODEL {
 	SYSTEM_LOG = 'system_logs',
 }
 
-export const ENUM_ACTION_TYPE = {
-	CREATE: 'CREATE',
-	UPDATE: 'UPDATE',
-	DELETE: 'DELATE',
-} as const;
+export enum ENUM_ACTION_TYPE {
+	CREATE = 'CREATE',
+	UPDATE = 'UPDATE',
+	DELETE = 'DELATE',
+}
 
 export const ENUM_NOTIFICATION_OBJECT = {
 	GROUP: 'GROUP',

@@ -1,13 +1,14 @@
 import { CONNECTION_NAME } from '@app/shared';
 import { AbstractRepository } from '@app/shared/abstract';
-import { ExpressContext } from '@app/shared/abstract/types/abstract.type';
+import {
+  AbstractType
+} from '@app/shared/abstract/types/abstract.type';
 import { Posts, PostsDocument } from '@app/shared/schemas';
 import {
-	ExecutionContext,
-	Inject,
-	Injectable,
-	Logger,
-	Scope,
+  Inject,
+  Injectable,
+  Logger,
+  Scope
 } from '@nestjs/common';
 import { CONTEXT } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
@@ -26,7 +27,7 @@ export class PostsRepository extends AbstractRepository<PostsDocument> {
 		// readonly primaryLogModel: Model<PostLogDocument>,
 		// @InjectModel(PostLog.name, CONNECTION_NAME.SECONDARY)
 		// readonly secondaryLogModel: Model<PostLogDocument>,
-		@Inject(CONTEXT) readonly context: ExpressContext,
+		@Inject(CONTEXT) readonly context: AbstractType.ExpressContext,
 	) {
 		super({
 			primaryModel,

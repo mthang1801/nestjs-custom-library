@@ -1,24 +1,24 @@
 import {
-  AbstractDocument,
-  AbstractSchema,
-  ExtraUpdateOptions,
-  ModelInfo,
-  UpdateResponse,
+	AbstractDocument,
+	AbstractSchema,
+	ExtraUpdateOptions,
+	ModelInfo,
+	UpdateResponse,
 } from '@app/shared';
+import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { CONTEXT } from '@nestjs/microservices';
 import {
-  ClientSession,
-  FilterQuery,
-  Model,
-  ObjectId,
-  ProjectionType,
-  QueryOptions,
-  SaveOptions,
-  UpdateQuery,
+	ClientSession,
+	FilterQuery,
+	Model,
+	ObjectId,
+	ProjectionType,
+	QueryOptions,
+	SaveOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
-import { ExpressContext } from './types/abstract.type';
 @Injectable({ scope: Scope.REQUEST, durable: true })
 export abstract class AbstractService<
 	T extends AbstractDocument<AbstractSchema>,
@@ -27,7 +27,7 @@ export abstract class AbstractService<
 	protected primaryModel: Model<T> = null;
 	public readModel: Model<T> = null;
 	public modelInfo: ModelInfo = null;
-	@Inject(CONTEXT) protected context: ExpressContext;
+	@Inject(CONTEXT) protected context: AbstractType.ExpressContext;
 
 	constructor(readonly repository?: AbstractRepository<T>) {
 		if (repository) {
