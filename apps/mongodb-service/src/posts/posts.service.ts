@@ -2,21 +2,18 @@ import { AbstractService } from '@app/shared';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
 	BadRequestException,
-	ExecutionContext,
 	Inject,
 	Injectable,
 	Logger,
 	Scope,
 	forwardRef,
 } from '@nestjs/common';
-import { CONTEXT } from '@nestjs/microservices';
 import { ClientSession, ObjectId } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostStatusDto } from './dto/update-post-status.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsRepository } from './posts.repository';
-import { ExpressContext } from '@app/shared/abstract/types/abstract.type';
 
 @Injectable({ scope: Scope.REQUEST })
 export class PostsService extends AbstractService<PostsDocument> {
@@ -30,12 +27,30 @@ export class PostsService extends AbstractService<PostsDocument> {
 	}
 
 	async create(createPostDto: CreatePostDto) {
-		const currentAuthor = await this.userService.finById(createPostDto.author);
-		if (!currentAuthor) throw new BadRequestException('Author not found');
-		return this._create({
-			...createPostDto,
-			author: currentAuthor,
-		});
+		const session = await this.startSession();
+		session.startTransaction();
+
+		try {
+			const postResult = await this._create(
+				{
+					...createPostDto,
+					author: await this.userService.readModel.findById(
+						createPostDto.author,
+						{},
+						{ session },
+					),
+				},
+				{ session },
+			);
+
+			await session.commitTransaction();
+			return postResult;
+		} catch (error) {
+			await session.abortTransaction();
+			throw new BadRequestException(error.message);
+		} finally {
+			await session.endSession();
+		}
 	}
 
 	findAll() {

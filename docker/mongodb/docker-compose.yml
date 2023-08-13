@@ -47,6 +47,7 @@ version: '3.9'
 services:
   mongodb-primary:
     image: bitnami/mongodb:latest
+    hostname: mongodb-primary
     networks:
       - mongo-cluster
     volumes:
@@ -59,12 +60,13 @@ services:
       - MONGODB_USERNAME=admin
       - MONGODB_PASSWORD=admin123
       - MONGODB_DATABASE=test
-      - MONGODB_REPLICA_SET_KEY=admin123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
     ports:
       - 27017:27017
       
   mongodb-secondary:
     image: bitnami/mongodb:latest
+    hostname: mongodb-secondary
     networks:
       - mongo-cluster
     depends_on: 
@@ -72,15 +74,14 @@ services:
     environment:
       - MONGODB_REPLICA_SET_MODE=secondary
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
-      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
-      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
-      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=admin123
-      - MONGODB_REPLICA_SET_KEY=admin123
-    ports: 
-      - 27018:27017
+      - MONGODB_PRIMARY_HOST=mongodb-primary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=admin123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
 
   mongodb-arbiter:
     image: bitnami/mongodb:latest
+    hostname: mongodb-arbiter
     networks:
       - mongo-cluster
     depends_on: 
@@ -88,12 +89,11 @@ services:
     environment:
       - MONGODB_REPLICA_SET_MODE=arbiter
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
-      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
-      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
-      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=admin123
-      - MONGODB_REPLICA_SET_KEY=admin123
-    ports: 
-      - 27019:27017
+      - MONGODB_PRIMARY_HOST=mongodb-primary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=admin123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      
 volumes:
   mongo_master_data: {}
 networks:

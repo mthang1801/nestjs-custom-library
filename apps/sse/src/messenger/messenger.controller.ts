@@ -1,6 +1,4 @@
-import {
-  Controller
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessengerService } from './messenger.service';
 
 @Controller('messenger')

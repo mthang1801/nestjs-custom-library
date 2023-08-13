@@ -1,21 +1,22 @@
 import {
-	AbstractDocument,
-	AbstractSchema,
-	ExtraUpdateOptions,
-	ModelInfo,
-	UpdateResponse,
+  AbstractDocument,
+  AbstractSchema,
+  ExtraUpdateOptions,
+  ModelInfo,
+  UpdateResponse,
 } from '@app/shared';
 import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { CONTEXT } from '@nestjs/microservices';
 import {
-	FilterQuery,
-	Model,
-	ObjectId,
-	ProjectionType,
-	QueryOptions,
-	UpdateQuery,
+  ClientSession,
+  FilterQuery,
+  Model,
+  ObjectId,
+  ProjectionType,
+  QueryOptions,
+  SaveOptions,
+  UpdateQuery,
 } from 'mongoose';
-import { Subject } from 'rxjs';
 import { AbstractRepository } from './abstract.repository';
 import { ExpressContext } from './types/abstract.type';
 @Injectable({ scope: Scope.REQUEST, durable: true })
@@ -23,26 +24,29 @@ export abstract class AbstractService<
 	T extends AbstractDocument<AbstractSchema>,
 > {
 	protected abstract logger?: Logger;
-	protected writeModel: Model<T> = null;
-	protected readModel: Model<T> = null;
-	protected modelInfo: ModelInfo = null;
+	protected primaryModel: Model<T> = null;
+	public readModel: Model<T> = null;
+	public modelInfo: ModelInfo = null;
 	@Inject(CONTEXT) protected context: ExpressContext;
+
 	constructor(readonly repository?: AbstractRepository<T>) {
 		if (repository) {
-			this.writeModel = repository.primaryModel;
+			this.primaryModel = repository.primaryModel;
 			this.readModel = repository.secondaryModel;
 			this.modelInfo = repository.modelInfo;
 		}
 	}
 
+	protected async startSession(): Promise<ClientSession> {
+		const session = await this.repository.startSession();
+		return session;
+	}
+
 	protected async _create(
 		payload: Partial<T> | Partial<T>[],
-		extraData?: any,
+		options?: SaveOptions,
 	): Promise<T> {
-		return await this.repository.create({
-			...payload,
-			...extraData,
-		});
+		return await this.repository.create(payload, options);
 	}
 
 	protected async _findById(
@@ -66,7 +70,7 @@ export abstract class AbstractService<
 		payload: Partial<T> | UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<UpdateResponse | T | any> {
-		return this.writeModel.updateOne(fitlerQuery, payload, options);
+		return this.primaryModel.updateOne(fitlerQuery, payload, options);
 	}
 
 	protected async _findByIdAndUpdate(

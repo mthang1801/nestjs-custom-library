@@ -1,13 +1,13 @@
 import { MongoIdValidationPipe } from '@app/shared/pipes';
 import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	Param,
-	Patch,
-	Post,
-	Put,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { CreatePostDto } from './dto/create-post.dto';

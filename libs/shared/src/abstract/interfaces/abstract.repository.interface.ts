@@ -10,11 +10,12 @@ import {
   ObjectId,
   ProjectionType,
   QueryOptions,
+  SaveOptions,
   UpdateQuery,
 } from 'mongoose';
 
 export interface Write<T> {
-	create(payload: Partial<T> | Partial<T>[]): Promise<T | T[]>;
+	create(payload: Partial<T> | Partial<T>[], options?: SaveOptions): Promise<T>;
 
 	update(
 		fitlerQuery: FilterQuery<T>,
@@ -46,7 +47,7 @@ export interface Write<T> {
 		options?: QueryOptions<T>,
 	): Promise<UpdateResponse>;
 
-	startTransaction(): Promise<ClientSession>;
+	startSession(): Promise<ClientSession>;
 }
 
 export interface Read<T> {

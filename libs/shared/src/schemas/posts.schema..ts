@@ -12,7 +12,6 @@ import { User } from './user.schema';
 export class Posts extends AbstractSchema {
 	@Prop({
 		type: String,
-		required: true,
 	})
 	title: string;
 

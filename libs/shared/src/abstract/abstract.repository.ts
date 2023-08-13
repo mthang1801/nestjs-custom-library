@@ -24,6 +24,7 @@ import {
   PipelineStage,
   ProjectionType,
   QueryOptions,
+  SaveOptions,
   UpdateQuery,
 } from 'mongoose';
 import { ENUM_PATTERN, ENUM_QUEUES } from '../constants';
@@ -35,6 +36,7 @@ import {
 import { LibMongoService } from '../mongodb/mongodb.service';
 import { RMQClientService } from '../rabbitmq';
 import { AbstractSchema } from '../schemas/abstract.schema';
+import { typeOf } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
 import { AbstractLogDocument } from './abstract-log';
 import AbstractLogModel from './abstract-log.schema';
@@ -101,18 +103,25 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		});
 	}
 
-	async startTransaction(): Promise<ClientSession> {
-		return this.mongooseService.startTransaction();
+	async startSession(): Promise<ClientSession> {
+		return await this.primaryModel.startSession();
 	}
 
-	async create(payload: Partial<T> | Partial<T>[]): Promise<T> {
-		const newData = await this.primaryModel.create(payload);
+	async create(
+		payload: Partial<T> | Partial<T>[],
+		options?: SaveOptions,
+	): Promise<T> {
+		const newData: T = (await this.primaryModel.create<Partial<T>>(
+			typeOf(payload) === 'array' ? (payload as T[]) : ([payload] as T[]),
+			options as any,
+		)) as any;
 
 		await this.saveIntoLog<T>({
 			newData,
 			actionType: ENUM_ACTION_TYPE.CREATE,
 		});
-		return newData;
+
+		return newData as T;
 	}
 
 	async saveIntoLog<T>({
@@ -122,8 +131,8 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		extraData,
 	}: LogActionPayload<T>) {
 		const payload: LogActionPayload<T> | any = {
-			newData: newData ? newData?.toJSON() : undefined,
-			oldData: oldData ? oldData?.toJSON() : undefined,
+			newData: newData ? JSON.stringify(newData) : undefined,
+			oldData: oldData ? JSON.stringify(oldData) : undefined,
 			context: this.getContext(),
 			actionType,
 			extraData,

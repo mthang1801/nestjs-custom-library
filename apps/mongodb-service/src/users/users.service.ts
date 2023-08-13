@@ -2,13 +2,13 @@ import { AbstractService } from '@app/shared';
 import { ENUM_ROLES } from '@app/shared/constants/enum';
 import { User, UserDocument } from '@app/shared/schemas';
 import {
-	BadRequestException,
-	Inject,
-	Injectable,
-	Logger,
-	forwardRef,
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  forwardRef,
 } from '@nestjs/common';
-import { ObjectId } from 'mongoose';
+import { ObjectId, SaveOptions } from 'mongoose';
 import { PostsService } from '../posts/posts.service';
 import { UserRolesService } from '../user-roles/user-roles.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -34,7 +34,7 @@ export class UsersService extends AbstractService<UserDocument> {
 		});
 		console.log('Create::', userRole);
 		const newUser = new User({ ...createUserDto, role: userRole });
-		return await this._create(newUser);
+		return (await this._create(newUser)) as User;
 	}
 
 	async findAll(filter?: object) {
@@ -45,11 +45,11 @@ export class UsersService extends AbstractService<UserDocument> {
 		);
 	}
 
-	async finById(id: string) {
+	async finById(id: string, options?: SaveOptions) {
 		const result = await this.userRepository.findById(
 			id,
 			{},
-			{ populate: { path: 'posts' } },
+			{ populate: { path: 'posts' }, ...options },
 		);
 		return result;
 	}
@@ -59,7 +59,7 @@ export class UsersService extends AbstractService<UserDocument> {
 	}
 
 	async remove(id: ObjectId) {
-		const session = await this.userRepository.startTransaction();
+		const session = await this.userRepository.startSession();
 		try {
 			const deletedUser = await this.userRepository.findOneAndDelete(
 				{
