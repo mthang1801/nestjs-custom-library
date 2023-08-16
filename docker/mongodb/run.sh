@@ -1,0 +1,1 @@
+docker-compose up -d --scale mongodb-primary=1 --scale mongodb-secondary=3 --scale mongodb-arbiter=2

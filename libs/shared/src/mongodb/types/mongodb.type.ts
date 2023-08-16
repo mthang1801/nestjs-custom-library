@@ -24,6 +24,8 @@ export namespace MongoDB {
 			PipelineStage,
 			PipelineStage.Merge | PipelineStage.Out
 		>[];
+		condition?: PipelineStage.Match | any;
+		as?: string;
 	};
 	export type LookupOneToMany = {
 		from: string;
@@ -35,6 +37,8 @@ export namespace MongoDB {
 			PipelineStage.Merge | PipelineStage.Out
 		>[];
 		$matchOperator: AggregateOperator;
+		as?: string;
+		condition?: PipelineStage.Match | any;
 	};
 	export type Metadata = {
 		perPage: number;

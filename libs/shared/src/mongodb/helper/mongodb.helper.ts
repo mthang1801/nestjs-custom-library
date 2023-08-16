@@ -25,9 +25,11 @@ const LookupOneToOne = ({
 	project,
 	extraPipelineStage = [],
 	foreignField = '_id',
-}: MongoDB.LookupOneToOne): Array<
-	PipelineStage.Lookup | PipelineStage.Unwind
-> => {
+	as = undefined,
+	condition = undefined,
+}: MongoDB.LookupOneToOne): Array<PipelineStage.Lookup | PipelineStage.Set> => {
+	const alias = as ?? localField;
+
 	return [
 		{
 			$lookup: {
@@ -44,13 +46,14 @@ const LookupOneToOne = ({
 					...extraPipelineStage,
 					project && { $project: project },
 				].filter(Boolean),
-				as: localField,
+				as: alias,
 			},
 		},
 		{
-			$unwind: {
-				path: `$${localField}`,
-				preserveNullAndEmptyArrays: true,
+			$set: {
+				[alias]: {
+					$ifNull: [{ $first: `$${alias}` }, null],
+				},
 			},
 		},
 	];
@@ -63,9 +66,11 @@ const LookupOneToMany = ({
 	extraPipelineStage = [],
 	foreignField = '_id',
 	$matchOperator = '$in',
+	as = undefined,
 }: MongoDB.LookupOneToMany): Array<
-	PipelineStage.Lookup | PipelineStage.Unwind
+	PipelineStage.Lookup | PipelineStage.Set
 > => {
+	const alias = as ?? localField;
 	return [
 		{
 			$lookup: {
@@ -82,13 +87,14 @@ const LookupOneToMany = ({
 					...extraPipelineStage,
 					project && { $project: project },
 				].filter(Boolean),
-				as: localField,
+				as: alias,
 			},
 		},
 		{
-			$unwind: {
-				path: `$${localField}`,
-				preserveNullAndEmptyArrays: true,
+			$set: {
+				[alias]: {
+					$ifNull: [{ $first: `$${alias}` }, null],
+				},
 			},
 		},
 	];
