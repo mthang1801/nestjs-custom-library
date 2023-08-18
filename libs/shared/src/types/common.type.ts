@@ -23,7 +23,7 @@ export type RemoveOptions = {
 };
 
 export type ExtraUpdateOptions = {
-	updateOnlyOne: boolean;
+	updateOnlyOne?: boolean;
 };
 
 export type ModelInfo = {

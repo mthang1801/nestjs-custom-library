@@ -69,7 +69,7 @@ export abstract class AbstractService<
 		payload: Partial<T> | UpdateQuery<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<UpdateResponse | T | any> {
-		return this.primaryModel.updateOne(fitlerQuery, payload, options);
+		return this.repository.update(fitlerQuery, payload, options);
 	}
 
 	protected async _findByIdAndUpdate(

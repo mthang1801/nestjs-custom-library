@@ -1,7 +1,7 @@
-import { PipelineStage } from 'mongoose';
+import mongoose, { PipelineStage } from 'mongoose';
 import { MongoDB } from '../types/mongodb.type';
 
-const $getMetadataAggregate = (
+export const $getMetadataAggregate = (
 	currentPage: number,
 	limit: number,
 	$totalItems: any,
@@ -19,7 +19,7 @@ const $getMetadataAggregate = (
 		} as any,
 	} satisfies MongoDB.Metadata);
 
-const LookupOneToOne = ({
+export const LookupOneToOne = ({
 	from,
 	localField,
 	project,
@@ -28,6 +28,8 @@ const LookupOneToOne = ({
 	as = undefined,
 	condition = undefined,
 }: MongoDB.LookupOneToOne): Array<PipelineStage.Lookup | PipelineStage.Set> => {
+	localField = replaceStartWithDollarSign(localField);
+	foreignField = replaceStartWithDollarSign(foreignField);
 	const alias = as ?? localField;
 
 	return [
@@ -59,7 +61,10 @@ const LookupOneToOne = ({
 	];
 };
 
-const LookupOneToMany = ({
+const replaceStartWithDollarSign = (field: string) =>
+	field.startsWith('$') ? field.slice(1) : field;
+
+export const LookupOneToMany = ({
 	from,
 	localField,
 	project,
@@ -70,7 +75,10 @@ const LookupOneToMany = ({
 }: MongoDB.LookupOneToMany): Array<
 	PipelineStage.Lookup | PipelineStage.Set
 > => {
+	localField = replaceStartWithDollarSign(localField);
+	foreignField = replaceStartWithDollarSign(foreignField);
 	const alias = as ?? localField;
+
 	return [
 		{
 			$lookup: {
@@ -106,7 +114,7 @@ const LookupOneToMany = ({
  * @param limit
  * @returns {MongoDB.Metadata}
  */
-const getMetadataAggregate = (page, limit): any[] => {
+export const getMetadataAggregate = (page, limit): any[] => {
 	return [
 		{
 			$count: 'count',
@@ -120,8 +128,7 @@ const getMetadataAggregate = (page, limit): any[] => {
 	];
 };
 
-export default {
-	LookupOneToOne,
-	LookupOneToMany,
-	getMetadataAggregate,
+export const toMongoObjectId = (id: any) => {
+	if (mongoose.isValidObjectId(id)) return new mongoose.Types.ObjectId(id);
+	throw new Error('Invalid ObjectId');
 };

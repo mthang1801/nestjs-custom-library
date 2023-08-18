@@ -8,5 +8,6 @@ import { Module } from '@nestjs/common';
 			maxRedirects: 10,
 		}),
 	],
+	exports: [HttpModule],
 })
 export class LibHttpModule {}

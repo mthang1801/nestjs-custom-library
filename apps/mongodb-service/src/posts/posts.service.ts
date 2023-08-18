@@ -1,12 +1,13 @@
-import { AbstractService } from '@app/shared';
+import { AbstractService, toMongoObjectId } from '@app/shared';
+import { LookupOneToOne } from '@app/shared/mongodb/helper';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
-	BadRequestException,
-	Inject,
-	Injectable,
-	Logger,
-	Scope,
-	forwardRef,
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  Scope,
+  forwardRef,
 } from '@nestjs/common';
 import { ClientSession, ObjectId } from 'mongoose';
 import { UsersService } from '../users/users.service';
@@ -30,17 +31,33 @@ export class PostsService extends AbstractService<PostsDocument> {
 		const session = await this.startSession();
 		session.startTransaction();
 
+		const author = await this.userService.readModel.findById(
+			createPostDto.author,
+			{},
+			{ session },
+		);
 		try {
-			const postResult = await this._create(
-				{
-					...createPostDto,
-					author: await this.userService.readModel.findById(
-						createPostDto.author,
-						{},
-						{ session },
-					),
-				},
-				{ session },
+			// const postResult = await this._create(
+			// 	{
+			// 		...createPostDto,
+			// 		author,
+			// 	},
+			// 	{ session },
+			// );
+
+			const postResult = await this.readModel.aggregate(
+				[
+					{
+						$match: {
+							author: toMongoObjectId(author.id),
+						},
+					},
+					LookupOneToOne({
+						from: 'users',
+						localField: '$author',
+						as: 'user',
+					}),
+				].flat(1),
 			);
 
 			await session.commitTransaction();

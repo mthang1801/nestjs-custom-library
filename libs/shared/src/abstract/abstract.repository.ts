@@ -176,6 +176,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		payload: UpdateQuery<T> | Partial<T>,
 		options?: QueryOptions<T> & ExtraUpdateOptions,
 	): Promise<UpdateResponse | T | any> {
+		console.log(options);
 		if (options?.updateOnlyOne) {
 			const oldData = await this.secondaryModel.findOne(filterQuery);
 			if (!oldData) {
