@@ -1,10 +1,10 @@
-import { ENUM_PATTERN, ENUM_QUEUES } from '@app/shared';
+import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '@app/shared';
 import { UtilService } from '@app/shared/utils/util.service';
 import {
-  BadRequestException,
-  HttpException,
-  Inject,
-  Injectable,
+    BadRequestException,
+    HttpException,
+    Inject,
+    Injectable,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 @Injectable()
@@ -33,7 +33,7 @@ export class PublishService {
 	async generatePayload(payload: any) {
 		for (let i = 0; i < 1000; i++) {
 			console.log(i);
-			this.client.emit(ENUM_PATTERN.PUSH_MANY_NOTI_ORDER, {
+			this.client.emit(ENUM_EVENT_PATTERN.PUSH_MANY_NOTI_ORDER, {
 				...payload,
 				count: i,
 				timestamp: Date.now(),

@@ -1,45 +1,26 @@
-import {
-	ExtraUpdateOptions,
-	FindAndCountAllResponse,
-	ModelInfo,
-	RemoveOptions,
-	UpdateResponse,
-} from '@app/shared/types';
-import {
-	HttpException,
-	Injectable,
-	Logger,
-	NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
-import moment from 'moment';
 import {
 	Aggregate,
 	ClientSession,
 	FilterQuery,
 	Model,
 	ObjectId,
-	PipelineStage,
 	ProjectionType,
-	QueryOptions,
 	SaveOptions,
 	UpdateQuery,
 } from 'mongoose';
-import { ENUM_PATTERN, ENUM_QUEUES } from '../constants';
-import {
-	ENUM_ACTION_TYPE,
-	ENUM_DATE_TIME,
-	ENUM_MODEL,
-} from '../constants/enum';
+import { LibActionLogService } from '../action-log';
+import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
+import { ENUM_ACTION_TYPE } from '../constants/enum';
 import { LibMongoService } from '../mongodb/mongodb.service';
 import { RMQClientService } from '../rabbitmq';
+import { ActionLog } from '../schemas';
 import { AbstractSchema } from '../schemas/abstract.schema';
 import { typeOf } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
-import { AbstractLogDocument } from './abstract-log';
-import AbstractLogModel from './abstract-log.schema';
 import { IAbstractRepository } from './interfaces';
 import { AbstractType } from './types/abstract.type';
 
@@ -50,52 +31,38 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	protected abstract readonly logger: Logger;
 	public primaryModel: Model<T> = null;
 	public secondaryModel: Model<T> = null;
-	public primaryLogModel: Model<AbstractLogDocument<any>> = null;
-	public secondaryLogModel: Model<AbstractLogDocument<any>> = null;
-	public modelInfo: ModelInfo = null;
-	public logModelInfo: ModelInfo = null;
+	public modelInfo: AbstractType.ModelInfo = null;
 	public collectionName: string = null;
 	private aggregate: Aggregate<any> = null;
 	protected eventEmitter: EventEmitter2 = null;
 	protected utilService: UtilService = null;
 	protected configService: ConfigService = null;
 	protected mongooseService: LibMongoService = null;
-	private excludeFieldChanges = ['_id', 'created_at', 'updated_at'];
+	private exclusiveFieldChanges = ['_id', 'created_at', 'updated_at'];
 	protected context: AbstractType.ExpressContext;
 	protected rmqClient: ClientProxy;
 	protected rmqClientService: RMQClientService;
-
+	protected actionLogService: LibActionLogService;
 	constructor({
 		primaryModel,
 		secondaryModel,
-		primaryLogModel,
-		secondaryLogModel,
 		context,
 	}: AbstractType.InitAbstractRepository<T>) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
-		this.primaryLogModel = primaryLogModel;
-		this.secondaryLogModel = secondaryLogModel;
 		this.context = context;
 		this.modelInfo = {
 			modelName: primaryModel.modelName,
 			collectionName: primaryModel.collection.name,
 			schema: primaryModel.schema,
 		};
-		this.logModelInfo = {
-			modelName: primaryLogModel?.modelName,
-			collectionName: primaryLogModel?.collection?.name,
-			schema: primaryLogModel?.schema,
-		};
+
 		this.eventEmitter = new EventEmitter2();
 		this.utilService = new UtilService();
 		this.configService = new ConfigService();
 		this.mongooseService = new LibMongoService(this.configService);
 		this.rmqClientService = new RMQClientService(this.configService);
-		this.rmqClient = this.rmqClientService.createClient({
-			queue: ENUM_QUEUES.SAVE_ACTION,
-			urls: [this.rmqClientService.getUrl()],
-		});
+		this.actionLogService = new LibActionLogService(this.configService);
 	}
 
 	async startSession(): Promise<ClientSession> {
@@ -104,85 +71,38 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 
 	async create(
 		payload: Partial<T> | Partial<T>[],
-		options?: SaveOptions,
+		options?: SaveOptions & AbstractType.EnableSaveAction,
 	): Promise<T> {
 		const newData: T = (await this.primaryModel.create<Partial<T>>(
 			typeOf(payload) === 'array' ? (payload as T[]) : ([payload] as T[]),
 			options as any,
 		)) as any;
 
-		await this.saveIntoLog<T>({
-			newData,
-			actionType: ENUM_ACTION_TYPE.CREATE,
-		});
+		//TODO: Save action info
+		if (options?.enableSaveAction !== false) {
+			this.handleLoggingAction<T>({
+				new_data: newData,
+				action_type: ENUM_ACTION_TYPE.CREATE,
+			});
+		}
 
 		return newData as T;
-	}
-
-	async saveIntoLog<T>({
-		newData,
-		oldData,
-		actionType,
-		extraData,
-	}: AbstractType.LogActionPayload<T>) {
-		const payload: AbstractType.LogActionPayload<T> | any = {
-			newData: newData ? JSON.stringify(newData) : undefined,
-			oldData: oldData ? JSON.stringify(oldData) : undefined,
-			context: this.getContext(),
-			actionType,
-			extraData,
-			populates: this.getPopulates(),
-			metaCollectionName: this.modelInfo.collectionName,
-			collectionName:
-				this.logModelInfo.collectionName ?? this.generateLogCollectionName(),
-		};
-
-		const rmqBuilder = this.rmqClientService.crerateBuilder(payload);
-		this.rmqClient.emit({ cmd: ENUM_PATTERN.SAVE_ACTION }, rmqBuilder);
-	}
-
-	generateLogCollectionName(): `${string}_logs` {
-		const modelName = this.modelInfo.modelName.toLowerCase();
-		const singularModelName = modelName.replace(/ies$/, 'y').replace(/s$/, '');
-		return `${singularModelName}_logs`;
-	}
-
-	getContext() {
-		return {
-			path: this?.context?.route?.path,
-			url: this?.context?.url,
-			method: this?.context?.method,
-			body: this?.context?.body,
-			params: this?.context?.['params'],
-			query: this?.context?.['query'],
-		};
-	}
-
-	async createSystemModelLog() {
-		return new Promise((resolve, reject) => {
-			try {
-				this.mongooseService.connect().then(() => {
-					const Model = AbstractLogModel(ENUM_MODEL.SYSTEM_LOG);
-					resolve(Model);
-				});
-			} catch (error) {
-				throw new HttpException(error.message, error.status);
-			}
-		});
 	}
 
 	async update(
 		filterQuery: FilterQuery<T>,
 		payload: UpdateQuery<T> | Partial<T>,
-		options?: QueryOptions<T> & ExtraUpdateOptions,
-	): Promise<UpdateResponse | T | any> {
-		console.log(options);
+		options?: AbstractType.UpdateOption<T> & AbstractType.UpdateOnlyOne,
+	): Promise<AbstractType.UpdateResponse | T | any> {
+		let updateResponse: T | AbstractType.UpdateResponse | any;
+		let oldData: T | T[] | any;
+
 		if (options?.updateOnlyOne) {
-			const oldData = await this.secondaryModel.findOne(filterQuery);
-			if (!oldData) {
-				throw new NotFoundException();
+			if (options.enableSaveAction !== false) {
+				oldData = await this.secondaryModel.findOne(filterQuery);
 			}
-			const updateResponse = await this.primaryModel.findOneAndUpdate(
+
+			updateResponse = await this.primaryModel.findOneAndUpdate(
 				filterQuery,
 				{ ...payload },
 				{
@@ -191,18 +111,27 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 					...options,
 				},
 			);
+		} else {
+			if (options.enableSaveAction !== false) {
+				oldData = await this.secondaryModel.find(filterQuery);
+			}
 
-			return updateResponse;
+			updateResponse = await this.primaryModel.updateMany(
+				filterQuery,
+				{ ...payload },
+				{
+					new: true,
+					...options,
+				},
+			);
 		}
 
-		const updateResponse = await this.primaryModel.updateMany(
-			filterQuery,
-			{ ...payload },
-			{
-				new: true,
-				...options,
-			},
-		);
+		if (options.enableSaveAction !== false) {
+			this.handleLoggingAction({
+				old_data: oldData,
+				action_type: ENUM_ACTION_TYPE.UPDATE,
+			});
+		}
 
 		return updateResponse;
 	}
@@ -210,7 +139,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	async findOneAndUpdate(
 		filterQuery?: FilterQuery<T>,
 		updateData?: UpdateQuery<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.UpdateOption<T>,
 	): Promise<T> {
 		const isReturnNewData = options.new !== false;
 		const oldData = isReturnNewData && (await this.findOne(filterQuery));
@@ -223,11 +152,13 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 				...options,
 			},
 		);
-		await this.saveIntoLog<T>({
-			newData: isReturnNewData && updatedData,
-			oldData: oldData || updatedData,
-			actionType: ENUM_ACTION_TYPE.UPDATE,
-		});
+
+		if (options.enableSaveAction !== false) {
+			this.handleLoggingAction<T>({
+				old_data: oldData || updatedData,
+				action_type: ENUM_ACTION_TYPE.UPDATE,
+			});
+		}
 
 		return updatedData;
 	}
@@ -235,9 +166,12 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	async findByIdAndUpdate(
 		id: string | ObjectId,
 		updateData?: Partial<T> | UpdateQuery<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.UpdateOption<T>,
 	): Promise<T> {
-		return this.primaryModel.findByIdAndUpdate(
+		const isReturnNewData = options.new !== false;
+		const oldData = isReturnNewData && (await this.findById(id));
+
+		const updatedData = await this.primaryModel.findByIdAndUpdate(
 			id,
 			{ ...updateData },
 			{
@@ -246,51 +180,98 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 				...options,
 			},
 		);
+
+		if (options.enableSaveAction !== false) {
+			this.handleLoggingAction<T>({
+				old_data: oldData || updatedData,
+				action_type: ENUM_ACTION_TYPE.UPDATE,
+			});
+		}
+
+		return updatedData;
 	}
 
 	async deleteMany(
 		filterQuery?: FilterQuery<T>,
-		options?: QueryOptions<T>,
-	): Promise<UpdateResponse> {
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse> {
+		if (options.enableSaveAction !== false) {
+			const oldData = await this.secondaryModel.find(filterQuery);
+			this.handleLoggingAction<T[]>({
+				old_data: oldData,
+				action_type: ENUM_ACTION_TYPE.DELETE,
+			});
+		}
+
+		if (options.softDelete) {
+			return this.primaryModel.updateMany(filterQuery, {
+				$set: { deleted_at: new Date() },
+			});
+		}
+
 		return this.primaryModel.deleteMany(filterQuery, options);
 	}
 
 	async deleteOne(
 		filterQuery?: FilterQuery<T>,
-		options?: QueryOptions<T>,
-	): Promise<UpdateResponse> {
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse> {
+		if (options?.enableSaveAction !== false) {
+			const oldData = await this.secondaryModel.findOne(filterQuery);
+			this.handleLoggingAction<T>({
+				old_data: oldData,
+				action_type: ENUM_ACTION_TYPE.DELETE,
+			});
+		}
+
+		if (options?.softDelete) {
+			return this.primaryModel.updateOne(filterQuery, {
+				$set: { deleted_at: new Date() },
+			});
+		}
+
 		return this.primaryModel.deleteOne(filterQuery, options);
 	}
 
 	async deleteById(
 		id: ObjectId,
-		options?: QueryOptions<T>,
-	): Promise<UpdateResponse> {
-		return this.primaryModel.deleteOne({ _id: id }, options);
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse> {
+		return this.deleteOne({ _id: id }, options);
 	}
 
 	async findOneAndDelete(
 		filterQuery: FilterQuery<T>,
-		options: QueryOptions<T>,
-		removePptions?: RemoveOptions,
+		options: AbstractType.DeleteOption<T>,
 	): Promise<T> {
-		if (removePptions?.permanently) {
-			return this.primaryModel.findOneAndDelete(filterQuery, options);
+		if (options.enableSaveAction !== false) {
+			const oldData = await this.secondaryModel.findOne(filterQuery);
+			this.handleLoggingAction<T>({
+				old_data: oldData,
+				action_type: ENUM_ACTION_TYPE.DELETE,
+			});
 		}
-		return this.primaryModel.findOneAndUpdate(
-			filterQuery,
-			{
-				$set: { deleted_at: new Date() },
-			},
-			{ populate: this.getPopulates(), ...options },
-		);
+
+		if (options?.softDelete) {
+			return this.primaryModel.findOneAndUpdate(
+				filterQuery,
+				{
+					$set: { deleted_at: new Date() },
+				},
+				{ populate: this.getPopulates(), ...options },
+			);
+		}
+
+		return this.primaryModel.findOneAndDelete(filterQuery, options);
 	}
 
 	async findOne(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	): Promise<T> {
+		this.handleIncludeSoftDelete(filterQuery, options);
+		console.log('findOne::', filterQuery);
 		if (this.utilService.typeOf(projection) === 'string')
 			return this.secondaryModel
 				.findOne(filterQuery, {
@@ -307,48 +288,131 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	async findById(
 		id: string | ObjectId,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	): Promise<T> {
 		const result = await this.secondaryModel.findById(id, projection, {
 			populate: this.getPopulates(),
 			...options,
 		});
 
-		return result?.deleted_at ? null : result;
+		return result?.deleted_at && !options?.includeSoftDelete ? null : result;
 	}
 
 	async findAll(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	): Promise<T[]> {
-		return await this.secondaryModel.find(
-			{ ...filterQuery, deleted_at: null },
-			projection,
-			{
+		this.handleIncludeSoftDelete(filterQuery, options);
+		return await this.secondaryModel
+			.find(filterQuery, projection, {
 				populate: this.getPopulates(),
 				...options,
-			},
-		);
+			})
+			.allowDiskUse(true);
+	}
+
+	async count(
+		filterQuery?: FilterQuery<T>,
+		options?: AbstractType.FindOptions<T>,
+	): Promise<number> {
+		this.handleIncludeSoftDelete(filterQuery, options);
+		return await this.secondaryModel.count(filterQuery);
+	}
+
+	private handleIncludeSoftDelete(
+		filterQuery: FilterQuery<T>,
+		options: AbstractType.FindOptions<T>,
+	) {
+		if (!options?.includeSoftDelete) filterQuery.deleted_at = null;
 	}
 
 	async findAndCountAll(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
-	): Promise<FindAndCountAllResponse<T>> {
+		options?: AbstractType.FindOptions<T>,
+	): Promise<AbstractType.FindAndCountAllResponse<T>> {
 		const [items, count] = await Promise.all([
-			this.secondaryModel
-				.find({ ...filterQuery, deleted_at: null }, projection, {
-					populate: this.getPopulates(),
-					...options,
-				})
-				.allowDiskUse(true),
-			this.secondaryModel.count({ ...filterQuery, deleted_at: null }),
+			this.findAll(filterQuery, projection, {
+				populate: this.getPopulates(),
+				...options,
+			}),
+			this.count(filterQuery, options),
 		]);
 		return {
 			items,
 			count,
+		};
+	}
+
+	handleLoggingAction<T>({
+		new_data,
+		old_data,
+		custom_data,
+		action_type,
+	}: ActionLog<T, any>) {
+		this.logger.log('*********** handleLoggingAction *************');
+
+		switch (action_type) {
+			case 'CREATE':
+				return this.utilService
+					.convertDataToArray<T>(new_data)
+					.map((newDataItem) =>
+						this.saveIntoLog<T, any>({
+							new_data: newDataItem,
+							action_type,
+							custom_data,
+						}),
+					);
+
+			case 'UPDATE':
+			case 'DELETE':
+				return this.utilService
+					.convertDataToArray<T>(old_data)
+					.map((oldDataItem) =>
+						this.saveIntoLog<T, any>({
+							old_data: oldDataItem,
+							action_type,
+							custom_data,
+						}),
+					);
+		}
+	}
+
+	saveIntoLog<T, K>({
+		new_data,
+		old_data,
+		action_type,
+		custom_data,
+	}: ActionLog<T, K>) {
+		this.logger.log('*********** saveIntoLog *************');
+
+		const payload: ActionLog<T, K> = {
+			new_data: new_data ? JSON.stringify(new_data) : undefined,
+			old_data: old_data ? JSON.stringify(old_data) : undefined,
+			context: this.getContext(),
+			action_type,
+			custom_data,
+			populates: this.getPopulates(),
+			exclusive_fields: this.exclusiveFieldChanges,
+			collection_name: this.modelInfo.collectionName,
+		};
+
+		this.rmqClientService.publishDataToQueue<ActionLog<T, K>>(
+			ENUM_QUEUES.LOGGING_ACTION,
+			ENUM_EVENT_PATTERN.SAVE_ACTION,
+			payload,
+		);
+	}
+
+	getContext() {
+		return {
+			path: this?.context?.route?.path,
+			url: this?.context?.url,
+			method: this?.context?.method,
+			body: this?.context?.body,
+			params: this?.context?.['params'],
+			query: this?.context?.['query'],
 		};
 	}
 
@@ -379,97 +443,5 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			this.aggregate ??
 			(this.aggregate = this.secondaryModel.aggregate().allowDiskUse(true))
 		);
-	}
-
-	/**
-	 * Find from_date, to_date in from_date, to_date
-	 * @param from_date
-	 * @param to_date
-	 */
-	filterFromDateToDateByField(field: string, from_date?: Date, to_date?: Date) {
-		const fieldFilter = {};
-
-		if (from_date)
-			fieldFilter[field].$lte = new Date(
-				moment(from_date).format(ENUM_DATE_TIME.YYYY_MM_DD) +
-					ENUM_DATE_TIME.START_OFFSET,
-			);
-
-		if (to_date)
-			fieldFilter[field].$lte = new Date(
-				moment(from_date).format(ENUM_DATE_TIME.YYYY_MM_DD_TIMEZONE) +
-					ENUM_DATE_TIME.END_OFFSET,
-			);
-
-		return fieldFilter;
-	}
-
-	aggregateLookup({
-		from,
-		localField,
-		foreignField,
-		as,
-		projection,
-	}: AbstractType.AggregationLookup): PipelineStage.Lookup {
-		return {
-			$lookup: {
-				from,
-				let: { refId: localField },
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$eq: ['$$refId', `$${foreignField}`],
-							},
-						},
-					},
-					{
-						$project: projection,
-					},
-				],
-				as,
-			},
-		};
-	}
-
-	aggregationOneToOneJoin(
-		lookupProperty: AbstractType.AggregationLookup,
-	): PipelineStage[] {
-		const alias = lookupProperty.as || lookupProperty.from;
-		lookupProperty.as = alias;
-
-		return [
-			{ ...this.aggregateLookup(lookupProperty) },
-			{ $limit: 1 },
-			{ $unwind: { path: `$${alias}`, preserveNullAndEmptyArrays: true } },
-		];
-	}
-
-	aggregationOneToManyJoin(
-		lookupProperty: AbstractType.AggregationLookup,
-	): PipelineStage {
-		const alias = lookupProperty.as || lookupProperty.from;
-		lookupProperty.as = alias;
-
-		return this.aggregateLookup(lookupProperty);
-	}
-
-	$getMetadataAggregate(
-		currentPage: number,
-		limit: number,
-		$totalItems: string,
-	) {
-		return {
-			limit: Number(limit),
-			currentPage: Number(currentPage),
-			totalItems: $totalItems,
-			totalPages: {
-				$cond: [
-					{ $eq: [{ $mod: [$totalItems, limit] }, 0] },
-					{ $divide: [$totalItems, limit] },
-					{ $ceil: { $divide: [$totalItems, limit] } },
-				],
-			},
-		};
 	}
 }

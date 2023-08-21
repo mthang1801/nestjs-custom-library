@@ -1,4 +1,5 @@
 export * from './abstract';
+export * from './action-log';
 export * from './constants';
 export * from './dto';
 export * from './filter';

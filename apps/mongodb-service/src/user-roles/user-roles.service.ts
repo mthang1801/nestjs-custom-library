@@ -16,7 +16,7 @@ export class UserRolesService extends AbstractService<UserRoleDocument> {
 		return this.userRoleRepository.create(createUserRoleDto);
 	}
 
-	findAll() {
+	findAll(): any {
 		return `This action returns all userRoles`;
 	}
 

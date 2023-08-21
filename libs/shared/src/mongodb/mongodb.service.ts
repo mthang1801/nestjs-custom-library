@@ -1,11 +1,17 @@
-import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Document, Filter, MongoClient } from 'mongodb';
+import { Document, Filter, MongoClient, ObjectId } from 'mongodb';
 import mongoose, { ClientSession } from 'mongoose';
 import { Db } from 'typeorm';
 
 @Injectable()
 export class LibMongoService implements OnModuleInit {
+	logger = new Logger(LibMongoService.name);
 	mongoose: typeof mongoose = null;
 	constructor(private readonly configService: ConfigService) {}
 
@@ -70,6 +76,8 @@ export class LibMongoService implements OnModuleInit {
 	}
 
 	async insertOne(collectionName: string, payload: any) {
+		this.logger.log(`${'*'.repeat(20)} insertOne() ${'*'.repeat(20)}`);
+		this.logger.debug(payload);
 		return this.mongoClientWrapper((db: Db) =>
 			db
 				.collection(collectionName)
@@ -85,6 +93,15 @@ export class LibMongoService implements OnModuleInit {
 				'🚀 ~ file: mongodb.service.ts:83 ~ LibMongoService ~ returnthis.mongoClientWrapper ~ res:',
 				res,
 			);
+			return res;
+		});
+	}
+	async findById(collectionName: string, id: string) {
+		return this.mongoClientWrapper(async (db: Db) => {
+			const res = await db
+				.collection(collectionName)
+				.findOne({ _id: new ObjectId(id) });
+
 			return res;
 		});
 	}

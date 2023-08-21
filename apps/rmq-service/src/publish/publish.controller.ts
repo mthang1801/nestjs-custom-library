@@ -1,16 +1,8 @@
 import {
-	CatchRpcExceptionFilter,
-	ENUM_PATTERN,
-	RMQClientService,
+    CatchRpcExceptionFilter,
+    RMQClientService
 } from '@app/shared';
 import { Body, Controller, Post, UseFilters } from '@nestjs/common';
-import {
-	Ctx,
-	EventPattern,
-	Payload,
-	RmqContext,
-	RpcException,
-} from '@nestjs/microservices';
 import { PublishService } from './publish.service';
 @Controller('publish')
 @UseFilters(new CatchRpcExceptionFilter())
@@ -20,7 +12,7 @@ export class PublishController {
 		private readonly RMQClientService: RMQClientService,
 	) {}
 	status = 'PROCESSING';
-	// @EventPattern(ENUM_PATTERN.PUSH_MANY_NOTI_ORDER)
+	// @EventPattern(ENUM_EVENT_PATTERN.PUSH_MANY_NOTI_ORDER)
 	// async onPushNotiOrder(@Payload() payload, @Ctx() context: RmqContext) {
 	// 	try {
 	// 		await this.publishService.onPushNotiOrder(payload);

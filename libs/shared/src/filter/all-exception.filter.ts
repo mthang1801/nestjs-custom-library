@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { LibTelegramService } from '../telegram/telegram.service';
-import { typeOf } from '../utils/function.utils';
+import { convertToNumber, typeOf } from '../utils/function.utils';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -30,7 +30,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		const message = this.getMessage(exception);
 
 		this.writeLogger(message, req, exception);
-		await this.sendToTelegram(exception);
+		await this.sendToTelegram(exception, statusCode);
 
 		res.status(statusCode).json({
 			success: false,
@@ -94,9 +94,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		this.logger.error(message, stack, exception.name);
 	}
 
-	async sendToTelegram(exception: HttpException) {
+	async sendToTelegram(exception: HttpException, statusCode: number) {
 		this.logger.error(`❌[${this.serviceName}] ${exception}`);
-
+		if (statusCode < 500) return;
 		await this.telegramService.sendMessage(
 			`❌[${exception.name}]-->${exception.message}-->${exception.stack}`,
 		);

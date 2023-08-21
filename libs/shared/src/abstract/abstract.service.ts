@@ -1,10 +1,4 @@
-import {
-	AbstractDocument,
-	AbstractSchema,
-	ExtraUpdateOptions,
-	ModelInfo,
-	UpdateResponse,
-} from '@app/shared';
+import { AbstractDocument, AbstractSchema } from '@app/shared';
 import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { CONTEXT } from '@nestjs/microservices';
@@ -14,7 +8,6 @@ import {
 	Model,
 	ObjectId,
 	ProjectionType,
-	QueryOptions,
 	SaveOptions,
 	UpdateQuery,
 } from 'mongoose';
@@ -26,7 +19,7 @@ export abstract class AbstractService<
 	protected abstract logger?: Logger;
 	protected primaryModel: Model<T> = null;
 	public readModel: Model<T> = null;
-	public modelInfo: ModelInfo = null;
+	public modelInfo: AbstractType.ModelInfo = null;
 	@Inject(CONTEXT) protected context: AbstractType.ExpressContext;
 
 	constructor(readonly repository?: AbstractRepository<T>) {
@@ -43,7 +36,7 @@ export abstract class AbstractService<
 
 	protected async _create(
 		payload: Partial<T> | Partial<T>[],
-		options?: SaveOptions,
+		options?: SaveOptions & AbstractType.EnableSaveAction,
 	): Promise<T> {
 		return await this.repository.create(payload, options);
 	}
@@ -51,44 +44,103 @@ export abstract class AbstractService<
 	protected async _findById(
 		id: ObjectId | string,
 		projection?: ProjectionType<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	) {
-		return this.repository.findById(id, projection, options);
+		return await this.repository.findById(id, projection, options);
 	}
 
 	protected async _findOne(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	): Promise<T> {
 		return this.repository.findOne(filterQuery, projection, options);
+	}
+
+	protected async _findAll(
+		filterQuery?: FilterQuery<T>,
+		projection?: ProjectionType<T> | string,
+		options?: AbstractType.FindOptions<T>,
+	): Promise<T[]> {
+		return await this.repository.findAll(filterQuery, projection, options);
+	}
+
+	protected async _findAndCountAll(
+		filterQuery?: FilterQuery<T>,
+		projection?: ProjectionType<T> | string,
+		options?: AbstractType.FindOptions<T>,
+	): Promise<AbstractType.FindAndCountAllResponse<T>> {
+		return await this.repository.findAndCountAll(
+			filterQuery,
+			projection,
+			options,
+		);
+	}
+
+	async _count(
+		filterQuery?: FilterQuery<T>,
+		options?: AbstractType.FindOptions<T>,
+	): Promise<number> {
+		return await this.repository.count(filterQuery, options);
 	}
 
 	protected async _update(
 		fitlerQuery: FilterQuery<T>,
 		payload: Partial<T> | UpdateQuery<T>,
-		options?: QueryOptions<T> & ExtraUpdateOptions,
-	): Promise<UpdateResponse | T | any> {
-		return this.repository.update(fitlerQuery, payload, options);
+		options?: AbstractType.UpdateOption<T> & AbstractType.UpdateOnlyOne,
+	): Promise<AbstractType.UpdateResponse | T | any> {
+		return await this.repository.update(fitlerQuery, payload, options);
 	}
 
 	protected async _findByIdAndUpdate(
 		id: string | ObjectId,
 		payload: Partial<T> | UpdateQuery<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.UpdateOption<T>,
 	): Promise<T> {
-		return this.repository.findByIdAndUpdate(id, payload, options);
+		return await this.repository.findByIdAndUpdate(id, payload, options);
 	}
 
 	protected async _findOneAndUpdate(
 		filterQuery: FilterQuery<T>,
 		payload: Partial<T> | UpdateQuery<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.UpdateOption<T>,
 	): Promise<T> {
-		return this.repository.findOneAndUpdate(filterQuery, payload, options);
+		return await this.repository.findOneAndUpdate(
+			filterQuery,
+			payload,
+			options,
+		);
 	}
 
 	protected async _getListIndexes() {
-		return this._getListIndexes();
+		return await this._getListIndexes();
+	}
+
+	protected async _deleteById(
+		id: ObjectId,
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse> {
+		return await this.repository.deleteById(id, options);
+	}
+
+	protected async _deleteOne(
+		filterQuery?: FilterQuery<T>,
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse> {
+		return await this.repository.deleteOne(filterQuery, options);
+	}
+
+	protected async _findOneAndDelete(
+		filterQuery: FilterQuery<T>,
+		options: AbstractType.DeleteOption<T>,
+	): Promise<T> {
+		return await this.repository.findOneAndDelete(filterQuery, options);
+	}
+
+	protected async _deleteMany(
+		filterQuery?: FilterQuery<T>,
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse> {
+		return await this.repository.deleteMany(filterQuery, options);
 	}
 }

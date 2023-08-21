@@ -1,7 +1,8 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import * as Joi from 'joi';
+import { LibActionLogModule } from '../action-log';
 import { LibHttpModule } from '../http/http.module';
 import { LibLogger } from '../logger/logger.module';
 import { LibTelegramModule } from '../telegram/telegram.module';
@@ -29,6 +30,7 @@ import { LibUtilModule } from '../utils/util.module';
 		LibUtilModule,
 		EventEmitterModule.forRoot(),
 		LibLogger,
+		forwardRef(() => LibActionLogModule),
 	],
 })
 export class LibCoreModule {}

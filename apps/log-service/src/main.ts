@@ -5,6 +5,7 @@ import { RMQClientService } from '@app/shared/rabbitmq/rabbitmq-client.service';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
+import mongoose from 'mongoose';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -12,10 +13,11 @@ async function bootstrap() {
 		logger: WinstonLogger('Log SVC'),
 	});
 	app.use(MorganLogger());
+	mongoose.set('debug', true);
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	const rmqService = app.get<RMQClientService>(RMQClientService);
 	app.connectMicroservice<MicroserviceOptions>(
-		rmqService.getConsumer({ queue: ENUM_QUEUES.SAVE_ACTION, isAck: true }),
+		rmqService.getConsumer({ queue: ENUM_QUEUES.LOGGING_ACTION, isAck: true }),
 	);
 	await app.startAllMicroservices();
 }

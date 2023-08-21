@@ -30,7 +30,7 @@ export class LibRabbitMQModule {
 								},
 							},
 						],
-						uri: this.getUrl(configService),
+						uri: configService.get<string>('RMQ_URI'),
 						connectionInitOptions: { wait: true, reject: true, timeout: 30000 },
 					}),
 					inject: [ConfigService],
@@ -42,7 +42,7 @@ export class LibRabbitMQModule {
 							return {
 								transport: Transport.RMQ,
 								options: {
-									urls: [this.getUrl(configService)],
+									urls: [configService.get<string>('RMQ_URI')],
 									queue: name,
 									queueOptions: {
 										durable: true,
@@ -65,17 +65,5 @@ export class LibRabbitMQModule {
 			providers: [RMQClientService],
 			exports: [RMQClientService, ClientsModule, ClientsModule],
 		};
-	}
-
-	static getUrl(configService: ConfigService) {
-		const [host, port, username, password, vHost] = [
-			'RMQ_HOST',
-			'RMQ_PORT',
-			'RMQ_USERNAME',
-			'RMQ_PASSWORD',
-			'RMQ_VHOST',
-		].map((item: string) => configService.get<string>(item));
-
-		return `amqp://${username}:${password}@${host}:${port}${vHost || '/'}`;
 	}
 }

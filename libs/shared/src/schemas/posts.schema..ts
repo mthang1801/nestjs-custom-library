@@ -44,6 +44,12 @@ export class Posts extends AbstractSchema {
 	})
 	@Type(() => Category)
 	categories: Category[];
+
+	@Prop({ type: [String] })
+	meta_keywords: string[];
+
+	@Prop({ type: mongoose.Schema.Types.Mixed })
+	extra_data: any;
 }
 
 export type PostsDocument = AbstractDocument<Posts>;

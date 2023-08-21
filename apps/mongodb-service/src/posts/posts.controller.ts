@@ -1,13 +1,13 @@
 import { MongoIdValidationPipe } from '@app/shared/pipes';
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
+	Put,
 } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -25,7 +25,8 @@ export class PostsController {
 	}
 
 	@Get()
-	findAll() {
+	async findAll() {
+		console.log('findAll');
 		return this.postsService.findAll();
 	}
 
@@ -51,7 +52,7 @@ export class PostsController {
 	}
 
 	@Delete(':id')
-	remove(@Param('id', new MongoIdValidationPipe()) id: ObjectId) {
+	async remove(@Param('id', new MongoIdValidationPipe()) id: ObjectId) {
 		return this.postsService.remove(id);
 	}
 

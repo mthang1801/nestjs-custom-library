@@ -2,11 +2,11 @@ import { AbstractService } from '@app/shared';
 import { ENUM_ROLES } from '@app/shared/constants/enum';
 import { User, UserDocument } from '@app/shared/schemas';
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  forwardRef,
+	BadRequestException,
+	Inject,
+	Injectable,
+	Logger,
+	forwardRef,
 } from '@nestjs/common';
 import { ObjectId, SaveOptions } from 'mongoose';
 import { PostsService } from '../posts/posts.service';
@@ -66,7 +66,6 @@ export class UsersService extends AbstractService<UserDocument> {
 					_id: id,
 				},
 				{ session },
-				{ permanently: true },
 			);
 			await this.postsService.deleteByAuthor(deletedUser, session);
 			await session.commitTransaction();

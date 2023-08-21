@@ -387,4 +387,8 @@ export class UtilService {
 		const file = fsExtra.statSync(path);
 		return file.size;
 	}
+
+	convertDataToArray<T extends any>(data): T[] {
+		return this.typeOf(data) === 'array' ? data : [data];
+	}
 }

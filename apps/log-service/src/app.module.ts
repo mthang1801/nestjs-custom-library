@@ -8,7 +8,7 @@ import { AppService } from './app.service';
 @Module({
 	imports: [
 		LibCoreModule,
-		LibRabbitMQModule.registerAsync({ name: ENUM_QUEUES.SAVE_ACTION }),
+		LibRabbitMQModule.registerAsync({ name: ENUM_QUEUES.LOGGING_ACTION }),
 		LibMongoModule.forRootAsync(),
 		forwardRef(() => PostsModule),
 	],

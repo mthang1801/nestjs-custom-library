@@ -1,49 +1,26 @@
-import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { User } from '../schemas';
+
+import { ConfigService } from '@nestjs/config';
+import { InjectSendGrid, SendGridService } from '@ntegral/nestjs-sendgrid';
+import { MailDataRequired } from '@sendgrid/mail';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class MailService {
-	constructor(private readonly mailerService: MailerService) {}
+	constructor(
+		@InjectSendGrid() private readonly sendGridService: SendGridService,
+		private readonly i18n: I18nService,
+		private readonly configService: ConfigService,
+	) {}
 
-	async sendMailExample(): Promise<boolean> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				await this.mailerService.sendMail({
-					to: 'maivthang95@gmail.com',
-					subject: 'test Email',
-					template: 'example',
-					context: {
-						name: 'Mai Van Thang',
-						header: 'Header',
-						body: 'Body',
-						footer: 'Footer',
-					},
-				});
-				resolve(true);
-			} catch (error) {
-				reject(error);
-			}
-		});
+	mailTemplate(properties: Partial<MailDataRequired>): MailDataRequired {
+		return {
+			...properties,
+			from: this.configService.get<string>('SEND_GRID_EMAIL'),
+		} as MailDataRequired;
 	}
 
-	async sendUserPasscode(user: User): Promise<boolean> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				await this.mailerService.sendMail({
-					to: user.email,
-					subject: 'Xác thực tài khoản',
-					template: 'send-user-passcode',
-					context: {
-						greeting: `Xin chào ${user.first_name}`,
-						body: '',
-						footer: '',
-					},
-				});
-				resolve(true);
-			} catch (error) {
-				reject(error);
-			}
-		});
+	async send(template: MailDataRequired, isMultiple = false) {
+		return await this.sendGridService.send(template, isMultiple);
 	}
 }

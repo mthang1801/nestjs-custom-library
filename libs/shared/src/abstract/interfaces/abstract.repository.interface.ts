@@ -1,51 +1,56 @@
-import {
-  ExtraUpdateOptions,
-  FindAndCountAllResponse,
-  UpdateResponse,
-} from '@app/shared/types';
+import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import {
   Aggregate,
   ClientSession,
   FilterQuery,
   ObjectId,
   ProjectionType,
-  QueryOptions,
   SaveOptions,
-  UpdateQuery,
+  UpdateQuery
 } from 'mongoose';
-
 export interface Write<T> {
-	create(payload: Partial<T> | Partial<T>[], options?: SaveOptions): Promise<T>;
+	create(
+		payload: Partial<T> | Partial<T>[],
+		options?: SaveOptions & AbstractType.EnableSaveAction,
+	): Promise<T>;
 
 	update(
 		fitlerQuery: FilterQuery<T>,
 		payload: UpdateQuery<T>,
-		options?: QueryOptions<T> & ExtraUpdateOptions,
-	): Promise<UpdateResponse>;
+		options?: AbstractType.UpdateOption<T> & AbstractType.UpdateOnlyOne,
+	): Promise<AbstractType.UpdateResponse>;
 
 	findOneAndUpdate(
 		filterQuery?: FilterQuery<T>,
 		updateData?: UpdateQuery<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.UpdateOption<T>,
 	): Promise<T>;
 
 	findByIdAndUpdate(
-		id?: ObjectId,
+		id?: string | ObjectId,
 		updateData?: UpdateQuery<T>,
-		options?: QueryOptions<T>,
+		options?: AbstractType.UpdateOption<T>,
 	): Promise<T>;
 
-	deleteById(id: ObjectId, options?: QueryOptions<T>): Promise<UpdateResponse>;
+	deleteById(
+		id: ObjectId,
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse>;
 
 	deleteMany(
 		filterQuery?: FilterQuery<T>,
-		options?: QueryOptions<T>,
-	): Promise<UpdateResponse>;
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse>;
 
 	deleteOne(
 		filterQuery?: FilterQuery<T>,
-		options?: QueryOptions<T>,
-	): Promise<UpdateResponse>;
+		options?: AbstractType.DeleteOption<T>,
+	): Promise<AbstractType.UpdateResponse>;
+
+	findOneAndDelete(
+		filterQuery: FilterQuery<T>,
+		options: AbstractType.DeleteOption<T>,
+	): Promise<T>;
 
 	startSession(): Promise<ClientSession>;
 }
@@ -54,26 +59,26 @@ export interface Read<T> {
 	findOne(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	): Promise<T>;
 
 	findById(
 		id: string | ObjectId,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	): Promise<T>;
 
 	findAll(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
+		options?: AbstractType.FindOptions<T>,
 	): Promise<T[]>;
 
 	findAndCountAll(
 		filterQuery?: FilterQuery<T>,
 		projection?: ProjectionType<T> | string,
-		options?: QueryOptions<T>,
-	): Promise<FindAndCountAllResponse<T>>;
+		options?: AbstractType.FindOptions<T>,
+	): Promise<AbstractType.FindAndCountAllResponse<T>>;
 
 	aggregateBuilder(): Aggregate<any>;
 }

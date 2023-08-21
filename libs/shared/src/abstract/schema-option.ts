@@ -6,6 +6,7 @@ const SchemaCustom = (properties?: SchemaOptions): ClassDecorator =>
 			createdAt: 'created_at',
 			updatedAt: 'updated_at',
 		},
+		versionKey: false,
 		collection: properties?.collection,
 		toJSON: {
 			virtuals: true,

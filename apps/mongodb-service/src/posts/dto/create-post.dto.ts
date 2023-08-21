@@ -1,11 +1,12 @@
 import { ENUM_STATUS } from '@app/shared/constants/enum';
 import {
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
+	IsArray,
+	IsEnum,
+	IsMongoId,
+	IsNotEmpty,
+	IsOptional,
+	IsString,
+	MaxLength,
 } from 'class-validator';
 
 export class CreatePostDto {
@@ -30,7 +31,14 @@ export class CreatePostDto {
 	@IsOptional()
 	thumbnail: string;
 
+	@IsArray()
+	@IsOptional()
+	meta_keywords: string[];
+
 	@IsNotEmpty()
 	@IsMongoId()
 	author: string;
+
+	@IsOptional()
+	extra_data: any;
 }

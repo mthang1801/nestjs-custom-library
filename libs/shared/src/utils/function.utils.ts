@@ -82,3 +82,6 @@ export const generateRandomNumber = (numDigits = 6) =>
 		Number(`10e${numDigits - 2}`) +
 			Math.random() * 9 * Number(`10e${numDigits - 2}`),
 	);
+
+export const convertToNumber = (value: any): number =>
+	!isNaN(Number(value)) ? Number(value) : 0;

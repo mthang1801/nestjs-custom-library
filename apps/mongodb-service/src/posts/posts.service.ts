@@ -1,13 +1,13 @@
-import { AbstractService, toMongoObjectId } from '@app/shared';
-import { LookupOneToOne } from '@app/shared/mongodb/helper';
+import { AbstractService } from '@app/shared';
+import { ENUM_STATUS } from '@app/shared/constants/enum';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  Scope,
-  forwardRef,
+	BadRequestException,
+	Inject,
+	Injectable,
+	Logger,
+	Scope,
+	forwardRef,
 } from '@nestjs/common';
 import { ClientSession, ObjectId } from 'mongoose';
 import { UsersService } from '../users/users.service';
@@ -37,28 +37,28 @@ export class PostsService extends AbstractService<PostsDocument> {
 			{ session },
 		);
 		try {
-			// const postResult = await this._create(
-			// 	{
-			// 		...createPostDto,
-			// 		author,
-			// 	},
-			// 	{ session },
-			// );
-
-			const postResult = await this.readModel.aggregate(
-				[
-					{
-						$match: {
-							author: toMongoObjectId(author.id),
-						},
-					},
-					LookupOneToOne({
-						from: 'users',
-						localField: '$author',
-						as: 'user',
-					}),
-				].flat(1),
+			const postResult = await this._create(
+				{
+					...createPostDto,
+					author,
+				},
+				{ session, enableSaveAction: true },
 			);
+
+			// const postResult = await this.readModel.aggregate(
+			// 	[
+			// 		{
+			// 			$match: {
+			// 				author: toMongoObjectId(author.id),
+			// 			},
+			// 		},
+			// 		LookupOneToOne({
+			// 			from: 'users',
+			// 			localField: '$author',
+			// 			as: 'user',
+			// 		}),
+			// 	].flat(1),
+			// );
 
 			await session.commitTransaction();
 			return postResult;
@@ -70,31 +70,54 @@ export class PostsService extends AbstractService<PostsDocument> {
 		}
 	}
 
-	findAll() {
-		return this.postRepository.findAndCountAll(
+	async findAll() {
+		console.log(this.postRepository);
+		return this.postRepository.findOne(
+			{ status: ENUM_STATUS.ACTIVE },
 			{},
-			{},
-			{ sort: { created_at: -1 } },
+			{ includeSoftDelete: true },
 		);
 	}
 
 	findOne(id: number) {
-		return `This action returns a #${id} post`;
+		console.log('Findone');
+		return this._findAndCountAll(
+			{ status: ENUM_STATUS.ACTIVE },
+			{},
+			{ includeSoftDelete: false },
+		);
 	}
 
 	async update(id: ObjectId, updatePostDto: UpdatePostDto) {
-		return this.postRepository.findOneAndUpdate({ _id: id }, updatePostDto, {
-			updateOnlyOne: true,
-			new: false,
-		});
+		const session = await this.startSession();
+		session.startTransaction();
+		try {
+			// await this._update({ _id: id }, updatePostDto, {
+			// 	updateOnlyOne: true,
+			// 	new: true,
+			// 	session,
+			// });
+			await this._findByIdAndUpdate(id, updatePostDto, {
+				new: true,
+				session,
+			});
+			await session.commitTransaction();
+		} catch (error) {
+			await session.abortTransaction();
+		} finally {
+			await session.endSession();
+		}
 	}
 
 	async updateStatus(id: ObjectId, updatePostStatusDto: UpdatePostStatusDto) {
-		return this.postRepository.findByIdAndUpdate(id, updatePostStatusDto);
+		return this.postRepository.findOneAndUpdate(id, updatePostStatusDto);
 	}
 
-	remove(id: ObjectId) {
-		return this.postRepository.deleteById(id);
+	async remove(id: ObjectId) {
+		return this._deleteMany(
+			{ status: ENUM_STATUS.ACTIVE },
+			{ softDelete: true },
+		);
 	}
 
 	async findByAuthor(id: ObjectId) {

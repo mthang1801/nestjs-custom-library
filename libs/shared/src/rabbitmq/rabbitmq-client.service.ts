@@ -1,44 +1,32 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  ClientProxyFactory,
-  RmqContext,
-  RmqOptions,
-  RmqRecordBuilder,
-  Transport,
+	ClientProxyFactory,
+	RmqContext,
+	RmqOptions,
+	RmqRecordBuilder,
+	Transport,
 } from '@nestjs/microservices';
 import { HealthIndicatorResult } from '@nestjs/terminus';
-import { Observable, fromEvent, lastValueFrom, mapTo, merge, of } from 'rxjs';
+import {
+	Observable,
+	fromEvent,
+	lastValueFrom,
+	mapTo,
+	merge,
+	of,
+	timeout,
+} from 'rxjs';
+import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
 import { RmqClientOptions } from './types/rabbitmq-client-options.type';
 @Injectable()
 export class RMQClientService {
+	logger = new Logger(RMQClientService.name);
 	constructor(
 		readonly configService: ConfigService,
 		readonly amqpConnection?: AmqpConnection,
 	) {}
-
-	/**
-	 * Apply for old version
-	 * @param {string} name
-	 * @param {boolean} noAck
-	 * @returns
-	 */
-	getOptions(name: string, noAck = true): RmqOptions {
-		return {
-			transport: Transport.RMQ,
-			options: {
-				urls: [this.getUrl()],
-				queue: name,
-				prefetchCount: 1,
-				isGlobalPrefetchCount: true,
-				noAck,
-				queueOptions: {
-					durable: true,
-				},
-			},
-		};
-	}
 
 	/**
 	 * Apply for new version
@@ -48,7 +36,7 @@ export class RMQClientService {
 		return {
 			transport: Transport.RMQ,
 			options: {
-				urls: [this.getUrl()],
+				urls: [this.configService.get<string>('RMQ_URI')],
 				prefetchCount: 10,
 				isGlobalPrefetchCount: true,
 				queueOptions: {
@@ -67,19 +55,52 @@ export class RMQClientService {
 		};
 	}
 
-	createClient(properties: Pick<RmqClientOptions, 'queue' | 'urls'>) {
+	createClient(properties: RmqClientOptions) {
 		return ClientProxyFactory.create({
 			transport: Transport.RMQ,
 			options: {
-				urls: properties.urls,
+				urls: [this.configService.get<string>('RMQ_URI')],
 				queue: properties.queue,
 				queueOptions: { durable: true },
 				socketOptions: { noDelay: true },
 			},
+			...properties,
 		});
 	}
 
-	crerateBuilder(payload: any, options?: RmqClientOptions) {
+	/**
+	 * Publish data to queue
+	 * @param queue
+	 * @param pattern
+	 * @param payload
+	 */
+	publishDataToQueue<T extends any>(
+		queue: keyof typeof ENUM_QUEUES,
+		pattern: keyof typeof ENUM_EVENT_PATTERN,
+		payload: T,
+	) {
+		this.logger.log('*********** publishDataToQueue ***********');
+		const client = this.createClient({ queue });
+		client.emit<T, any>(pattern, payload);
+	}
+
+	/**
+	 * Pub/ sub data to queue
+	 * @param queue
+	 * @param pattern
+	 * @param payload
+	 */
+	async pubSubDataToQueue<T extends any>(
+		queue: keyof typeof ENUM_QUEUES,
+		pattern: keyof typeof ENUM_EVENT_PATTERN,
+		payload: T,
+	): Promise<T> {
+		this.logger.log('*********** pubSubDataToQueue ***********');
+		const client = this.createClient({ queue });
+		return lastValueFrom(client.send<T>(pattern, payload).pipe(timeout(60000)));
+	}
+
+	createBuilder(payload: any, options?: RmqClientOptions) {
 		return new RmqRecordBuilder()
 			.setOptions({
 				...options,
@@ -87,18 +108,6 @@ export class RMQClientService {
 			})
 			.setData(payload)
 			.build();
-	}
-
-	public getUrl() {
-		const [host, port, username, password, vHost] = [
-			'RMQ_HOST',
-			'RMQ_PORT',
-			'RMQ_USERNAME',
-			'RMQ_PASSWORD',
-			'RMQ_VHOST',
-		].map((item: string) => this.configService.get<string>(item));
-
-		return `amqp://${username}:${password}@${host}:${port}${vHost || '/'}`;
 	}
 
 	async statusCheck(): Promise<HealthIndicatorResult> {

@@ -145,7 +145,12 @@ export enum ENUM_MODEL {
 export enum ENUM_ACTION_TYPE {
 	CREATE = 'CREATE',
 	UPDATE = 'UPDATE',
-	DELETE = 'DELATE',
+	DELETE = 'DELETE',
+}
+
+export enum ENUM_ACTION_LOG_DATA_SOURCE {
+	SYSTEM = 'SYSTEM',
+	CUSTOM = 'CUSTOM',
 }
 
 export const ENUM_NOTIFICATION_OBJECT = {
