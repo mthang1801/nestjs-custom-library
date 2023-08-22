@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as lodash from 'lodash';
 import { PipelineStage, isValidObjectId } from 'mongoose';
 import {
@@ -7,7 +6,7 @@ import {
 	ENUM_ACTION_TYPE,
 } from '../constants/enum';
 import {
-	filterQueryDateTime,
+	AggregateFilterQueryDateTime,
 	getMetadataAggregate,
 	toMongoObjectId,
 } from '../mongodb';
@@ -26,7 +25,6 @@ export class LibActionLogService {
 	utilService: UtilService;
 
 	constructor(
-		configService: ConfigService,
 		private readonly actionLogRepository?: LibActionLogRepository,
 		private readonly mongoService?: LibMongoService,
 	) {}
@@ -192,16 +190,23 @@ export class LibActionLogService {
 	}
 
 	stageFilterQuery(query: ActionLogQueryFilterDto) {
-		console.log(query);
-		let filterQueryResult: any = {};
-		delete filterQueryResult.page;
-		delete filterQueryResult.limit;
-		delete filterQueryResult.q;
+		const filterQueryResult: Partial<ActionLogQueryFilterDto> = {};
 
-		filterQueryResult = {
-			...filterQueryResult,
-			...filterQueryDateTime(query.from_date, query.to_date, 'updated_at'),
-		};
+		if (query.collection_name)
+			filterQueryResult.collection_name = query.collection_name;
+
+		if (query.action_type) filterQueryResult.action_type = query.action_type;
+
+		if (query.status) filterQueryResult.status = query.status;
+
+		AggregateFilterQueryDateTime(
+			filterQueryResult,
+			query.from_date,
+			query.to_date,
+			'created_at',
+		);
+
+		if (query.data_source) filterQueryResult.data_source = query.data_source;
 
 		return lodash.isEmpty(filterQueryResult)
 			? null

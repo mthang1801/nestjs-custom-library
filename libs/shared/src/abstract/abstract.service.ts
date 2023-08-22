@@ -43,7 +43,7 @@ export abstract class AbstractService<
 	protected async _create(
 		payload: Partial<T> | Partial<T>[],
 		options?: SaveOptions & AbstractType.EnableSaveAction,
-	): Promise<T> {
+	): Promise<T | T[]> {
 		return await this.repository.create(payload, options);
 	}
 

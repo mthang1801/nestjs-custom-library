@@ -19,6 +19,7 @@ export class LibRabbitMQModule {
 					isGlobal: true,
 					envFilePath: '.env',
 					load: [rabbitmqConfig],
+					expandVariables: true,
 				}),
 				GoLevelUpRabbitMQModule.forRootAsync(GoLevelUpRabbitMQModule, {
 					useFactory: (configService: ConfigService) => ({

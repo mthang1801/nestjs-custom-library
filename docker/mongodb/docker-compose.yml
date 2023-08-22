@@ -63,8 +63,6 @@ services:
       - MONGODB_REPLICA_SET_KEY=replicasetkey123
     ports:
       - 27017:27017
-    links:
-      - mongodb
 
   mongodb-secondary:
     image: bitnami/mongodb:latest

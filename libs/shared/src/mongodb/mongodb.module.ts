@@ -70,11 +70,7 @@ export class LibMongoModule {
 				return {
 					uri: configService.get<string>(connectionName),
 					dbName: configService.get<string>('MONGO_DATABASE'),
-					useNewUrlParser: true,
-					reconnectTries: 5,
-					reconnectInterval: 1000,
-					poolSize: 10,
-					bufferMaxEntries: 0, //
+					maxPoolSize: 100,
 				};
 			},
 			inject: [ConfigService],

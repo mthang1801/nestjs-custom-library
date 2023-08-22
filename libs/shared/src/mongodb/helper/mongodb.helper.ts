@@ -133,19 +133,14 @@ export const toMongoObjectId = (id: any) => {
 	throw new Error('Invalid ObjectId');
 };
 
-export const filterQueryDateTime = (
+export const AggregateFilterQueryDateTime = (
+	filterQuery: any,
 	fromDate: Date,
 	toDate: Date,
 	field: string,
 ) => {
-	console.log(fromDate, toDate);
-	if (!fromDate && !toDate) return undefined;
-	const result = {
-		$and: [],
-	};
-
-	if (fromDate) result.$and.push({ [field]: { $gte: new Date(fromDate) } });
-	if (toDate) result.$and.push({ [field]: { $lte: new Date(toDate) } });
-  
-	return result;
+	filterQuery[field] = undefined;
+	if (fromDate) filterQuery[field] = { $gte: fromDate };
+	if (toDate) filterQuery[field] = { ...filterQuery[field], $lte: toDate };
+	return filterQuery;
 };

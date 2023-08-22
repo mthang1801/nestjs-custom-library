@@ -1,18 +1,18 @@
 import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import {
-  Aggregate,
-  ClientSession,
-  FilterQuery,
-  ObjectId,
-  ProjectionType,
-  SaveOptions,
-  UpdateQuery
+	Aggregate,
+	ClientSession,
+	FilterQuery,
+	ObjectId,
+	ProjectionType,
+	SaveOptions,
+	UpdateQuery,
 } from 'mongoose';
 export interface Write<T> {
 	create(
 		payload: Partial<T> | Partial<T>[],
 		options?: SaveOptions & AbstractType.EnableSaveAction,
-	): Promise<T>;
+	): Promise<T | T[]>;
 
 	update(
 		fitlerQuery: FilterQuery<T>,

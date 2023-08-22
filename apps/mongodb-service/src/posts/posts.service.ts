@@ -1,5 +1,6 @@
 import { AbstractService, LibActionLogService } from '@app/shared';
 import { ENUM_ACTION_TYPE, ENUM_STATUS } from '@app/shared/constants/enum';
+import * as postData from '@app/shared/data/post.json';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
 	BadRequestException,
@@ -14,7 +15,6 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostStatusDto } from './dto/update-post-status.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsRepository } from './posts.repository';
-import * as postData from '@app/shared/data/post.json';
 
 @Injectable()
 export class PostsService extends AbstractService<PostsDocument> {
@@ -38,10 +38,19 @@ export class PostsService extends AbstractService<PostsDocument> {
 		// 	{ session },
 		// );
 		try {
-			const postResult = await this._create(postData as any, {
-				session,
-				enableSaveAction: true,
-			});
+			for (let i = 0; i < 1000; i++) {
+				const chunk = [
+					[0, 100],
+					[100, 200],
+				];
+				await this._create(
+					postData.slice(chunk[i % 2][0], chunk[i % 2][1]) as any,
+					{
+						session,
+						enableSaveAction: true,
+					},
+				);
+			}
 
 			// const postResult = await this.readModel.aggregate(
 			// 	[
@@ -59,7 +68,7 @@ export class PostsService extends AbstractService<PostsDocument> {
 			// );
 
 			await session.commitTransaction();
-			return postResult;
+			// return postResult;
 		} catch (error) {
 			await session.abortTransaction();
 			throw new BadRequestException(error.message);

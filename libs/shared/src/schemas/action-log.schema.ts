@@ -6,9 +6,8 @@ import {
 	ENUM_ACTION_LOG_DATA_SOURCE,
 	ENUM_ACTION_TYPE,
 } from '../constants/enum';
-import { AbstractSchema } from './abstract.schema';
 
-@SchemaCustom({ collection: 'action_logs', strict: false })
+@SchemaCustom({ collection: 'action_logs', strict: false, autoIndex: true })
 export class ActionLog<T extends any, K extends any> {
 	@Prop({ type: mongoose.Schema.Types.Mixed })
 	@ApiPropertyOptional({ type: 'any' })
@@ -73,4 +72,14 @@ export class ActionLog<T extends any, K extends any> {
 
 export type ActionLogDocument = Document & ActionLog<any, any>;
 
-export const ActionLogSchema = SchemaFactory.createForClass(ActionLog);
+const ActionLogSchema = SchemaFactory.createForClass(ActionLog);
+
+ActionLogSchema.index({
+	collection_name: 1,
+	action_type: 1,
+	status: 1,
+	created_at: 1,
+	data_source: 1,
+});
+
+export { ActionLogSchema };

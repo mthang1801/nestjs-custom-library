@@ -3,14 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import {
-	Aggregate,
-	ClientSession,
-	FilterQuery,
-	Model,
-	ObjectId,
-	ProjectionType,
-	SaveOptions,
-	UpdateQuery,
+  Aggregate,
+  ClientSession,
+  FilterQuery,
+  Model,
+  ObjectId,
+  ProjectionType,
+  SaveOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { LibActionLogService } from '../action-log';
 import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
@@ -19,7 +19,6 @@ import { LibMongoService } from '../mongodb/mongodb.service';
 import { RMQClientService } from '../rabbitmq';
 import { ActionLog } from '../schemas';
 import { AbstractSchema } from '../schemas/abstract.schema';
-import { typeOf } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
 import { IAbstractRepository } from './interfaces';
 import { AbstractType } from './types/abstract.type';
@@ -59,7 +58,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		this.configService = new ConfigService();
 		this.mongooseService = new LibMongoService(this.configService);
 		this.rmqClientService = new RMQClientService(this.configService);
-		this.actionLogService = new LibActionLogService(this.configService);
+		this.actionLogService = new LibActionLogService();
 	}
 
 	async startSession(): Promise<ClientSession> {
@@ -70,8 +69,10 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		payload: Partial<T> | Partial<T>[],
 		options?: SaveOptions & AbstractType.EnableSaveAction,
 	): Promise<T> {
+		const payloadList = this.utilService.convertDataToArray(payload);
+
 		const newData: T = (await this.primaryModel.create<Partial<T>>(
-			typeOf(payload) === 'array' ? (payload as T[]) : ([payload] as T[]),
+			payloadList as T[],
 			options as any,
 		)) as any;
 
