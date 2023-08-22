@@ -2,27 +2,28 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-	ClientProxyFactory,
-	RmqContext,
-	RmqOptions,
-	RmqRecordBuilder,
-	Transport,
+  ClientProxyFactory,
+  RmqContext,
+  RmqOptions,
+  RmqRecordBuilder,
+  Transport,
 } from '@nestjs/microservices';
 import { HealthIndicatorResult } from '@nestjs/terminus';
 import {
-	Observable,
-	fromEvent,
-	lastValueFrom,
-	mapTo,
-	merge,
-	of,
-	timeout,
+  Observable,
+  fromEvent,
+  lastValueFrom,
+  mapTo,
+  merge,
+  of,
+  timeout,
 } from 'rxjs';
 import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
 import { RmqClientOptions } from './types/rabbitmq-client-options.type';
 @Injectable()
 export class RMQClientService {
 	logger = new Logger(RMQClientService.name);
+  
 	constructor(
 		readonly configService: ConfigService,
 		readonly amqpConnection?: AmqpConnection,
@@ -80,6 +81,9 @@ export class RMQClientService {
 		payload: T,
 	) {
 		this.logger.log('*********** publishDataToQueue ***********');
+		console.log('QUEUE::', queue);
+		console.log('PATTERN::', pattern);
+		console.log('PAYLOAD::', payload);
 		const client = this.createClient({ queue });
 		client.emit<T, any>(pattern, payload);
 	}

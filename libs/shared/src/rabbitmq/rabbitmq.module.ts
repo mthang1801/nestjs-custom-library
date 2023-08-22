@@ -1,10 +1,11 @@
 import { RabbitMQModule as GoLevelUpRabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import rabbitmqConfig from '../config/rabbitmq.config';
 import { RMQClientService } from './rabbitmq-client.service';
 import { RMQDynamicModuleOptions } from './types/rabbitmq-dynamic-module-options.type';
+@Global()
 @Module({
 	providers: [RMQClientService, ClientsModule],
 	exports: [RMQClientService, ClientsModule],

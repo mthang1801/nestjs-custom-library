@@ -1,12 +1,11 @@
-import { AbstractService } from '@app/shared';
-import { ENUM_STATUS } from '@app/shared/constants/enum';
+import { AbstractService, LibActionLogService } from '@app/shared';
+import { ENUM_ACTION_TYPE, ENUM_STATUS } from '@app/shared/constants/enum';
 import { PostsDocument, User } from '@app/shared/schemas';
 import {
 	BadRequestException,
 	Inject,
 	Injectable,
 	Logger,
-	Scope,
 	forwardRef,
 } from '@nestjs/common';
 import { ClientSession, ObjectId } from 'mongoose';
@@ -15,14 +14,16 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostStatusDto } from './dto/update-post-status.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsRepository } from './posts.repository';
+import * as postData from '@app/shared/data/post.json';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class PostsService extends AbstractService<PostsDocument> {
 	protected logger = new Logger(PostsService.name);
 	constructor(
 		readonly postRepository: PostsRepository,
 		@Inject(forwardRef(() => UsersService))
 		private readonly userService: UsersService,
+		private readonly actionLogSerrvice: LibActionLogService,
 	) {
 		super(postRepository);
 	}
@@ -31,19 +32,16 @@ export class PostsService extends AbstractService<PostsDocument> {
 		const session = await this.startSession();
 		session.startTransaction();
 
-		const author = await this.userService.readModel.findById(
-			createPostDto.author,
-			{},
-			{ session },
-		);
+		// const author = await this.userService.readModel.findById(
+		// 	createPostDto.author,
+		// 	{},
+		// 	{ session },
+		// );
 		try {
-			const postResult = await this._create(
-				{
-					...createPostDto,
-					author,
-				},
-				{ session, enableSaveAction: true },
-			);
+			const postResult = await this._create(postData as any, {
+				session,
+				enableSaveAction: true,
+			});
 
 			// const postResult = await this.readModel.aggregate(
 			// 	[
@@ -71,21 +69,25 @@ export class PostsService extends AbstractService<PostsDocument> {
 	}
 
 	async findAll() {
-		console.log(this.postRepository);
-		return this.postRepository.findOne(
-			{ status: ENUM_STATUS.ACTIVE },
-			{},
-			{ includeSoftDelete: true },
-		);
+		return this.actionLogSerrvice.saveCustomLog({
+			action_type: ENUM_ACTION_TYPE.LOGIN,
+			collection_name: 'users',
+			custom_data: { text: 'Người dùng vừa đăng nhập vào hệ thông' },
+		});
 	}
 
-	findOne(id: number) {
-		console.log('Findone');
-		return this._findAndCountAll(
-			{ status: ENUM_STATUS.ACTIVE },
-			{},
-			{ includeSoftDelete: false },
-		);
+	async findOne(id: number) {
+		await this.actionLogSerrvice.saveCustomLog({
+			action_type: ENUM_ACTION_TYPE.LOGIN,
+			collection_name: 'users',
+			custom_data: { text: 'Người dùng vừa đăng nhập vào hệ thông' },
+		});
+
+		return {
+			message: await this.i18n.translate('messages.login', {
+				args: { timestamp: new Date() },
+			}),
+		};
 	}
 
 	async update(id: ObjectId, updatePostDto: UpdatePostDto) {

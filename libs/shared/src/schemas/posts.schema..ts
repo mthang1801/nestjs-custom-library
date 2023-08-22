@@ -33,11 +33,34 @@ export class Posts extends AbstractSchema {
 
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
 	@Type(() => User)
-	author: User;
+	author: string;
 
 	@Prop({ type: Number, default: 0 })
-	@Exclude()
-	view_count: number;
+	views: number;
+
+	@Prop({ type: Number, default: 0 })
+	likes: number;
+
+	@Prop({ type: Number })
+	comments: number;
+
+	@Prop({ type: Number })
+	rating: number;
+
+	@Prop({ type: Boolean })
+	is_published: boolean;
+
+	@Prop({ type: String })
+	source: string;
+
+	@Prop({ type: String })
+	featured_image: string;
+
+	@Prop({ type: mongoose.Schema.Types.Mixed })
+	related_articles: any;
+
+	@Prop({ type: Number })
+	share_count: number;
 
 	@Prop({
 		type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
@@ -48,8 +71,20 @@ export class Posts extends AbstractSchema {
 	@Prop({ type: [String] })
 	meta_keywords: string[];
 
+	@Prop({ type: [String] })
+	tags: string[];
+
+	@Prop({ type: String })
+	meta_description: string;
+
 	@Prop({ type: mongoose.Schema.Types.Mixed })
 	extra_data: any;
+
+	@Prop({ type: Date })
+	publish_date: Date;
+
+	@Prop()
+	category: string;
 }
 
 export type PostsDocument = AbstractDocument<Posts>;

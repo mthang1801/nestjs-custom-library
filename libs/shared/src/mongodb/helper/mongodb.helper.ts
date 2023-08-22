@@ -1,5 +1,6 @@
 import mongoose, { PipelineStage } from 'mongoose';
 import { MongoDB } from '../types/mongodb.type';
+import { Query } from '@nestjs/common';
 
 export const $getMetadataAggregate = (
 	currentPage: number,
@@ -31,7 +32,6 @@ export const LookupOneToOne = ({
 	localField = replaceStartWithDollarSign(localField);
 	foreignField = replaceStartWithDollarSign(foreignField);
 	const alias = as ?? localField;
-
 	return [
 		{
 			$lookup: {
@@ -131,4 +131,21 @@ export const getMetadataAggregate = (page, limit): any[] => {
 export const toMongoObjectId = (id: any) => {
 	if (mongoose.isValidObjectId(id)) return new mongoose.Types.ObjectId(id);
 	throw new Error('Invalid ObjectId');
+};
+
+export const filterQueryDateTime = (
+	fromDate: Date,
+	toDate: Date,
+	field: string,
+) => {
+	console.log(fromDate, toDate);
+	if (!fromDate && !toDate) return undefined;
+	const result = {
+		$and: [],
+	};
+
+	if (fromDate) result.$and.push({ [field]: { $gte: new Date(fromDate) } });
+	if (toDate) result.$and.push({ [field]: { $lte: new Date(toDate) } });
+  
+	return result;
 };

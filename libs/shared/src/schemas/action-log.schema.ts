@@ -1,13 +1,12 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import mongoose from 'mongoose';
 import SchemaCustom from '../abstract/schema-option';
 import {
 	ENUM_ACTION_LOG_DATA_SOURCE,
 	ENUM_ACTION_TYPE,
 } from '../constants/enum';
-import { LogContext, LogContextSchema } from './action-log-context.schema';
+import { AbstractSchema } from './abstract.schema';
 
 @SchemaCustom({ collection: 'action_logs', strict: false })
 export class ActionLog<T extends any, K extends any> {
@@ -27,17 +26,17 @@ export class ActionLog<T extends any, K extends any> {
 	@ApiPropertyOptional({ type: 'any' })
 	different_data?: any;
 
+	@Prop({ type: String, index: 'text' })
+	@ApiPropertyOptional({ type: String })
+	raw_data?: string;
+
 	@Prop({
 		type: String,
 		enum: ENUM_ACTION_LOG_DATA_SOURCE,
 		default: ENUM_ACTION_LOG_DATA_SOURCE.SYSTEM,
+		index: 1,
 	})
 	data_source?: keyof typeof ENUM_ACTION_LOG_DATA_SOURCE;
-
-	@Prop({ type: LogContextSchema, _id: false })
-	@Type(() => LogContext)
-	@ApiPropertyOptional()
-	context?: LogContext;
 
 	@Prop({
 		type: String,

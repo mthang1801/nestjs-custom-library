@@ -35,7 +35,6 @@ export namespace AbstractType {
 	export type InitAbstractRepository<T> = {
 		primaryModel: Model<T>;
 		secondaryModel: Model<T>;
-		context?: ExpressContext;
 	};
 	export type ActionType = keyof typeof ENUM_ACTION_TYPE;
 	export type HanddleLoggingAction<T extends any | any[]> = {

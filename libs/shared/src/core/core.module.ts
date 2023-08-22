@@ -7,6 +7,7 @@ import { LibHttpModule } from '../http/http.module';
 import { LibLogger } from '../logger/logger.module';
 import { LibTelegramModule } from '../telegram/telegram.module';
 import { LibUtilModule } from '../utils/util.module';
+import { LibI18nModule } from '../i18n';
 
 @Global()
 @Module({
@@ -25,6 +26,7 @@ import { LibUtilModule } from '../utils/util.module';
 			}),
 			expandVariables: true,
 		}),
+		LibI18nModule,
 		LibTelegramModule,
 		LibHttpModule,
 		LibUtilModule,

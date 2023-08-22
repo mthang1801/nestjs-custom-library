@@ -17,6 +17,7 @@ export namespace MongoDB {
 	};
 	export type LookupOneToOne = {
 		from: string;
+		let: Record<string, string> | any;
 		localField: string;
 		project?: any;
 		foreignField?: string;
@@ -29,6 +30,7 @@ export namespace MongoDB {
 	};
 	export type LookupOneToMany = {
 		from: string;
+		let: Record<string, string> | any;
 		localField: string;
 		project?: any;
 		foreignField?: string;

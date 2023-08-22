@@ -1,7 +1,6 @@
 import { AbstractDocument, AbstractSchema } from '@app/shared';
 import { AbstractType } from '@app/shared/abstract/types/abstract.type';
-import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
-import { CONTEXT } from '@nestjs/microservices';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
 	ClientSession,
 	FilterQuery,
@@ -12,7 +11,9 @@ import {
 	UpdateQuery,
 } from 'mongoose';
 import { AbstractRepository } from './abstract.repository';
-@Injectable({ scope: Scope.REQUEST, durable: true })
+import { I18nService } from 'nestjs-i18n';
+import { ConfigService } from '@nestjs/config';
+@Injectable()
 export abstract class AbstractService<
 	T extends AbstractDocument<AbstractSchema>,
 > {
@@ -20,7 +21,12 @@ export abstract class AbstractService<
 	protected primaryModel: Model<T> = null;
 	public readModel: Model<T> = null;
 	public modelInfo: AbstractType.ModelInfo = null;
-	@Inject(CONTEXT) protected context: AbstractType.ExpressContext;
+
+	@Inject()
+	protected i18n: I18nService;
+
+	@Inject()
+	protected configService: ConfigService;
 
 	constructor(readonly repository?: AbstractRepository<T>) {
 		if (repository) {

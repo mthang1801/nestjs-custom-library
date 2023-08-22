@@ -39,18 +39,15 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	protected configService: ConfigService = null;
 	protected mongooseService: LibMongoService = null;
 	private exclusiveFieldChanges = ['_id', 'created_at', 'updated_at'];
-	protected context: AbstractType.ExpressContext;
 	protected rmqClient: ClientProxy;
 	protected rmqClientService: RMQClientService;
 	protected actionLogService: LibActionLogService;
 	constructor({
 		primaryModel,
 		secondaryModel,
-		context,
 	}: AbstractType.InitAbstractRepository<T>) {
 		this.primaryModel = primaryModel;
 		this.secondaryModel = secondaryModel;
-		this.context = context;
 		this.modelInfo = {
 			modelName: primaryModel.modelName,
 			collectionName: primaryModel.collection.name,
@@ -385,35 +382,29 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		action_type,
 		custom_data,
 	}: ActionLog<T, K>) {
-		this.logger.log('*********** saveIntoLog *************');
+		try {
+			this.logger.log('*********** saveIntoLog *************');
 
-		const payload: ActionLog<T, K> = {
-			new_data: new_data ? JSON.stringify(new_data) : undefined,
-			old_data: old_data ? JSON.stringify(old_data) : undefined,
-			context: this.getContext(),
-			action_type,
-			custom_data,
-			populates: this.getPopulates(),
-			exclusive_fields: this.exclusiveFieldChanges,
-			collection_name: this.modelInfo.collectionName,
-		};
+			const payload: ActionLog<T, K> = {
+				new_data: new_data ? JSON.stringify(new_data) : undefined,
+				old_data: old_data ? JSON.stringify(old_data) : undefined,
+				action_type,
+				custom_data,
+				populates: this.getPopulates(),
+				exclusive_fields: this.exclusiveFieldChanges,
+				collection_name: this.modelInfo.collectionName,
+			};
 
-		this.rmqClientService.publishDataToQueue<ActionLog<T, K>>(
-			ENUM_QUEUES.LOGGING_ACTION,
-			ENUM_EVENT_PATTERN.SAVE_ACTION,
-			payload,
-		);
-	}
+			console.log(payload);
 
-	getContext() {
-		return {
-			path: this?.context?.route?.path,
-			url: this?.context?.url,
-			method: this?.context?.method,
-			body: this?.context?.body,
-			params: this?.context?.['params'],
-			query: this?.context?.['query'],
-		};
+			this.rmqClientService.publishDataToQueue<ActionLog<T, K>>(
+				ENUM_QUEUES.LOGGING_ACTION,
+				ENUM_EVENT_PATTERN.SAVE_ACTION,
+				payload,
+			);
+		} catch (error) {
+			console.log(error.stack);
+		}
 	}
 
 	getPopulates(): string[] {

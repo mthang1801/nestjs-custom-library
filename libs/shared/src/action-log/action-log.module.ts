@@ -4,6 +4,7 @@ import { LibCoreModule } from '../core/core.module';
 import { LibMongoModule } from '../mongodb';
 import { LibRabbitMQModule } from '../rabbitmq';
 import { ActionLog, ActionLogSchema } from '../schemas/action-log.schema';
+import { ActionLogController } from './action-log.controller';
 import { LibActionLogRepository } from './action-log.repository';
 import { LibActionLogService } from './action-log.service';
 
@@ -17,6 +18,7 @@ import { LibActionLogService } from './action-log.service';
 			schema: ActionLogSchema,
 		}),
 	],
+	controllers: [ActionLogController],
 	providers: [LibActionLogService, LibActionLogRepository],
 	exports: [LibActionLogService, LibActionLogRepository],
 })

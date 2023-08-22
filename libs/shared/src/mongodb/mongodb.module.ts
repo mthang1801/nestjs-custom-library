@@ -5,7 +5,7 @@ import * as Joi from 'joi';
 import { CONNECTION_NAME } from './constants/connection-name';
 import { LibMongoModuleForFeatureOptions } from './interfaces/mongoose-dynamic-module-options.interface';
 import { LibMongoService } from './mongodb.service';
-
+import * as promiseRetry from 'promise-retry';
 @Module({
 	imports: [
 		ConfigModule.forRoot({
@@ -70,6 +70,11 @@ export class LibMongoModule {
 				return {
 					uri: configService.get<string>(connectionName),
 					dbName: configService.get<string>('MONGO_DATABASE'),
+					useNewUrlParser: true,
+					reconnectTries: 5,
+					reconnectInterval: 1000,
+					poolSize: 10,
+					bufferMaxEntries: 0, //
 				};
 			},
 			inject: [ConfigService],

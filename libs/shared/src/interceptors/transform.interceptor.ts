@@ -25,9 +25,9 @@ export class TransformInterceptor<T>
 		next: CallHandler,
 	): Observable<ResponseData<T>> | Observable<any> {
 		const response = context.switchToHttp().getResponse();
-    const request = context.switchToHttp().getRequest();
+		const request = context.switchToHttp().getRequest();
 		const before = Date.now();
-		return next.handle().pipe(      
+		return next.handle().pipe(
 			map(
 				(res) => {
 					const statusCode = response.statusCode || 200;
@@ -44,7 +44,7 @@ export class TransformInterceptor<T>
 		);
 	}
 
-  logResponseData(req : Request, res : Response, duration: number){}
+	logResponseData(req: Request, res: Response, duration: number) {}
 
 	private responseData(
 		res: any,
