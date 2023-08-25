@@ -2,15 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
+import * as lodash from 'lodash';
 import {
-  Aggregate,
-  ClientSession,
-  FilterQuery,
-  Model,
-  ObjectId,
-  ProjectionType,
-  SaveOptions,
-  UpdateQuery,
+	Aggregate,
+	ClientSession,
+	FilterQuery,
+	Model,
+	ObjectId,
+	ProjectionType,
+	SaveOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { LibActionLogService } from '../action-log';
 import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
@@ -96,7 +97,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		let oldData: T | T[] | any;
 
 		if (options?.updateOnlyOne) {
-			if (options.enableSaveAction !== false) {
+			if (options?.enableSaveAction !== false) {
 				oldData = await this.secondaryModel.findOne(filterQuery);
 			}
 
@@ -110,7 +111,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 				},
 			);
 		} else {
-			if (options.enableSaveAction !== false) {
+			if (options?.enableSaveAction !== false) {
 				oldData = await this.secondaryModel.find(filterQuery);
 			}
 
@@ -124,7 +125,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			);
 		}
 
-		if (options.enableSaveAction !== false) {
+		if (options?.enableSaveAction !== false) {
 			this.handleLoggingAction({
 				old_data: oldData,
 				action_type: ENUM_ACTION_TYPE.UPDATE,
@@ -139,7 +140,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		updateData?: UpdateQuery<T>,
 		options?: AbstractType.UpdateOption<T>,
 	): Promise<T> {
-		const isReturnNewData = options.new !== false;
+		const isReturnNewData = options?.new !== false;
 		const oldData = isReturnNewData && (await this.findOne(filterQuery));
 		const updatedData = await this.primaryModel.findOneAndUpdate(
 			filterQuery,
@@ -151,7 +152,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			},
 		);
 
-		if (options.enableSaveAction !== false) {
+		if (options?.enableSaveAction !== false) {
 			this.handleLoggingAction<T>({
 				old_data: oldData || updatedData,
 				action_type: ENUM_ACTION_TYPE.UPDATE,
@@ -166,7 +167,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		updateData?: Partial<T> | UpdateQuery<T>,
 		options?: AbstractType.UpdateOption<T>,
 	): Promise<T> {
-		const isReturnNewData = options.new !== false;
+		const isReturnNewData = options?.new !== false;
 		const oldData = isReturnNewData && (await this.findById(id));
 
 		const updatedData = await this.primaryModel.findByIdAndUpdate(
@@ -179,7 +180,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			},
 		);
 
-		if (options.enableSaveAction !== false) {
+		if (options?.enableSaveAction !== false) {
 			this.handleLoggingAction<T>({
 				old_data: oldData || updatedData,
 				action_type: ENUM_ACTION_TYPE.UPDATE,
@@ -193,7 +194,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		filterQuery?: FilterQuery<T>,
 		options?: AbstractType.DeleteOption<T>,
 	): Promise<AbstractType.UpdateResponse> {
-		if (options.enableSaveAction !== false) {
+		if (options?.enableSaveAction !== false) {
 			const oldData = await this.secondaryModel.find(filterQuery);
 			this.handleLoggingAction<T[]>({
 				old_data: oldData,
@@ -201,7 +202,10 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			});
 		}
 
-		if (options.softDelete) {
+		if (
+			options?.softDelete !== false &&
+			this.collectionHasField('deleted_at')
+		) {
 			return this.primaryModel.updateMany(filterQuery, {
 				$set: { deleted_at: new Date() },
 			});
@@ -222,7 +226,10 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			});
 		}
 
-		if (options?.softDelete) {
+		if (
+			options?.softDelete !== false &&
+			this.collectionHasField('deleted_at')
+		) {
 			return this.primaryModel.updateOne(filterQuery, {
 				$set: { deleted_at: new Date() },
 			});
@@ -242,7 +249,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		filterQuery: FilterQuery<T>,
 		options: AbstractType.DeleteOption<T>,
 	): Promise<T> {
-		if (options.enableSaveAction !== false) {
+		if (options?.enableSaveAction !== false) {
 			const oldData = await this.secondaryModel.findOne(filterQuery);
 			this.handleLoggingAction<T>({
 				old_data: oldData,
@@ -250,7 +257,10 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			});
 		}
 
-		if (options?.softDelete) {
+		if (
+			options?.softDelete !== false &&
+			this.collectionHasField('deleted_at')
+		) {
 			return this.primaryModel.findOneAndUpdate(
 				filterQuery,
 				{
@@ -268,8 +278,6 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		projection?: ProjectionType<T> | string,
 		options?: AbstractType.FindOptions<T>,
 	): Promise<T> {
-		this.handleIncludeSoftDelete(filterQuery, options);
-		console.log('findOne::', filterQuery);
 		if (this.utilService.typeOf(projection) === 'string')
 			return this.secondaryModel
 				.findOne(filterQuery, {
@@ -396,8 +404,6 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 				collection_name: this.modelInfo.collectionName,
 			};
 
-			console.log(payload);
-
 			this.rmqClientService.publishDataToQueue<ActionLog<T, K>>(
 				ENUM_QUEUES.LOGGING_ACTION,
 				ENUM_EVENT_PATTERN.SAVE_ACTION,
@@ -435,5 +441,9 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			this.aggregate ??
 			(this.aggregate = this.secondaryModel.aggregate().allowDiskUse(true))
 		);
+	}
+
+	collectionHasField(fieldName: string) {
+		return lodash.has(this.modelInfo.schema.paths, fieldName);
 	}
 }

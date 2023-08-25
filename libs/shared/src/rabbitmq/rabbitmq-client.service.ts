@@ -23,7 +23,7 @@ import { RmqClientOptions } from './types/rabbitmq-client-options.type';
 @Injectable()
 export class RMQClientService {
 	logger = new Logger(RMQClientService.name);
-  
+
 	constructor(
 		readonly configService: ConfigService,
 		readonly amqpConnection?: AmqpConnection,
