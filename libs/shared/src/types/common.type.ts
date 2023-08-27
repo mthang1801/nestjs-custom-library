@@ -1,5 +1,6 @@
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { Request } from 'express';
+import { ENUM_TOKEN_TYPE } from '../constants/enum';
 import { User } from '../schemas';
 
 export type UserRequest = Request & User;
@@ -12,6 +13,14 @@ export type CookieToken = {
 	token: string;
 	cookie: string;
 };
+
+export type TokenPair = {
+	accessToken: string;
+	refreshToken: string;
+};
+
+export type TokenKey = keyof typeof ENUM_TOKEN_TYPE;
+export type TokenType = (typeof ENUM_TOKEN_TYPE)[TokenKey];
 
 export type ReadOnly<T> = {
 	+readonly [K in keyof T]: T[K];

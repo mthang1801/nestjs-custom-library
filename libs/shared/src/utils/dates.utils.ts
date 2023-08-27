@@ -10,6 +10,8 @@ export const dateFormatDMY_hms24h = 'DD-MM-YYYY HH:mm:ss';
 export const dateFormat_hms24h = 'HH:mm:ss';
 export const dateFormatDM_hms = 'DD/MM hh:mm:ss';
 export const dateFormatDM_hm = 'DD/MM hh:mm';
+export const dateUTC = 'YYYY-MM-DDTHH:mm:ss.sssZ';
+export const dateISO = '±YYYYYY-MM-DDTHH:mm:ss.sssZ';
 
 export const formatMySQLTimeStamp = (
 	timestamp: string | Date = new Date(),
@@ -21,7 +23,8 @@ export const formatDateTime = (timestamp: string | Date = new Date()) =>
 export const formatTime = (timestamp: string | Date = new Date()) =>
 	moment(timestamp).format('HH:mm:ss');
 
-export const checkValidTimestamp = (timestamp) => moment(timestamp).isValid();
+export const checkValidTimestamp = (timestamp, format = dateUTC) =>
+	moment(timestamp, format).isValid();
 
 export const longDateFormatByLocale = (
 	timestamp: string | number | Date = new Date(),
@@ -48,10 +51,22 @@ export const dateTimeFormatByLocale = (
 };
 export const today = (dateFormat: string = dateFormatYMD) =>
 	moment().format(dateFormat);
+
+export const startOfDay = (
+	date = new Date(),
+	format: string = dateFormatYMD_hms24h,
+): Date => new Date(moment(date).startOf('day').format(format));
+
+export const endOfDay = (
+	date = new Date(),
+	format: string = dateFormatYMD_hms24h,
+): Date => new Date(moment(date).endOf('day').format(format));
+
 export const startOfMonth = (dateFormat) =>
 	moment()
 		.startOf('month')
 		.format(dateFormat ? dateFormat : dateFormatYMD);
+
 export const endOfMonth = (dateFormat) =>
 	moment()
 		.endOf('month')

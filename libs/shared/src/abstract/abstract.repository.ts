@@ -4,22 +4,26 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import * as lodash from 'lodash';
 import {
-	Aggregate,
-	ClientSession,
-	FilterQuery,
-	Model,
-	ObjectId,
-	ProjectionType,
-	SaveOptions,
-	UpdateQuery,
+  Aggregate,
+  ClientSession,
+  FilterQuery,
+  Model,
+  ObjectId,
+  PipelineStage,
+  ProjectionType,
+  SaveOptions,
+  UpdateQuery,
 } from 'mongoose';
+import { PipelineOptions } from 'stream';
 import { LibActionLogService } from '../action-log';
 import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
 import { ENUM_ACTION_TYPE } from '../constants/enum';
+import { toMongoObjectId } from '../mongodb';
 import { LibMongoService } from '../mongodb/mongodb.service';
 import { RMQClientService } from '../rabbitmq';
 import { ActionLog } from '../schemas';
 import { AbstractSchema } from '../schemas/abstract.schema';
+import { convertToNumber, typeOf } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
 import { IAbstractRepository } from './interfaces';
 import { AbstractType } from './types/abstract.type';
@@ -58,7 +62,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		this.utilService = new UtilService();
 		this.configService = new ConfigService();
 		this.mongooseService = new LibMongoService(this.configService);
-		this.rmqClientService = new RMQClientService(this.configService);
+		this.rmqClientService = new RMQClientService();
 		this.actionLogService = new LibActionLogService();
 	}
 
@@ -69,23 +73,24 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	async create(
 		payload: Partial<T> | Partial<T>[],
 		options?: SaveOptions & AbstractType.EnableSaveAction,
-	): Promise<T> {
-		const payloadList = this.utilService.convertDataToArray(payload);
+	): Promise<T | T[]> {
+		const payloadData = this.utilService.convertDataToArray(payload);
 
-		const newData: T = (await this.primaryModel.create<Partial<T>>(
-			payloadList as T[],
+		const newData: T[] = (await this.primaryModel.create<Partial<T>>(
+			payloadData as T[],
 			options as any,
-		)) as any;
+		)) as T[];
 
 		//TODO: Save action info
 		if (options?.enableSaveAction !== false) {
-			this.handleLoggingAction<T>({
+			this.handleLoggingAction<T | T[]>({
 				new_data: newData,
 				action_type: ENUM_ACTION_TYPE.CREATE,
+				input_payload: payloadData,
 			});
 		}
 
-		return newData as T;
+		return typeOf(payload) === 'array' ? newData : newData.at(0);
 	}
 
 	async update(
@@ -95,7 +100,6 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	): Promise<AbstractType.UpdateResponse | T | any> {
 		let updateResponse: T | AbstractType.UpdateResponse | any;
 		let oldData: T | T[] | any;
-
 		if (options?.updateOnlyOne) {
 			if (options?.enableSaveAction !== false) {
 				oldData = await this.secondaryModel.findOne(filterQuery);
@@ -129,6 +133,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			this.handleLoggingAction({
 				old_data: oldData,
 				action_type: ENUM_ACTION_TYPE.UPDATE,
+				input_payload: payload,
 			});
 		}
 
@@ -156,6 +161,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			this.handleLoggingAction<T>({
 				old_data: oldData || updatedData,
 				action_type: ENUM_ACTION_TYPE.UPDATE,
+				input_payload: updateData,
 			});
 		}
 
@@ -184,6 +190,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			this.handleLoggingAction<T>({
 				old_data: oldData || updatedData,
 				action_type: ENUM_ACTION_TYPE.UPDATE,
+				input_payload: updateData,
 			});
 		}
 
@@ -196,10 +203,13 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	): Promise<AbstractType.UpdateResponse> {
 		if (options?.enableSaveAction !== false) {
 			const oldData = await this.secondaryModel.find(filterQuery);
-			this.handleLoggingAction<T[]>({
-				old_data: oldData,
-				action_type: ENUM_ACTION_TYPE.DELETE,
-			});
+			if (oldData.length) {
+				this.handleLoggingAction<T[]>({
+					old_data: oldData,
+					action_type: ENUM_ACTION_TYPE.DELETE,
+					created_by_user: options?.deleted_by_user as any,
+				});
+			}
 		}
 
 		if (
@@ -220,10 +230,13 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	): Promise<AbstractType.UpdateResponse> {
 		if (options?.enableSaveAction !== false) {
 			const oldData = await this.secondaryModel.findOne(filterQuery);
-			this.handleLoggingAction<T>({
-				old_data: oldData,
-				action_type: ENUM_ACTION_TYPE.DELETE,
-			});
+			if (oldData) {
+				this.handleLoggingAction<T>({
+					old_data: oldData,
+					action_type: ENUM_ACTION_TYPE.DELETE,
+					created_by_user: options?.deleted_by_user as any,
+				});
+			}
 		}
 
 		if (
@@ -239,10 +252,10 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	}
 
 	async deleteById(
-		id: ObjectId,
+		id: ObjectId | string,
 		options?: AbstractType.DeleteOption<T>,
 	): Promise<AbstractType.UpdateResponse> {
-		return this.deleteOne({ _id: id }, options);
+		return this.deleteOne({ _id: toMongoObjectId(id) }, options);
 	}
 
 	async findOneAndDelete(
@@ -254,6 +267,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			this.handleLoggingAction<T>({
 				old_data: oldData,
 				action_type: ENUM_ACTION_TYPE.DELETE,
+				created_by_user: options?.deleted_by_user as any,
 			});
 		}
 
@@ -275,31 +289,34 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 
 	async findOne(
 		filterQuery?: FilterQuery<T>,
-		projection?: ProjectionType<T> | string,
+		projection?: ProjectionType<T>,
 		options?: AbstractType.FindOptions<T>,
 	): Promise<T> {
-		if (this.utilService.typeOf(projection) === 'string')
-			return this.secondaryModel
-				.findOne(filterQuery, {
-					...options,
-				})
-				.select(projection);
+		const result = await this.secondaryModel.findOne(
+			filterQuery || {},
+			this.getProjection(projection),
+			{
+				populate: this.getPopulates(this.getProjection(projection)),
+				...options,
+			},
+		);
 
-		return this.secondaryModel.findOne(filterQuery, projection, {
-			populate: this.getPopulates(),
-			...options,
-		});
+		return result?.deleted_at && !options?.includeSoftDelete ? null : result;
 	}
 
 	async findById(
 		id: string | ObjectId,
-		projection?: ProjectionType<T> | string,
+		projection?: ProjectionType<T>,
 		options?: AbstractType.FindOptions<T>,
 	): Promise<T> {
-		const result = await this.secondaryModel.findById(id, projection, {
-			populate: this.getPopulates(),
-			...options,
-		});
+		const result = await this.secondaryModel.findById(
+			id,
+			this.getProjection(projection),
+			{
+				populate: this.getPopulates(this.getProjection(projection)),
+				...options,
+			},
+		);
 
 		return result?.deleted_at && !options?.includeSoftDelete ? null : result;
 	}
@@ -311,8 +328,8 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	): Promise<T[]> {
 		this.handleIncludeSoftDelete(filterQuery, options);
 		return await this.secondaryModel
-			.find(filterQuery, projection, {
-				populate: this.getPopulates(),
+			.find(filterQuery, this.getProjection(projection), {
+				populate: this.getPopulates(this.getProjection(projection)),
 				...options,
 			})
 			.allowDiskUse(true);
@@ -330,7 +347,10 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		filterQuery: FilterQuery<T>,
 		options: AbstractType.FindOptions<T>,
 	) {
+		if (!filterQuery) filterQuery = {};
+		if (Object.keys(filterQuery).includes('deleted_at')) return;
 		if (!options?.includeSoftDelete) filterQuery.deleted_at = null;
+		else delete filterQuery.deleted_at;
 	}
 
 	async findAndCountAll(
@@ -339,10 +359,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		options?: AbstractType.FindOptions<T>,
 	): Promise<AbstractType.FindAndCountAllResponse<T>> {
 		const [items, count] = await Promise.all([
-			this.findAll(filterQuery, projection, {
-				populate: this.getPopulates(),
-				...options,
-			}),
+			this.findAll(filterQuery, projection, options),
 			this.count(filterQuery, options),
 		]);
 		return {
@@ -356,8 +373,14 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		old_data,
 		custom_data,
 		action_type,
+		input_payload,
+		created_by_user,
 	}: ActionLog<T, any>) {
 		this.logger.log('*********** handleLoggingAction *************');
+
+		const createdByUser =
+			created_by_user ??
+			this.findCreatedByUserForActionLog(input_payload, action_type);
 
 		switch (action_type) {
 			case 'CREATE':
@@ -368,6 +391,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 							new_data: newDataItem,
 							action_type,
 							custom_data,
+							created_by_user: createdByUser,
 						}),
 					);
 
@@ -380,19 +404,23 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 							old_data: oldDataItem,
 							action_type,
 							custom_data,
+							created_by_user: createdByUser,
 						}),
 					);
 		}
 	}
 
-	saveIntoLog<T, K>({
-		new_data,
-		old_data,
-		action_type,
-		custom_data,
-	}: ActionLog<T, K>) {
+	saveIntoLog<T, K>(properties: ActionLog<T, K>) {
 		try {
 			this.logger.log('*********** saveIntoLog *************');
+			const {
+				new_data,
+				old_data,
+				action_type,
+				custom_data,
+				created_by_user,
+				data_source,
+			} = properties;
 
 			const payload: ActionLog<T, K> = {
 				new_data: new_data ? JSON.stringify(new_data) : undefined,
@@ -400,8 +428,10 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 				action_type,
 				custom_data,
 				populates: this.getPopulates(),
+				data_source: data_source ?? 'SYSTEM',
 				exclusive_fields: this.exclusiveFieldChanges,
 				collection_name: this.modelInfo.collectionName,
+				created_by_user,
 			};
 
 			this.rmqClientService.publishDataToQueue<ActionLog<T, K>>(
@@ -414,14 +444,40 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		}
 	}
 
-	getPopulates(): string[] {
-		return Object.values(this.modelInfo.schema.paths).reduce(
+	findCreatedByUserForActionLog<T>(
+		inputPayload: T | T[],
+		actionType: keyof typeof ENUM_ACTION_TYPE,
+	) {
+		const inputPayloadList = this.utilService.convertDataToArray(inputPayload);
+		if (!inputPayloadList.length) return null;
+		const payload: any = inputPayloadList.at(0);
+		switch (actionType) {
+			case 'CREATE':
+			case 'LOGIN':
+				return payload.created_by_user;
+			case 'UPDATE':
+				return payload.updated_by_user;
+			case 'DELETE':
+				return payload.deleted_by_user;
+		}
+	}
+
+	getPopulates(projection?: string[]): string[] {
+		const result = Object.values(this.modelInfo.schema.paths).reduce(
 			(populates: string[], schemaPath: any) => {
-				if (this.isValidPopulate(schemaPath)) populates.push(schemaPath.path);
+				if (this.isValidPopulate(schemaPath)) {
+					if (
+						(projection?.length && projection.includes(schemaPath.path)) ||
+						!projection
+					) {
+						populates.push(schemaPath.path);
+					}
+				}
 				return populates;
 			},
 			[],
 		) as string[];
+		return result;
 	}
 
 	isValidPopulate(schemaPath: any) {
@@ -443,7 +499,37 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		);
 	}
 
+	setAggregate<T extends any>(
+		pipeline: PipelineStage[],
+		options: PipelineOptions,
+	): Aggregate<Array<T>> {
+		return this.secondaryModel.aggregate(pipeline, {
+			allowDiskUse: true,
+			...options,
+		});
+	}
+
 	collectionHasField(fieldName: string) {
 		return lodash.has(this.modelInfo.schema.paths, fieldName);
+	}
+
+	getProjection(projection: any) {
+		if (!lodash.isEmpty(projection)) {
+			switch (typeOf(projection)) {
+				case 'string':
+					return projection
+						.split(',')
+						.filter(Boolean)
+						.map((item) => item.trim());
+				case 'object':
+					return Object.entries(projection).reduce((acc: any[], [key, val]) => {
+						if (convertToNumber(val) >= 1) acc.push(key);
+						return acc;
+					}, []);
+				default:
+					return projection;
+			}
+		}
+		return lodash.keys(this.modelInfo.schema.paths);
 	}
 }

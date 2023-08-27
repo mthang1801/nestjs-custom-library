@@ -139,7 +139,7 @@ export enum ENUM_MODEL {
 	USER = 'users',
 	POST = 'posts',
 	CATEGORY = 'categories',
-	SYSTEM_LOG = 'system_logs',
+	ACTION_LOG = 'action_logs',
 }
 
 export enum ENUM_ACTION_TYPE {

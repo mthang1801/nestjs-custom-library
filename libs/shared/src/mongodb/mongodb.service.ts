@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Document, Filter, MongoClient, ObjectId } from 'mongodb';
-import mongoose, { ClientSession } from 'mongoose';
+import mongoose, { AggregateOptions, ClientSession } from 'mongoose';
 import { Db } from 'typeorm';
 
 @Injectable()
@@ -46,9 +46,11 @@ export class LibMongoService implements OnModuleInit {
 		return client.db(this.configService.get<string>('MONGO_DATABASE'));
 	}
 
-	async mongoClientConnect() {
+	async mongoClientConnect(primary = true) {
 		const client = new MongoClient(
-			this.configService.get<string>('MONGO_URI_PRIMARY'),
+			this.configService.get<string>(
+				primary ? 'MONGO_URI_PRIMARY' : 'MONGO_URI_SECONDARY',
+			),
 		);
 		await client.connect();
 		return client;
@@ -61,7 +63,7 @@ export class LibMongoService implements OnModuleInit {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/ban-types
-	async mongoClientWrapper(fn: Function) {
+	async mongoClientWrapper(fn: Function, primary = true) {
 		const client = await this.mongoClientConnect();
 		const db = await client.db(
 			this.configService.get<string>('MONGO_DATABASE'),
@@ -104,5 +106,20 @@ export class LibMongoService implements OnModuleInit {
 
 			return res;
 		});
+	}
+
+	async aggregate(
+		collectionName: string,
+		pipeline: Document[],
+		options?: AggregateOptions,
+	) {
+		this.logger.log('************ Aggregate *************');
+		this.logger.log(JSON.stringify(pipeline));
+		return this.mongoClientWrapper(async (db: Db) => {
+			return await db
+				.collection(collectionName)
+				.aggregate(pipeline, { allowDiskUse: true, ...(options as any) })
+				.toArray();
+		}, false);
 	}
 }

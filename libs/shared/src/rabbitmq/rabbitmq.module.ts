@@ -65,7 +65,7 @@ export class LibRabbitMQModule {
 				]),
 			],
 			providers: [RMQClientService],
-			exports: [RMQClientService, ClientsModule, ClientsModule],
+			exports: [RMQClientService, ClientsModule],
 		};
 	}
 }

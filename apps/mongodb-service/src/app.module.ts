@@ -1,15 +1,18 @@
-import { AllExceptionsFilter, LibMongoModule } from '@app/shared';
+import { AuthGuard } from '@app/common/modules/auth/guards/auth.guard';
+import {
+  AllExceptionsFilter,
+  LibMongoModule
+} from '@app/shared';
 import { LibCoreModule } from '@app/shared/core/core.module';
 import { LibI18nModule } from '@app/shared/i18n';
 import { TransformInterceptor } from '@app/shared/interceptors/transform.interceptor';
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import * as Joi from 'joi';
-import { CategoriesModule } from './categories/categories.module';
-import { PostsModule } from './posts/posts.module';
-import { UserRolesModule } from './user-roles/user-roles.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { PostModule } from './post/post.module';
+import { UserModule } from './user/user.module';
 @Module({
 	imports: [
 		ConfigModule.forRoot({
@@ -32,10 +35,9 @@ import { UsersModule } from './users/users.module';
 		LibI18nModule,
 		LibMongoModule.forRootAsync(),
 		LibCoreModule,
-		UsersModule,
-		UserRolesModule,
-		CategoriesModule,
-		PostsModule,
+		AuthModule,
+		UserModule,
+		PostModule,
 	],
 	controllers: [],
 	providers: [
@@ -46,6 +48,14 @@ import { UsersModule } from './users/users.module';
 		{
 			provide: APP_INTERCEPTOR,
 			useClass: TransformInterceptor,
+		},
+		{
+			provide: APP_GUARD,
+			useClass: AuthGuard,
+		},
+		{
+			provide: APP_PIPE,
+			useValue: new ValidationPipe({ transform: true, whitelist: true }),
 		},
 	],
 })

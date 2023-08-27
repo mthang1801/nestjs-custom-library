@@ -1,2 +1,3 @@
-export * from './permission.decorator';
+export * from './permissions.decorator';
+export * from './user-auth.decorator';
 

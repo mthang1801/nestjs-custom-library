@@ -1,6 +1,7 @@
+import { MorganLogger } from '@app/shared/logger/morgan.logger';
 import { WinstonLogger } from '@app/shared/logger/winston.logger';
 import { LibTelegramService } from '@app/shared/telegram/telegram.service';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -11,7 +12,8 @@ async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		logger: WinstonLogger('MONGODB SVC'),
 	});
-	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+	app.use(MorganLogger());
 	const configService = app.get<ConfigService>(ConfigService);
 	const telegramService = app.get<LibTelegramService>(LibTelegramService);
 	mongoose.set('debug', { color: true, shell: true });

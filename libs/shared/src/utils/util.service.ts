@@ -91,10 +91,19 @@ export class UtilService {
 		return [prefix, this[algorithm](str), suffix].filter(Boolean).join('_');
 	}
 
-	generateRandomString(length = 8, hasNumbers = true, hasSymbols = true) {
+	generateRandomString({
+		length = 8,
+		hasNumbers = true,
+		hasSymbols = true,
+		excludeCharacters = '',
+	}) {
 		let chars = this.alpha;
 		if (hasNumbers) chars += this.integers;
-		if (hasSymbols) chars += this.exCharacters;
+		if (hasSymbols)
+			chars += this.exCharacters
+				.split('')
+				.filter((item) => !excludeCharacters.split('').includes(item))
+				.join('');
 
 		let randomString = '';
 		for (let i = 0; i < length; i++) {
@@ -103,7 +112,6 @@ export class UtilService {
 
 		return randomString;
 	}
-
 	/**
 	 * Get week day
 	 * @param {Date} date

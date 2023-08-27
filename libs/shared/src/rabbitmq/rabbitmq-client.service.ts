@@ -1,5 +1,5 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ClientProxyFactory,
@@ -24,10 +24,10 @@ import { RmqClientOptions } from './types/rabbitmq-client-options.type';
 export class RMQClientService {
 	logger = new Logger(RMQClientService.name);
 
-	constructor(
-		readonly configService: ConfigService,
-		readonly amqpConnection?: AmqpConnection,
-	) {}
+	@Inject()
+	configService: ConfigService;
+
+	constructor(readonly amqpConnection?: AmqpConnection) {}
 
 	/**
 	 * Apply for new version
@@ -60,7 +60,9 @@ export class RMQClientService {
 		return ClientProxyFactory.create({
 			transport: Transport.RMQ,
 			options: {
-				urls: [this.configService.get<string>('RMQ_URI')],
+				urls: [
+					this?.configService?.get<string>('RMQ_URI') || process.env.RMQ_URI,
+				],
 				queue: properties.queue,
 				queueOptions: { durable: true },
 				socketOptions: { noDelay: true },

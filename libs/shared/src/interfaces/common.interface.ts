@@ -1,17 +1,13 @@
+import { AbstractType } from '../abstract/types/abstract.type';
+
 export interface Response<T> {
 	data: T;
-}
-
-export interface Metadata {
-	currentPage: number;
-	pageSize: number;
-	total: number;
 }
 
 export interface ResponseData<T> {
 	success: boolean;
 	statusCode: number;
-	data: T;
-	metadata?: Metadata;
+	data: T | T[];
+	metadata?: AbstractType.Metadata;
 	message: string | string[];
 }

@@ -2,13 +2,13 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as lodash from 'lodash';
 import { PipelineStage, isValidObjectId } from 'mongoose';
 import {
-	ENUM_ACTION_LOG_DATA_SOURCE,
-	ENUM_ACTION_TYPE,
+  ENUM_ACTION_LOG_DATA_SOURCE,
+  ENUM_ACTION_TYPE,
 } from '../constants/enum';
 import {
-	AggregateFilterQueryDateTime,
-	getMetadataAggregate,
-	toMongoObjectId,
+  AggregateFilterQueryDateTime,
+  getMetadataAggregate,
+  toMongoObjectId,
 } from '../mongodb';
 import { LibMongoService } from '../mongodb/mongodb.service';
 import { ActionLog } from '../schemas';
@@ -52,8 +52,8 @@ export class LibActionLogService {
 			this.setDiffFields(payload);
 			this.setRawData(payload);
 
-			if (this.canCreateActionLog(payload))
-				return this.actionLogRepository.primaryModel.create(payload);
+			this.canCreateActionLog(payload) &&
+				this.actionLogRepository.primaryModel.create(payload);
 		} catch (error) {
 			console.log(error.stack);
 		}
@@ -97,7 +97,11 @@ export class LibActionLogService {
 		);
 
 		return Object.entries(data).reduce((res, [key, val]: [string, any]) => {
-			if (populates.includes(key) && !lodash.isEmpty(val)) {
+			if (
+				typeOf(populates) === 'array' &&
+				populates?.includes(key) &&
+				!lodash.isEmpty(val)
+			) {
 				res[key] =
 					typeOf(val) === 'array'
 						? val.map(({ _id }) => toMongoObjectId(_id))
@@ -154,12 +158,16 @@ export class LibActionLogService {
 	}
 
 	private canCreateActionLog(payload: ActionLog<any, any>): boolean {
-		if (
-			payload.action_type !== 'DELETE' &&
-			lodash.isEmpty(payload.different_data)
-		)
-			return false;
-		return true;
+		this.logger.log('**************** canCreateActionLog ****************');
+		if (payload.custom_data) return true;
+
+		switch (payload.action_type) {
+			case 'UPDATE':
+			case 'DELETE':
+				return !lodash.isEmpty(payload.different_data);
+			default:
+				return true;
+		}
 	}
 
 	public async saveCustomLog(properties: SaveCustomActionLogDto) {
@@ -253,5 +261,11 @@ export class LibActionLogService {
 				meta: getMetadataAggregate(page, limit),
 			},
 		};
+	}
+
+	async delete(id: string): Promise<any> {
+		return this.actionLogRepository.primaryModel.deleteOne({
+			_id: toMongoObjectId(id),
+		});
 	}
 }

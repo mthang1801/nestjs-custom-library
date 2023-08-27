@@ -1,15 +1,15 @@
 import { ExceljsService } from '@app/shared/exceljs/exceljs.service';
 import {
-  Body,
-  Controller,
-  Get,
-  Header,
-  HttpException,
-  Post,
-  Req,
-  Res,
-  UploadedFile,
-  UseInterceptors,
+	Body,
+	Controller,
+	Get,
+	Header,
+	HttpException,
+	Post,
+	Req,
+	Res,
+	UploadedFile,
+	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -30,7 +30,7 @@ export class AppController {
 	async exportFile(@Res() res: Response) {
 		const filepath = await this.appService.exportFile();
 		const file = await createReadStream(filepath);
-		file.pipe(res)
+		file.pipe(res);
 	}
 
 	@Post()

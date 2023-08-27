@@ -20,9 +20,8 @@ export const getPageSkipLimit = (
 	skip: number;
 	limit: number;
 } => {
-	let { page, limit: perPage } = params;
-	page = +page || 1;
-	const limit = Math.min(perPage || 20, 100);
+	const page = +params.page || 1;
+	const limit = Math.min(params.limit || 20, 100);
 	const skip = (page - 1) * limit;
 	return { page, skip, limit };
 };
@@ -85,3 +84,10 @@ export const generateRandomNumber = (numDigits = 6) =>
 
 export const convertToNumber = (value: any): number =>
 	!isNaN(Number(value)) ? Number(value) : 0;
+
+export const isEmptyValue = (
+	value: any,
+	currentField: string = null,
+	excludedKey: string[] = [],
+) =>
+	!excludedKey.includes(currentField) && [undefined, null, ''].includes(value);

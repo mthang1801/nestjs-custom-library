@@ -6,14 +6,13 @@ import {
   ContactSchema,
   Posts,
   PostsDocument,
-  UserRole,
 } from '@app/shared/schemas';
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { NextFunction } from 'express';
 import * as _ from 'lodash';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import SchemaCustom from '../abstract/schema-option';
 
 @SchemaCustom()
@@ -108,20 +107,6 @@ export class User extends AbstractSchema {
 	@Exclude()
 	identifier: string;
 
-	@Prop({
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'UserRole',
-	})
-	@Type(() => UserRole)
-	@Transform(
-		({ value }) => {
-			return value?.name?.toString();
-		},
-		{ toClassOnly: true },
-	)
-	@Exclude()
-	role: UserRole;
-
 	@Expose({ name: 'full_name' })
 	get fullName(): string {
 		return [this.first_name, this.last_name].filter(Boolean).join(' ');
@@ -153,38 +138,38 @@ export const UserSchemaFactory = (postModel: Model<PostsDocument>) => {
 	userSchema.index({ first_name: 1, last_name: 1 });
 	userSchema.index({ updated_at: -1 });
 
-	userSchema.post('findOneAndUpdate', async function (next: NextFunction) {
-		const user = await this.model.findOne(this.getFilter());
+	// userSchema.post('findOneAndUpdate', async function (next: NextFunction) {
+	// 	const user = await this.model.findOne(this.getFilter());
 
-		if (user.deleted_at) {
-			await postModel
-				.updateMany({ author: user }, { $set: { deleted_at: new Date() } })
-				.exec();
-		} else {
-			await postModel
-				.updateMany({ author: user }, { $set: { deleted_at: new Date() } })
-				.exec();
-		}
-	});
-	userSchema.virtual('default_address').get(function (this: UserDocument) {
-		if (this.contact.length) {
-			const firstContact = this.contact[0];
-			return [
-				firstContact.address,
-				firstContact.ward_name,
-				firstContact.district_name,
-				firstContact.province_name,
-			]
-				.filter(Boolean)
-				.join(', ');
-		}
-		return 'Đang cập nhật';
-	});
+	// 	if (user.deleted_at) {
+	// 		await postModel
+	// 			.updateMany({ author: user }, { $set: { deleted_at: new Date() } })
+	// 			.exec();
+	// 	} else {
+	// 		await postModel
+	// 			.updateMany({ author: user }, { $set: { deleted_at: new Date() } })
+	// 			.exec();
+	// 	}
+	// });
+	// userSchema.virtual('default_address').get(function (this: UserDocument) {
+	// 	if (this.contact.length) {
+	// 		const firstContact = this.contact[0];
+	// 		return [
+	// 			firstContact.address,
+	// 			firstContact.ward_name,
+	// 			firstContact.district_name,
+	// 			firstContact.province_name,
+	// 		]
+	// 			.filter(Boolean)
+	// 			.join(', ');
+	// 	}
+	// 	return 'Đang cập nhật';
+	// });
 
-	userSchema.virtual('posts', {
-		ref: 'Posts',
-		localField: '_id',
-		foreignField: 'author',
-	});
+	// userSchema.virtual('posts', {
+	// 	ref: 'Posts',
+	// 	localField: '_id',
+	// 	foreignField: 'author',
+	// });
 	return userSchema;
 };

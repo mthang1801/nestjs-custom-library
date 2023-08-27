@@ -3,8 +3,8 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import mongoose from 'mongoose';
 import SchemaCustom from '../abstract/schema-option';
 import {
-	ENUM_ACTION_LOG_DATA_SOURCE,
-	ENUM_ACTION_TYPE,
+  ENUM_ACTION_LOG_DATA_SOURCE,
+  ENUM_ACTION_TYPE,
 } from '../constants/enum';
 
 @SchemaCustom({ collection: 'action_logs', strict: false, autoIndex: true })
@@ -68,6 +68,12 @@ export class ActionLog<T extends any, K extends any> {
 		example: ['user'],
 	})
 	collection_name?: string;
+
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: 1 })
+	@ApiPropertyOptional()
+	created_by_user?: any;
+
+	input_payload?: any;
 }
 
 export type ActionLogDocument = Document & ActionLog<any, any>;
@@ -80,6 +86,10 @@ ActionLogSchema.index({
 	status: 1,
 	created_at: 1,
 	data_source: 1,
+	created_by_user: 1,
+	updated_by_user: 1,
+	deleted_by_user: 1,
 });
 
 export { ActionLogSchema };
+

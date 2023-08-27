@@ -15,6 +15,16 @@ export namespace AbstractType {
 		>[];
 		projection?: any;
 	};
+	export type Metadata = {
+		perPage: number;
+		currentPage: number;
+		totalItems: number;
+		totalPages: number;
+	};
+	export type ResponseDataAndMetadata<T extends any> = {
+		data?: T;
+		metadata?: Metadata;
+	};
 	export type ModelInfo = {
 		modelName: string;
 		collectionName: string;
@@ -55,7 +65,13 @@ export namespace AbstractType {
 	export type FindIncludeSoftDelete = {
 		includeSoftDelete?: boolean;
 	};
+	export type DeleteBy = {
+		deleted_by_user?: string;
+	};
 	export type FindOptions<T> = QueryOptions<T> & FindIncludeSoftDelete;
 	export type UpdateOption<T> = QueryOptions<T> & EnableSaveAction;
-	export type DeleteOption<T> = QueryOptions<T> & EnableSaveAction & DeleteType;
+	export type DeleteOption<T> = QueryOptions<T> &
+		EnableSaveAction &
+		DeleteType &
+		DeleteBy;
 }

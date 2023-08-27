@@ -21,11 +21,14 @@ export class AbstractSchema {
 	@Prop({ default: null })
 	deleted_at: Date;
 
-	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-	created_by?: User;
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: 1 })
+	created_by_user?: User;
 
-	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-	updated_by?: User;
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: 1 })
+	updated_by_user?: User;
+
+	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', index: 1 })
+	deleted_by_user?: User;
 }
 
 export type AbstractDocument<T extends AbstractSchema> = Document & T;

@@ -1,4 +1,4 @@
-import { PipelineStage } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 
 export namespace MongoDB {
 	export type AggregateOperator =
@@ -15,6 +15,7 @@ export namespace MongoDB {
 		password?: string;
 		database: string;
 	};
+	export type MongoId = Types.ObjectId | string;
 	export type LookupOneToOne = {
 		from: string;
 		let: Record<string, string> | any;

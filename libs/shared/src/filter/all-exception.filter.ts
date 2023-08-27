@@ -1,15 +1,15 @@
 import {
-	ArgumentsHost,
-	Catch,
-	ExceptionFilter,
-	HttpException,
-	HttpStatus,
-	Logger,
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { LibTelegramService } from '../telegram/telegram.service';
-import { convertToNumber, typeOf } from '../utils/function.utils';
+import { typeOf } from '../utils/function.utils';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -52,17 +52,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	getMessage(exception: HttpException): string {
 		let messageResponse: any;
 		if ((exception as any) instanceof HttpException) {
+			console.log('getMessage::HttpException::', exception);
 			messageResponse =
 				exception.getResponse()?.['message'] ||
 				exception.getResponse().valueOf() ||
 				exception.message;
 		} else if (exception instanceof Error) {
+			console.log('getMessage::Error::', exception.message);
 			messageResponse =
 				exception['errors'] && typeOf(exception['errors']) === 'array'
 					? exception['errors'].join(' ')
-					: exception;
+					: exception?.message || exception;
 		} else {
-			messageResponse = exception['message'] || 'Internal server';
+			console.log('getMessage::Other::', exception);
+			messageResponse = exception['message'] || exception || 'Internal server';
 		}
 
 		let messageResult = '';

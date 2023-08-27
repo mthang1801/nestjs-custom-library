@@ -1,18 +1,32 @@
-import { AbstractDocument, AbstractSchema } from '@app/shared';
+import {
+  AbstractDocument,
+  AbstractSchema,
+  ActionLog,
+  AggregateFilterQueryDateTime,
+  getMetadataAggregate,
+} from '@app/shared';
 import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import {
-	ClientSession,
-	FilterQuery,
-	Model,
-	ObjectId,
-	ProjectionType,
-	SaveOptions,
-	UpdateQuery,
-} from 'mongoose';
-import { AbstractRepository } from './abstract.repository';
-import { I18nService } from 'nestjs-i18n';
 import { ConfigService } from '@nestjs/config';
+import * as lodash from 'lodash';
+import { ObjectId } from 'mongodb';
+import {
+  ClientSession,
+  FilterQuery,
+  Model,
+  PipelineStage,
+  ProjectionType,
+  SaveOptions,
+  UpdateQuery,
+} from 'mongoose';
+import { I18nService } from 'nestjs-i18n';
+import { PipelineOptions } from 'stream';
+import { ActionLogQueryFilterDto } from '../action-log/dto/action-log-query-filter.dto';
+import { ENUM_MODEL } from '../constants/enum';
+import { LibMongoService } from '../mongodb/mongodb.service';
+import { getPageSkipLimit } from '../utils/function.utils';
+import { AbstractRepository } from './abstract.repository';
+
 @Injectable()
 export abstract class AbstractService<
 	T extends AbstractDocument<AbstractSchema>,
@@ -27,6 +41,9 @@ export abstract class AbstractService<
 
 	@Inject()
 	protected configService: ConfigService;
+
+	@Inject()
+	protected readonly mongoService?: LibMongoService;
 
 	constructor(readonly repository?: AbstractRepository<T>) {
 		if (repository) {
@@ -52,7 +69,7 @@ export abstract class AbstractService<
 		projection?: ProjectionType<T>,
 		options?: AbstractType.FindOptions<T>,
 	) {
-		return await this.repository.findById(id, projection, options);
+		return await this.repository.findById(String(id), projection, options);
 	}
 
 	protected async _findOne(
@@ -103,7 +120,11 @@ export abstract class AbstractService<
 		payload: Partial<T> | UpdateQuery<T>,
 		options?: AbstractType.UpdateOption<T>,
 	): Promise<T> {
-		return await this.repository.findByIdAndUpdate(id, payload, options);
+		return await this.repository.findByIdAndUpdate(
+			String(id),
+			payload,
+			options,
+		);
 	}
 
 	protected async _findOneAndUpdate(
@@ -123,10 +144,10 @@ export abstract class AbstractService<
 	}
 
 	protected async _deleteById(
-		id: ObjectId,
+		id: ObjectId | string,
 		options?: AbstractType.DeleteOption<T>,
 	): Promise<AbstractType.UpdateResponse> {
-		return await this.repository.deleteById(id, options);
+		return await this.repository.deleteById(String(id), options);
 	}
 
 	protected async _deleteOne(
@@ -148,5 +169,121 @@ export abstract class AbstractService<
 		options?: AbstractType.DeleteOption<T>,
 	): Promise<AbstractType.UpdateResponse> {
 		return await this.repository.deleteMany(filterQuery, options);
+	}
+
+	protected async _aggregate<T extends any>(
+		pipeline: PipelineStage[],
+		options?: PipelineOptions,
+	): Promise<Array<T>> {
+		return this.repository.setAggregate<T>(pipeline, options);
+	}
+
+	protected async _aggregateBuilder() {
+		return this.repository.aggregateBuilder();
+	}
+
+	public _saveIntoLog(properties: ActionLog<any, any>) {
+		return this.repository.saveIntoLog({
+			collection_name: this.modelInfo.collectionName,
+			...properties,
+			data_source: 'CUSTOM',
+		});
+	}
+
+	public async _findActionLogs(query: ActionLogQueryFilterDto) {
+		const [{ data, meta }] = await this.mongoService.aggregate(
+			ENUM_MODEL.ACTION_LOG,
+			[
+				this.stageFilterQuery(query),
+				this.stageSearchQuery(query),
+				this.stageFacetDataAndMeta(query),
+			]
+				.filter(Boolean)
+				.flat(1),
+		);
+
+		return { items: data, metadata: meta };
+	}
+
+	stageFilterQuery(query: ActionLogQueryFilterDto) {
+		const filterQuery: Partial<ActionLogQueryFilterDto> = {};
+
+		filterQuery.collection_name =
+			query.collection_name ?? this.modelInfo.collectionName;
+
+		if (query.created_by_user)
+			filterQuery.created_by_user = new ObjectId(String(query.created_by_user));
+
+		if (query.action_type) filterQuery.action_type = query.action_type;
+
+		if (query.status) filterQuery.status = query.status;
+
+		AggregateFilterQueryDateTime(
+			filterQuery,
+			query.from_date,
+			query.to_date,
+			'created_at',
+		);
+
+		if (query.data_source) filterQuery.data_source = query.data_source;
+
+		return lodash.isEmpty(filterQuery)
+			? null
+			: {
+					$match: filterQuery,
+			  };
+	}
+
+	stageSearchQuery(
+		query: ActionLogQueryFilterDto,
+	): Array<
+		| PipelineStage.Search
+		| PipelineStage.AddFields
+		| PipelineStage.Match
+		| PipelineStage.Sort
+	> {
+		if (!query.q) return null;
+		return [
+			{
+				$match: {
+					raw_data: {
+						$regex: new RegExp(query.q, 'gi'),
+					},
+				},
+			},
+		];
+	}
+
+	stageFacetDataAndMeta(
+		query: ActionLogQueryFilterDto,
+	): Array<PipelineStage.Facet | PipelineStage.Set> {
+		const { page, skip, limit } = getPageSkipLimit(query);
+		return [
+			{
+				$facet: {
+					data: [
+						{
+							$sort: {
+								updated_at: -1,
+							},
+						},
+						{
+							$skip: skip,
+						},
+						{
+							$limit: limit,
+						},
+					],
+					meta: getMetadataAggregate(page, limit),
+				},
+			},
+			{
+				$set: {
+					meta: {
+						$first: '$meta',
+					},
+				},
+			},
+		];
 	}
 }

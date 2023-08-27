@@ -1,3 +1,4 @@
+import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import {
   CallHandler,
   ExecutionContext,
@@ -6,10 +7,10 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { CONSTANT_HTTP_RESPONSE } from '../constants';
 import { ResponseData } from '../interfaces';
 import { typeOf } from '../utils/function.utils';
@@ -27,6 +28,7 @@ export class TransformInterceptor<T>
 		const response = context.switchToHttp().getResponse();
 		const request = context.switchToHttp().getRequest();
 		const before = Date.now();
+
 		return next.handle().pipe(
 			map(
 				(res) => {
@@ -40,11 +42,8 @@ export class TransformInterceptor<T>
 					);
 				}),
 			),
-			tap(() => this.logResponseData(request, response, Date.now() - before)),
 		);
 	}
-
-	logResponseData(req: Request, res: Response, duration: number) {}
 
 	private responseData(
 		res: any,
@@ -66,17 +65,17 @@ export class TransformInterceptor<T>
 		return response;
 	}
 
-	getMetadata(res: any, context: ExecutionContext) {
+	getMetadata(res: any, context: ExecutionContext): AbstractType.Metadata {
 		if (res?.metadata) return res.metadata;
 		if (res?.count) {
 			const totalItems = res.count;
 			const req: Request = context.switchToHttp().getRequest();
 			const { page, limit } = new UtilService().getPageSkipLimit(req.query);
 			return {
-				total: totalItems,
+				totalItems: totalItems,
 				currentPage: page,
-				pageSize: limit,
-				totalPage:
+				perPage: limit,
+				totalPages:
 					Number(totalItems) % Number(limit) === 0
 						? Number(totalItems) / Number(limit)
 						: Math.ceil(Number(totalItems) / Number(limit)),
@@ -88,11 +87,11 @@ export class TransformInterceptor<T>
 	private serializeData(res) {
 		if (!res) return null;
 
+		if (res?.data) return res.data;
+
 		if (res?.items && (res?.count || res?.metadata)) {
 			return res.items;
 		}
-
-		delete res.metadata;
 
 		if (typeOf(res) === 'object' && _.isEmpty(res)) {
 			return null;

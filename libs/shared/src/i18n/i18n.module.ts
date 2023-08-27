@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { join } from 'path';
 
+@Global()
 @Module({
 	imports: [
 		I18nModule.forRootAsync({
@@ -23,5 +24,6 @@ import { join } from 'path';
 			inject: [ConfigService],
 		}),
 	],
+	exports: [I18nModule],
 })
 export class LibI18nModule {}
