@@ -18,7 +18,7 @@ export class PostService extends AbstractService<PostsDocument> {
 
 	async findAll({ QuerySearchFilter }: PostFilterQueryDto) {
 		return this._findAndCountAll(QuerySearchFilter, {
-			// includeSoftDelete: false,
+			includeSoftDelete: false,
 		});
 	}
 

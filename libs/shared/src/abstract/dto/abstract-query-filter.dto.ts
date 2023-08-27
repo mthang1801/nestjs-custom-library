@@ -1,13 +1,23 @@
-import { formatMongoValue, getMetadataAggregate } from '@app/shared/mongodb';
+import { getMetadataAggregate, toMongoObjectId } from '@app/shared/mongodb';
 import { MongoDB } from '@app/shared/mongodb/types/mongodb.type';
-import { endOfDay, startOfDay } from '@app/shared/utils/dates.utils';
+import {
+  checkValidTimestamp,
+  endOfDay,
+  startOfDay,
+} from '@app/shared/utils/dates.utils';
 import {
   getPageSkipLimit,
   isEmptyValue,
 } from '@app/shared/utils/function.utils';
 import { Exclude, Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
-import { Expression, FilterQuery, PipelineStage } from 'mongoose';
+import * as lodash from 'lodash';
+import {
+  Expression,
+  FilterQuery,
+  PipelineStage,
+  isValidObjectId,
+} from 'mongoose';
 
 export class AbstractFilterQueryDto {
 	@IsOptional()
@@ -101,7 +111,6 @@ export class AbstractFilterQueryDto {
 		PipelineStage.Facet | PipelineStage.Set
 	> {
 		const { page, limit, skip } = getPageSkipLimit(this);
-		console.log(page, limit);
 		return [
 			{
 				$facet: {
@@ -115,13 +124,17 @@ export class AbstractFilterQueryDto {
 						{
 							$limit: limit,
 						},
-						{
-							$addFields: this.addFieldList,
-						},
-						{
-							$project: this.projectFieldList,
-						},
-					],
+						lodash.isEmpty(this.addFieldList)
+							? null
+							: {
+									$addFields: this.addFieldList,
+							  },
+						lodash.isEmpty(this.projectFieldList)
+							? null
+							: {
+									$project: this.projectFieldList,
+							  },
+					].filter(Boolean),
 					metadata: getMetadataAggregate(page, limit),
 				},
 			},
@@ -139,33 +152,78 @@ export class AbstractFilterQueryDto {
 
 			if (!this.isValidField(fieldName, val)) return queryFilter;
 
-			const prefixKey = fieldName.split('_').at(0);
+			this.generateMongoKeyValueForQueryFilter(queryFilter, fieldName, val);
 
-			const originalKey = fieldName
-				.split('_')
-				.filter((item) => !['from', 'to'].includes(item))
-				.join('_');
-
-			const formatValue = formatMongoValue(fieldName, val);
-
-			switch (prefixKey) {
-				case 'from':
-					queryFilter[originalKey] = {
-						...queryFilter[originalKey],
-						$gte: formatValue,
-					};
-					break;
-				case 'to':
-					queryFilter[originalKey] = {
-						...queryFilter[originalKey],
-						$lte: formatValue,
-					};
-					break;
-				default:
-					queryFilter[originalKey] = formatValue;
-			}
 			return queryFilter;
 		}, {});
+	}
+
+	private generateMongoKeyValueForQueryFilter(
+		queryFilter,
+		fieldName,
+		val,
+	): void {
+		const { prefixKey, originalKey } =
+			this.analyzePrefixAndOriginalKey(fieldName);
+
+		const formatValue = this.formatMongoValue(fieldName, val);
+
+		switch (prefixKey) {
+			case 'from':
+				queryFilter[originalKey] = {
+					...queryFilter[originalKey],
+					$gte: formatValue,
+				};
+				return;
+			case 'to':
+				queryFilter[originalKey] = {
+					...queryFilter[originalKey],
+					$lte: formatValue,
+				};
+				break;
+			case 'in':
+				queryFilter[originalKey] = { $in: formatValue };
+				break;
+			case 'all':
+				queryFilter[originalKey] = { $all: formatValue };
+				break;
+			case 'elemMatch':
+				const elemMatchValue = this.setValueForElemMatchOperator(formatValue);
+				queryFilter[originalKey] = { $elemMatch: elemMatchValue };
+				break;
+			default:
+				queryFilter[originalKey] = formatValue;
+		}
+	}
+
+	private analyzePrefixAndOriginalKey(fieldName: string) {
+		const prefixKey: string = fieldName.split('_').at(0);
+
+		const originalKey = fieldName
+			.split('_')
+			.filter(
+				(item) => !['from', 'to', 'in', 'all', 'elemMatch'].includes(item),
+			)
+			.join('_');
+
+		return { prefixKey, originalKey };
+	}
+
+	protected formatMongoValue(fieldName: string, value: any) {
+		if (fieldName === 'deleted_at')
+			return value === true ? { $exists: true } : null;
+
+		if (checkValidTimestamp(value) && value instanceof Date) return value;
+
+		if (!isNaN(Number(value))) return Number(value);
+
+		if (isValidObjectId(value)) return toMongoObjectId(value);
+
+		return value;
+	}
+
+	protected setValueForElemMatchOperator(value: string): any {
+		return value;
 	}
 
 	private mappingQuerySearchMatch() {

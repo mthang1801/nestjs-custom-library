@@ -1,6 +1,4 @@
-import { checkValidTimestamp } from '@app/shared/utils/dates.utils';
-import { typeOf } from '@app/shared/utils/function.utils';
-import mongoose, { PipelineStage, isValidObjectId } from 'mongoose';
+import mongoose, { PipelineStage } from 'mongoose';
 import { MongoDB } from '../types/mongodb.type';
 
 export const $getMetadataAggregate = (
@@ -132,21 +130,6 @@ export const getMetadataAggregate = (page, limit): any[] => {
 export const toMongoObjectId = (id: any, throwError = true) => {
 	if (mongoose.isValidObjectId(id)) return new mongoose.Types.ObjectId(id);
 	if (throwError) throw new Error('Invalid ObjectId');
-};
-
-export const formatMongoValue = (fieldName: string, value: any) => {
-	if (fieldName === 'deleted_at') {
-		console.log(fieldName, value, typeOf(value));
-		return value === true ? { $exists: true } : null;
-	}
-
-	if (checkValidTimestamp(value) && value instanceof Date) return value;
-
-	if (!isNaN(Number(value))) return Number(value);
-
-	if (isValidObjectId(value)) return toMongoObjectId(value);
-
-	return value;
 };
 
 export const AggregateFilterQueryDateTime = (

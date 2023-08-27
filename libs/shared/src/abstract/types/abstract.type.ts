@@ -22,7 +22,7 @@ export namespace AbstractType {
 		totalPages: number;
 	};
 	export type ResponseDataAndMetadata<T extends any> = {
-		data?: T;
+		data?: T[];
 		metadata?: Metadata;
 	};
 	export type ModelInfo = {
