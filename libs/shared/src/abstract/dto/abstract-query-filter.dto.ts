@@ -148,7 +148,7 @@ export class AbstractFilterQueryDto {
 
 	private mappingQueryFilterMatch() {
 		return Object.entries(this).reduce((queryFilter, [fieldName, val]) => {
-			fieldName = this.convertFieldName(fieldName);
+			fieldName = this.mappingFieldName(fieldName);
 
 			if (!this.isValidField(fieldName, val)) return queryFilter;
 
@@ -236,7 +236,7 @@ export class AbstractFilterQueryDto {
 		};
 	}
 
-	protected convertFieldName(fieldName: string) {
+	protected mappingFieldName(fieldName: string) {
 		const changeRequireList = {
 			[fieldName]: fieldName,
 			from_date: 'from_updated_at',
