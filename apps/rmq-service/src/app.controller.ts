@@ -1,24 +1,24 @@
 import { ENUM_QUEUES } from '@app/shared';
-import { COMMAND } from '@app/shared/constants/command';
+import { COMMAND } from '@app/shared/rabbitmq/constants/command';
 import { Body, Controller, Post } from '@nestjs/common';
 import {
-	ClientProxy,
-	ClientProxyFactory,
-	Ctx,
-	MessagePattern,
-	Payload,
-	RmqContext,
-	RmqRecordBuilder,
-	Transport,
+  ClientProxy,
+  ClientProxyFactory,
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+  RmqRecordBuilder,
+  Transport,
 } from '@nestjs/microservices';
 import {
-	Observable,
-	delay,
-	from,
-	lastValueFrom,
-	of,
-	scan,
-	timeout,
+  Observable,
+  delay,
+  from,
+  lastValueFrom,
+  of,
+  scan,
+  timeout,
 } from 'rxjs';
 import { RmqServiceService } from './app.service';
 @Controller()

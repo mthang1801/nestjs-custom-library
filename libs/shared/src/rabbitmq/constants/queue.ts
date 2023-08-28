@@ -8,8 +8,3 @@ export const ENUM_QUEUES = {
 	DEFAULT: 'DEFAULT',
 } as const;
 
-export const ENUM_EVENT_PATTERN = {
-	PUSH_MANY_NOTI_ORDER: 'PUSH_MANY_NOTI_ORDER',
-	SAVE_ACTION: 'SAVE_ACTION',
-	SET_PASSWORD: 'SET_PASSWORD',
-} as const;

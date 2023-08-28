@@ -3,11 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import * as Joi from 'joi';
 import { LibActionLogModule } from '../action-log';
-import { ENUM_QUEUES } from '../constants';
 import { LibHttpModule } from '../http/http.module';
 import { LibI18nModule } from '../i18n';
 import { LibLogger } from '../logger/logger.module';
-import { LibRabbitMQModule } from '../rabbitmq';
+import { ENUM_QUEUES, LibRabbitMQModule } from '../rabbitmq';
 import { LibTelegramModule } from '../telegram/telegram.module';
 import { LibUtilModule } from '../utils/util.module';
 

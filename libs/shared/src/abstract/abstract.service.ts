@@ -1,9 +1,9 @@
 import {
-  AbstractDocument,
-  AbstractSchema,
-  ActionLog,
-  AggregateFilterQueryDateTime,
-  getMetadataAggregate,
+	AbstractDocument,
+	AbstractSchema,
+	ActionLog,
+	AggregateFilterQueryDateTime,
+	getMetadataAggregate,
 } from '@app/shared';
 import { AbstractType } from '@app/shared/abstract/types/abstract.type';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -11,13 +11,13 @@ import { ConfigService } from '@nestjs/config';
 import * as lodash from 'lodash';
 import { ObjectId } from 'mongodb';
 import {
-  ClientSession,
-  FilterQuery,
-  Model,
-  PipelineStage,
-  ProjectionType,
-  SaveOptions,
-  UpdateQuery,
+	ClientSession,
+	FilterQuery,
+	Model,
+	PipelineStage,
+	ProjectionType,
+	SaveOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { I18nService } from 'nestjs-i18n';
 import { PipelineOptions } from 'stream';
@@ -25,6 +25,7 @@ import { ActionLogQueryFilterDto } from '../action-log/dto/action-log-query-filt
 import { ENUM_MODEL } from '../constants/enum';
 import { LibMongoService } from '../mongodb/mongodb.service';
 import { getPageSkipLimit } from '../utils/function.utils';
+import { UtilService } from '../utils/util.service';
 import { AbstractRepository } from './abstract.repository';
 
 @Injectable()
@@ -41,6 +42,9 @@ export abstract class AbstractService<
 
 	@Inject()
 	protected configService: ConfigService;
+
+	@Inject()
+	protected utilService: UtilService;
 
 	@Inject()
 	protected readonly mongoService?: LibMongoService;
@@ -191,7 +195,7 @@ export abstract class AbstractService<
 	}
 
 	public async _findActionLogs(query: ActionLogQueryFilterDto) {
-		const [{ data, meta }] = await this.mongoService.aggregate(
+		const [{ data, metadata }] = await this.mongoService.aggregate(
 			ENUM_MODEL.ACTION_LOG,
 			[
 				this.stageFilterQuery(query),
@@ -202,7 +206,7 @@ export abstract class AbstractService<
 				.flat(1),
 		);
 
-		return { items: data, metadata: meta };
+		return { items: data, metadata };
 	}
 
 	stageFilterQuery(query: ActionLogQueryFilterDto) {
@@ -274,13 +278,13 @@ export abstract class AbstractService<
 							$limit: limit,
 						},
 					],
-					meta: getMetadataAggregate(page, limit),
+					metadata: getMetadataAggregate(page, limit),
 				},
 			},
 			{
 				$set: {
-					meta: {
-						$first: '$meta',
+					metadata: {
+						$first: '$metadata',
 					},
 				},
 			},

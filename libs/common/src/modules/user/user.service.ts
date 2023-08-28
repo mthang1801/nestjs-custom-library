@@ -8,10 +8,7 @@ import { UserRepository } from './user.repository';
 @Injectable()
 export class UserService extends AbstractService<UserDocument> {
 	logger = new Logger(UserService.name);
-	constructor(
-		readonly userRepository: UserRepository,
-		private readonly utilService: UtilService,
-	) {
+	constructor(readonly userRepository: UserRepository) {
 		super(userRepository);
 	}
 

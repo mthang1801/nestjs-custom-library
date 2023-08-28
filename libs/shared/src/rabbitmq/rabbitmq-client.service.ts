@@ -2,24 +2,24 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  ClientProxyFactory,
-  RmqContext,
-  RmqOptions,
-  RmqRecordBuilder,
-  Transport,
+	ClientProxyFactory,
+	RmqContext,
+	RmqOptions,
+	RmqRecordBuilder,
+	Transport,
 } from '@nestjs/microservices';
 import { HealthIndicatorResult } from '@nestjs/terminus';
 import {
-  Observable,
-  fromEvent,
-  lastValueFrom,
-  mapTo,
-  merge,
-  of,
-  timeout,
+	Observable,
+	fromEvent,
+	lastValueFrom,
+	mapTo,
+	merge,
+	of,
+	timeout,
 } from 'rxjs';
-import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
 import { RmqClientOptions } from './types/rabbitmq-client-options.type';
+import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from './constants';
 @Injectable()
 export class RMQClientService {
 	logger = new Logger(RMQClientService.name);

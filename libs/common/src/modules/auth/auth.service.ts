@@ -1,4 +1,9 @@
-import { TokenPair, TokenPayload, TokenType } from '@app/shared';
+import {
+  AbstractService,
+  TokenPair,
+  TokenPayload,
+  TokenType,
+} from '@app/shared';
 import { ENUM_TOKEN_TYPE } from '@app/shared/constants/enum';
 import { User } from '@app/shared/schemas';
 import { UtilService } from '@app/shared/utils/util.service';
@@ -6,24 +11,23 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   forwardRef,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { I18nService } from 'nestjs-i18n';
 import { UserService } from '../user/user.service';
 import { SetPasswordDto } from './dto/update-password.dto';
 
 @Injectable()
-export class AuthService {
+export class AuthService extends AbstractService<any> {
+	logger = new Logger(AuthService.name);
 	constructor(
 		@Inject(forwardRef(() => UserService))
 		private readonly userService: UserService,
-		private readonly utilService: UtilService,
-		private readonly i18n: I18nService,
 		private readonly jwtService: JwtService,
-		private readonly configService: ConfigService,
-	) {}
+	) {
+		super();
+	}
 
 	async validateUser(username: string, password: string) {
 		const user = await this.userService.findUserByPhoneOrEmail(username);

@@ -16,11 +16,11 @@ import {
 } from 'mongoose';
 import { PipelineOptions } from 'stream';
 import { LibActionLogService } from '../action-log';
-import { ENUM_EVENT_PATTERN, ENUM_QUEUES } from '../constants';
+
 import { ENUM_ACTION_TYPE } from '../constants/enum';
 import { toMongoObjectId } from '../mongodb';
 import { LibMongoService } from '../mongodb/mongodb.service';
-import { RMQClientService } from '../rabbitmq';
+import { ENUM_EVENT_PATTERN, ENUM_QUEUES, RMQClientService } from '../rabbitmq';
 import { ActionLog } from '../schemas';
 import { AbstractSchema } from '../schemas/abstract.schema';
 import { convertToNumber, typeOf } from '../utils/function.utils';
