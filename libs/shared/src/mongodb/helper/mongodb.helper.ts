@@ -2,6 +2,7 @@ import * as lodash from 'lodash';
 import mongoose, { PipelineStage } from 'mongoose';
 import { MongoDB } from '../types/mongodb.type';
 
+export const $missingTypes = [{}, [], null, undefined];
 export const $getMetadataAggregate = (
 	currentPage: number,
 	limit: number,
@@ -123,7 +124,16 @@ export const LookupRecursion = ({
 	foreignField = replaceStartWithDollarSign(foreignField);
 	const alias = as ?? from;
 
-	if (currentLevel >= maxDepthLevel) return pipeline;
+	if (currentLevel >= maxDepthLevel) {
+		if (maxDepthLevel > 0) {
+			pipeline.$lookup.pipeline.push({
+				$match:
+					matchLookupRecursionSearchFilterQueryCondition(searchFilterQuery),
+			});
+		}
+
+		return pipeline;
+	}
 
 	const pipelineTetmplate = {
 		$lookup: {
@@ -203,16 +213,7 @@ export const matchLookupRecursionSearchFilterQueryCondition = (
 	return {
 		$or: [
 			{
-				$and: [
-					{
-						$expr: {
-							$ne: [{ $type: ['$children'] }, 'missing'],
-						},
-					},
-					{
-						children: { $ne: [] },
-					},
-				],
+				children: { $nin: $missingTypes },
 			},
 			{
 				$and: Object.entries(searchFilterQuery).reduce(

@@ -1,24 +1,23 @@
 import { ENUM_STATUS } from '@app/shared/constants/enum';
 import { getMetadataAggregate, toMongoObjectId } from '@app/shared/mongodb';
-import { MongoDB } from '@app/shared/mongodb/types/mongodb.type';
 import {
-	checkValidTimestamp,
-	endOfDay,
-	startOfDay,
+  checkValidTimestamp,
+  endOfDay,
+  startOfDay,
 } from '@app/shared/utils/dates.utils';
 import {
-	getPageSkipLimit,
-	isEmptyValue,
+  getPageSkipLimit,
+  isEmptyValue,
 } from '@app/shared/utils/function.utils';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 import * as lodash from 'lodash';
 import {
-	Expression,
-	FilterQuery,
-	PipelineStage,
-	isValidObjectId,
+  Expression,
+  FilterQuery,
+  PipelineStage,
+  isValidObjectId,
 } from 'mongoose';
 
 export class AbstractFilterQueryDto {
@@ -28,7 +27,7 @@ export class AbstractFilterQueryDto {
 
 	@IsOptional()
 	@Exclude()
-	private sortFieldsDict: Record<string, 1 | -1 | Expression.Meta> = {
+	public sortFieldsDict: Record<string, 1 | -1 | Expression.Meta> = {
 		updated_at: -1,
 	};
 
@@ -39,29 +38,30 @@ export class AbstractFilterQueryDto {
 		'projectFieldList',
 		'excludedFieldList',
 		'addFieldList',
+		'allow_show_for_all',
 	];
 
 	@IsOptional()
 	@Exclude()
-	private projectFieldList: Record<string, 1 | 0 | Expression.Meta> = {};
+	public projectFieldList: Record<string, 1 | 0 | Expression.Meta> = {};
 
 	@IsOptional()
 	@Exclude()
-	private addFieldList: Record<string, 1 | 0 | Expression.Meta> = {};
+	public addFieldList: Record<string, 1 | 0 | Expression.Meta> = {};
 
 	@IsOptional()
-	name?: string;
+	readonly name?: string;
 
 	@IsOptional()
-	code?: string;
+	readonly code?: string;
 
 	@IsOptional()
 	@ApiPropertyOptional({ type: Number, example: 1 })
-	page?: number = 1;
+	readonly page?: number = 1;
 
 	@IsOptional()
 	@ApiPropertyOptional({ type: Number, example: 20 })
-	limit?: number = 20;
+	readonly limit?: number = 20;
 
 	@IsOptional()
 	@Transform(({ value }) => value && startOfDay(value))
@@ -74,7 +74,7 @@ export class AbstractFilterQueryDto {
 	to_date?: Date;
 
 	@IsOptional()
-	@ApiPropertyOptional({ enum: ENUM_STATUS, example: 'ACTIVE' })
+	@ApiPropertyOptional({ enum: ENUM_STATUS, example: ENUM_STATUS.ACTIVE })
 	status?: string;
 
 	@IsOptional()
@@ -111,32 +111,32 @@ export class AbstractFilterQueryDto {
 	@Transform(({ value }) => value?.toLowerCase() === 'true')
 	allow_show_for_all: boolean = true;
 
-	get QueryFilter(): FilterQuery<any> {
-		return this.mappingQueryFilterMatch();
+	get FilterQuery(): FilterQuery<any> {
+		return this.mappingFilterQueryMatch();
 	}
 
-	get QuerySearch(): FilterQuery<any> {
-		return this.mappingQuerySearchMatch();
+	get SearchQuery(): FilterQuery<any> {
+		return this.mappingSearchQueryMatch();
 	}
 
-	get QuerySearchFilter() {
-		return { ...this.QueryFilter, ...this.QuerySearch };
+	get SearchFilterQuery() {
+		return { ...this.FilterQuery, ...this.SearchQuery };
 	}
 
-	get AggregateQueryFilter(): PipelineStage.Match {
-		return { $match: this.mappingQueryFilterMatch() };
+	get AggregateFilterQuery(): PipelineStage.Match {
+		return { $match: this.mappingFilterQueryMatch() };
 	}
 
-	AggregateQueryFilterAlias(alias: string = ''): PipelineStage.Match {
-		return { $match: this.mappingQueryFilterMatch(alias) };
+	AggregateFilterQueryAlias(alias: string = ''): PipelineStage.Match {
+		return { $match: this.mappingFilterQueryMatch(alias) };
 	}
 
-	get AggregateQuerySearch(): PipelineStage.Match {
-		return { $match: this.mappingQuerySearchMatch() };
+	get AggregateSearchQuery(): PipelineStage.Match {
+		return { $match: this.mappingSearchQueryMatch() };
 	}
 
-	AggregateQuerySearchAlias(alias: string = ''): PipelineStage.Match {
-		return { $match: this.mappingQuerySearchMatch(alias) };
+	AggregateSearchQueryAlias(alias: string = ''): PipelineStage.Match {
+		return { $match: this.mappingSearchQueryMatch(alias) };
 	}
 
 	get FacetResponseResultAndMetadata(): Array<
@@ -178,13 +178,13 @@ export class AbstractFilterQueryDto {
 		];
 	}
 
-	private mappingQueryFilterMatch(alias: string = '') {
+	private mappingFilterQueryMatch(alias: string = '') {
 		return Object.entries(this).reduce((queryFilter, [fieldName, val]) => {
 			fieldName = this.mappingFieldName(fieldName);
 
 			if (!this.isValidField(fieldName, val)) return queryFilter;
 
-			this.generateMongoKeyValueForQueryFilter(
+			this.generateMongoKeyValueForFilterQuery(
 				queryFilter,
 				fieldName,
 				val,
@@ -195,7 +195,7 @@ export class AbstractFilterQueryDto {
 		}, {});
 	}
 
-	private generateMongoKeyValueForQueryFilter(
+	private generateMongoKeyValueForFilterQuery(
 		queryFilter,
 		fieldName,
 		val,
@@ -264,7 +264,7 @@ export class AbstractFilterQueryDto {
 		return value;
 	}
 
-	private mappingQuerySearchMatch(alias: string = '') {
+	private mappingSearchQueryMatch(alias: string = '') {
 		const searchKeyword = this.q;
 		if (!searchKeyword) return {};
 		const searchKey = (fieldName) =>
