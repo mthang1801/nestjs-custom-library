@@ -1,3 +1,4 @@
+import * as lodash from 'lodash';
 import mongoose, { PipelineStage } from 'mongoose';
 import { MongoDB } from '../types/mongodb.type';
 
@@ -105,6 +106,125 @@ export const LookupOneToMany = ({
 			},
 		},
 	];
+};
+
+export const LookupRecursion = ({
+	from,
+	localField,
+	foreignField,
+	as = undefined,
+	currentLevel = 0,
+	maxDepthLevel = 4,
+	pipeline = undefined,
+	searchFilterQuery = [],
+}: MongoDB.LookupRecursion): PipelineStage.Lookup => {
+	console.log('LookupRecursion::', maxDepthLevel);
+	localField = replaceStartWithDollarSign(localField);
+	foreignField = replaceStartWithDollarSign(foreignField);
+	const alias = as ?? from;
+
+	if (currentLevel >= maxDepthLevel) return pipeline;
+
+	const pipelineTetmplate = {
+		$lookup: {
+			from,
+			let: { refId: `$${localField}`, currentLevel },
+			pipeline: [
+				{
+					$match: {
+						$and: [
+							{
+								$expr: {
+									$eq: ['$$refId', `$${foreignField}`],
+								},
+							},
+						],
+					},
+				},
+			],
+			as: alias,
+		},
+	};
+
+	if (maxDepthLevel === 0) {
+		return pipelineTetmplate;
+	}
+
+	if (pipeline) {
+		pipeline.$lookup.pipeline.push(pipelineTetmplate);
+
+		if (!lodash.isEmpty(searchFilterQuery)) {
+			pipeline.$lookup.pipeline.push({
+				$match:
+					matchLookupRecursionSearchFilterQueryCondition(searchFilterQuery),
+			});
+		}
+
+		if (currentLevel < maxDepthLevel)
+			LookupRecursion({
+				from,
+				localField,
+				foreignField,
+				currentLevel: currentLevel + 1,
+				maxDepthLevel,
+				pipeline: pipeline.$lookup.pipeline[1],
+				searchFilterQuery,
+				as,
+			});
+	} else {
+		pipeline = pipelineTetmplate;
+
+		if (maxDepthLevel === 1) {
+			pipeline.$lookup.pipeline.push({
+				$match:
+					matchLookupRecursionSearchFilterQueryCondition(searchFilterQuery),
+			});
+		}
+
+		if (currentLevel < maxDepthLevel)
+			LookupRecursion({
+				from,
+				localField,
+				foreignField,
+				currentLevel: currentLevel + 1,
+				maxDepthLevel,
+				pipeline,
+				searchFilterQuery,
+				as,
+			});
+	}
+
+	return pipeline;
+};
+
+export const matchLookupRecursionSearchFilterQueryCondition = (
+	searchFilterQuery: Record<string, any>,
+) => {
+	return {
+		$or: [
+			{
+				$and: [
+					{
+						$expr: {
+							$ne: [{ $type: ['$children'] }, 'missing'],
+						},
+					},
+					{
+						children: { $ne: [] },
+					},
+				],
+			},
+			{
+				$and: Object.entries(searchFilterQuery).reduce(
+					(acc: any, [key, val]: [string, any]) => {
+						acc.push({ [key]: val });
+						return acc;
+					},
+					[],
+				),
+			},
+		],
+	};
 };
 
 /**

@@ -1,28 +1,30 @@
+import { ENUM_STATUS } from '@app/shared/constants/enum';
 import { getMetadataAggregate, toMongoObjectId } from '@app/shared/mongodb';
 import { MongoDB } from '@app/shared/mongodb/types/mongodb.type';
 import {
-  checkValidTimestamp,
-  endOfDay,
-  startOfDay,
+	checkValidTimestamp,
+	endOfDay,
+	startOfDay,
 } from '@app/shared/utils/dates.utils';
 import {
-  getPageSkipLimit,
-  isEmptyValue,
+	getPageSkipLimit,
+	isEmptyValue,
 } from '@app/shared/utils/function.utils';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 import * as lodash from 'lodash';
 import {
-  Expression,
-  FilterQuery,
-  PipelineStage,
-  isValidObjectId,
+	Expression,
+	FilterQuery,
+	PipelineStage,
+	isValidObjectId,
 } from 'mongoose';
 
 export class AbstractFilterQueryDto {
 	@IsOptional()
 	@Exclude()
-	private searchFieldsList: string[] = ['code', 'name'];
+	public searchFieldsList: string[] = ['code', 'name'];
 
 	@IsOptional()
 	@Exclude()
@@ -54,38 +56,60 @@ export class AbstractFilterQueryDto {
 	code?: string;
 
 	@IsOptional()
+	@ApiPropertyOptional({ type: Number, example: 1 })
 	page?: number = 1;
 
 	@IsOptional()
+	@ApiPropertyOptional({ type: Number, example: 20 })
 	limit?: number = 20;
 
 	@IsOptional()
-	@Transform(({ value }) => startOfDay(value))
+	@Transform(({ value }) => value && startOfDay(value))
+	@ApiPropertyOptional({ example: '2023-09-01' })
 	from_date?: Date;
 
 	@IsOptional()
-	@Transform(({ value }) => endOfDay(value))
+	@Transform(({ value }) => value && endOfDay(value))
+	@ApiPropertyOptional({ example: '2023-09-01' })
 	to_date?: Date;
 
 	@IsOptional()
+	@ApiPropertyOptional({ enum: ENUM_STATUS, example: 'ACTIVE' })
 	status?: string;
 
 	@IsOptional()
 	@IsString()
+	@ApiPropertyOptional({ example: 'John Doe' })
 	q?: string;
 
 	@IsOptional()
-	created_by_user?: MongoDB.MongoId = null;
+	@ApiPropertyOptional({ type: String, example: '64f752075dd853fa9549edbf' })
+	@Transform(({ value }) => value && toMongoObjectId(value))
+	created_by_user?: string = null;
 
 	@IsOptional()
-	updated_by_user?: MongoDB.MongoId = null;
+	@ApiPropertyOptional({ type: String, example: '64f752075dd853fa9549edbf' })
+	@Transform(({ value }) => value && toMongoObjectId(value))
+	updated_by_user?: string = null;
 
 	@IsOptional()
-	deleted_by_user?: MongoDB.MongoId = null;
+	@ApiPropertyOptional({ type: String, example: '64f752075dd853fa9549edbf' })
+	@Transform(({ value }) => value && toMongoObjectId(value))
+	deleted_by_user?: string = null;
 
 	@IsOptional()
 	@Transform(({ value }) => value?.toLowerCase() === 'true')
+	@ApiPropertyOptional({ type: Boolean, example: false })
 	include_soft_delete = false;
+
+	@IsOptional()
+	@ApiPropertyOptional({
+		type: Boolean,
+		example: true,
+		description: 'Cho phép người dùng khác được thấy',
+	})
+	@Transform(({ value }) => value?.toLowerCase() === 'true')
+	allow_show_for_all: boolean = true;
 
 	get QueryFilter(): FilterQuery<any> {
 		return this.mappingQueryFilterMatch();
@@ -103,8 +127,16 @@ export class AbstractFilterQueryDto {
 		return { $match: this.mappingQueryFilterMatch() };
 	}
 
+	AggregateQueryFilterAlias(alias: string = ''): PipelineStage.Match {
+		return { $match: this.mappingQueryFilterMatch(alias) };
+	}
+
 	get AggregateQuerySearch(): PipelineStage.Match {
 		return { $match: this.mappingQuerySearchMatch() };
+	}
+
+	AggregateQuerySearchAlias(alias: string = ''): PipelineStage.Match {
+		return { $match: this.mappingQuerySearchMatch(alias) };
 	}
 
 	get FacetResponseResultAndMetadata(): Array<
@@ -146,13 +178,18 @@ export class AbstractFilterQueryDto {
 		];
 	}
 
-	private mappingQueryFilterMatch() {
+	private mappingQueryFilterMatch(alias: string = '') {
 		return Object.entries(this).reduce((queryFilter, [fieldName, val]) => {
 			fieldName = this.mappingFieldName(fieldName);
 
 			if (!this.isValidField(fieldName, val)) return queryFilter;
 
-			this.generateMongoKeyValueForQueryFilter(queryFilter, fieldName, val);
+			this.generateMongoKeyValueForQueryFilter(
+				queryFilter,
+				fieldName,
+				val,
+				alias,
+			);
 
 			return queryFilter;
 		}, {});
@@ -162,37 +199,38 @@ export class AbstractFilterQueryDto {
 		queryFilter,
 		fieldName,
 		val,
+		alias: string = '',
 	): void {
 		const { prefixKey, originalKey } =
 			this.analyzePrefixAndOriginalKey(fieldName);
-
+		const filterKey = [alias, originalKey].filter(Boolean).join('.');
 		const formatValue = this.formatMongoValue(fieldName, val);
 
 		switch (prefixKey) {
 			case 'from':
-				queryFilter[originalKey] = {
+				queryFilter[filterKey] = {
 					...queryFilter[originalKey],
 					$gte: formatValue,
 				};
 				return;
 			case 'to':
-				queryFilter[originalKey] = {
+				queryFilter[filterKey] = {
 					...queryFilter[originalKey],
 					$lte: formatValue,
 				};
 				break;
 			case 'in':
-				queryFilter[originalKey] = { $in: formatValue };
+				queryFilter[filterKey] = { $in: formatValue };
 				break;
 			case 'all':
-				queryFilter[originalKey] = { $all: formatValue };
+				queryFilter[filterKey] = { $all: formatValue };
 				break;
 			case 'elemMatch':
 				const elemMatchValue = this.setValueForElemMatchOperator(formatValue);
-				queryFilter[originalKey] = { $elemMatch: elemMatchValue };
+				queryFilter[filterKey] = { $elemMatch: elemMatchValue };
 				break;
 			default:
-				queryFilter[originalKey] = formatValue;
+				queryFilter[filterKey] = formatValue;
 		}
 	}
 
@@ -226,23 +264,31 @@ export class AbstractFilterQueryDto {
 		return value;
 	}
 
-	private mappingQuerySearchMatch() {
+	private mappingQuerySearchMatch(alias: string = '') {
 		const searchKeyword = this.q;
 		if (!searchKeyword) return {};
+		const searchKey = (fieldName) =>
+			[alias, fieldName].filter(Boolean).join('.');
 		return {
 			$or: this.searchFieldsList.map((fieldName) => ({
-				[fieldName]: new RegExp(searchKeyword, 'gi'),
+				[searchKey(fieldName)]: new RegExp(searchKeyword, 'i'),
 			})),
 		};
 	}
 
 	protected mappingFieldName(fieldName: string) {
-		const changeRequireList = {
+		const changeRequireList: any = {
 			[fieldName]: fieldName,
 			from_date: 'from_updated_at',
 			to_date: 'to_updated_at',
 			include_soft_delete: 'deleted_at',
 		};
+
+		if (this.allow_show_for_all) {
+			delete changeRequireList.created_by_user;
+			delete changeRequireList.upadated_by_user;
+			delete changeRequireList.deleted_by_user;
+		}
 
 		return changeRequireList[fieldName];
 	}
@@ -283,6 +329,7 @@ export class AbstractFilterQueryDto {
 
 	isValidField(fieldName, value) {
 		return (
+			fieldName &&
 			!this.isPagingField(fieldName) &&
 			!this.isSearchField(fieldName) &&
 			!this.isExcludedFields(fieldName) &&

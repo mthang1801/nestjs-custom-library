@@ -14,11 +14,9 @@ import { VideoRepository } from './video.repository';
 @Injectable()
 export class VideoService extends AbstractService<VideoDocument> {
 	logger = new Logger(VideoService.name);
-	constructor(
-		private readonly videoRepository: VideoRepository,
-		private readonly utilService: UtilService,
-	) {
+	constructor(private readonly videoRepository: VideoRepository) {
 		super(videoRepository);
+		this.name = VideoService.name;
 	}
 
 	async uploadVideo(file: Express.Multer.File) {

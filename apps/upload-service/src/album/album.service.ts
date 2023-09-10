@@ -7,6 +7,7 @@ export class AlbumService extends AbstractService<AlbumDocument> {
 	logger = new Logger(AlbumService.name);
 	constructor(readonly albumRepository: AlbumRepository) {
 		super(albumRepository);
+		this.name = AlbumService.name;
 	}
 
 	async uploadAlbum(file: Express.Multer.File) {

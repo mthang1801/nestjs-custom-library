@@ -4,10 +4,12 @@ import {
 	ClientSession,
 	FilterQuery,
 	ObjectId,
+	PipelineStage,
 	ProjectionType,
 	SaveOptions,
 	UpdateQuery,
 } from 'mongoose';
+import { PipelineOptions } from 'stream';
 export interface Write<T> {
 	create(
 		payload: Partial<T> | Partial<T>[],
@@ -81,6 +83,10 @@ export interface Read<T> {
 	): Promise<AbstractType.FindAndCountAllResponse<T>>;
 
 	aggregateBuilder(): Aggregate<any>;
+	aggregate(
+		pipeline: PipelineStage[],
+		options?: PipelineOptions,
+	): Aggregate<Array<T>>;
 }
 
 export interface IAbstractRepository<T> extends Write<T>, Read<T> {}

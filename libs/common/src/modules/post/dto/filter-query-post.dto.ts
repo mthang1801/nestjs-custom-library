@@ -1,4 +1,4 @@
-import { AbstractFilterQueryDto } from '@app/shared/abstract/dto/abstract-query-filter.dto';
+import { AbstractFilterQueryDto } from '@app/shared/abstract/dto/abstract-filter-query.dto';
 import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 

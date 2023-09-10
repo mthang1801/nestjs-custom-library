@@ -21,8 +21,10 @@ module.exports = {
 		'@typescript-eslint/explicit-function-return-type': 'off',
 		'@typescript-eslint/explicit-module-boundary-types': 'off',
 		'@typescript-eslint/no-explicit-any': 'off',
+		'@typescript-eslint/prefer-const': false,
 		'prettier/prettier': 'error',
-    "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/no-unnecessary-type-constraint":"off"
+		'@typescript-eslint/no-namespace': 'off',
+		'@typescript-eslint/no-unnecessary-type-constraint': 'off',
+		'eslint-disable-next-line @typescript-eslint/ban-types': 'off',
 	},
 };

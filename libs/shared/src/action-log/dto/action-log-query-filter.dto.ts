@@ -1,4 +1,4 @@
-import { AbstractFilterQueryDto } from '@app/shared/abstract/dto/abstract-query-filter.dto';
+import { AbstractFilterQueryDto } from '@app/shared/abstract/dto/abstract-filter-query.dto';
 import {
   ENUM_ACTION_LOG_DATA_SOURCE,
   ENUM_ACTION_TYPE,

@@ -43,6 +43,16 @@ export namespace MongoDB {
 		as?: string;
 		condition?: PipelineStage.Match | any;
 	};
+	export type LookupRecursion = {
+		from?: string;
+		localField?: string;
+		foreignField?: string;
+		as?: string;
+		searchFilterQuery?: Record<string, any>;
+		pipeline?: any;
+		currentLevel?: number;
+		maxDepthLevel?: number;
+	};
 	export type Metadata = {
 		perPage: number;
 		currentPage: number;

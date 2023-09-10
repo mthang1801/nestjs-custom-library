@@ -4,29 +4,38 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import * as lodash from 'lodash';
 import {
-  Aggregate,
-  ClientSession,
-  FilterQuery,
-  Model,
-  ObjectId,
-  PipelineStage,
-  ProjectionType,
-  SaveOptions,
-  UpdateQuery,
+	Aggregate,
+	ClientSession,
+	FilterQuery,
+	Model,
+	ObjectId,
+	PipelineStage,
+	ProjectionType,
+	SaveOptions,
+	UpdateQuery,
 } from 'mongoose';
 import { PipelineOptions } from 'stream';
 import { LibActionLogService } from '../action-log';
-
-import { ENUM_ACTION_TYPE } from '../constants/enum';
-import { toMongoObjectId } from '../mongodb';
-import { LibMongoService } from '../mongodb/mongodb.service';
 import { ENUM_EVENT_PATTERN, ENUM_QUEUES, RMQClientService } from '../rabbitmq';
 import { ActionLog } from '../schemas';
 import { AbstractSchema } from '../schemas/abstract.schema';
-import { convertToNumber, typeOf } from '../utils/function.utils';
+import {
+	convertToNumber,
+	getPageSkipLimit,
+	typeOf,
+} from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
 import { IAbstractRepository } from './interfaces';
 import { AbstractType } from './types/abstract.type';
+import { ENUM_ACTION_TYPE } from '../constants/enum';
+import { LibMongoService } from '../mongodb/mongodb.service';
+import {
+	LookupRecursion,
+	getMetadataAggregate,
+	matchLookupRecursionSearchFilterQueryCondition,
+	toMongoObjectId,
+} from '../mongodb';
+import { AbstractFilterQueryDto } from './dto/abstract-filter-query.dto';
 
 @Injectable()
 export abstract class AbstractRepository<T extends AbstractSchema>
@@ -37,7 +46,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 	public secondaryModel: Model<T> = null;
 	public modelInfo: AbstractType.ModelInfo = null;
 	public collectionName: string = null;
-	private aggregate: Aggregate<any> = null;
+	private _aggregateBuilder: Aggregate<any> = null;
 	protected eventEmitter: EventEmitter2 = null;
 	protected utilService: UtilService = null;
 	protected configService: ConfigService = null;
@@ -494,15 +503,19 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 
 	aggregateBuilder(): Aggregate<any> {
 		return (
-			this.aggregate ??
-			(this.aggregate = this.secondaryModel.aggregate().allowDiskUse(true))
+			this._aggregateBuilder ??
+			(this._aggregateBuilder = this.secondaryModel
+				.aggregate()
+				.allowDiskUse(true))
 		);
 	}
 
-	setAggregate<T extends any>(
+	aggregate<T extends any>(
 		pipeline: PipelineStage[],
-		options: PipelineOptions,
+		options?: PipelineOptions,
 	): Aggregate<Array<T>> {
+		this.logger.log(JSON.stringify(pipeline, null, 4), 'Aggregate Pipeline');
+
 		return this.secondaryModel.aggregate(pipeline, {
 			allowDiskUse: true,
 			...options,
@@ -531,5 +544,80 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			}
 		}
 		return lodash.keys(this.modelInfo.schema.paths);
+	}
+
+	async aggregateFindAllRecursion<
+		T extends AbstractFilterQueryDto,
+		R extends any,
+	>(params: T): Promise<AbstractType.ResponseDataAndMetadata<R>> {
+		const { limit, skip, page } = getPageSkipLimit(params);
+		const [{ data, metadata }]: Array<AbstractType.ResponseDataAndMetadata<R>> =
+			await this.aggregate(
+				[
+					{ $match: this.findMatchConditionBeforeRecursion(params) },
+					LookupRecursion({
+						from: 'menu_functions',
+						localField: '_id',
+						foreignField: 'parent',
+						as: 'children',
+						searchFilterQuery: params.SearchFilterQuery,
+						maxDepthLevel: params['max_level'],
+					}),
+					//TODO: Filter chỉ lấy root, level 0
+					{
+						$match: {
+							parent: null,
+						},
+					},
+					//TODO: Search Filter cho root
+					{
+						$match: matchLookupRecursionSearchFilterQueryCondition(
+							params.SearchFilterQuery,
+						),
+					},
+					{
+						$facet: {
+							data: [
+								{
+									$sort: params.sortFieldsDict,
+								},
+								{
+									$skip: skip,
+								},
+								{
+									$limit: limit,
+								},
+								lodash.isEmpty(params.addFieldList)
+									? null
+									: {
+											$addFields: params.addFieldList,
+									  },
+								lodash.isEmpty(params.projectFieldList)
+									? null
+									: {
+											$project: params.projectFieldList,
+									  },
+							].filter(Boolean),
+							metadata: getMetadataAggregate(page, limit),
+						},
+					},
+					{
+						$set: {
+							metadata: { $first: '$metadata' },
+						},
+					},
+				].filter(Boolean),
+			);
+
+		return { data, metadata };
+	}
+
+	findMatchConditionBeforeRecursion(params: any): Record<string, any> {
+		const condition: any = {};
+		if (params.max_level) {
+			condition.level = { $lte: params.max_level };
+		}
+
+		return condition;
 	}
 }

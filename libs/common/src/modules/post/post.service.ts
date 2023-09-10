@@ -14,6 +14,7 @@ export class PostService extends AbstractService<PostsDocument> {
 	logger = new Logger(PostService.name);
 	constructor(private readonly postRepository: PostRepository) {
 		super(postRepository);
+		this.name = PostService.name;
 	}
 
 	async findAll({ QuerySearchFilter }: PostFilterQueryDto) {

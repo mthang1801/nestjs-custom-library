@@ -1,4 +1,4 @@
-import { AbstractFilterQueryDto } from '@app/shared/abstract/dto/abstract-query-filter.dto';
+import { AbstractFilterQueryDto } from '@app/shared/abstract/dto/abstract-filter-query.dto';
 
 export const generalFieldsPattern = Object.keys(new AbstractFilterQueryDto());
 

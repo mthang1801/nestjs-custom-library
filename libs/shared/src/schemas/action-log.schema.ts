@@ -3,8 +3,8 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import mongoose from 'mongoose';
 import SchemaCustom from '../abstract/schema-option';
 import {
-  ENUM_ACTION_LOG_DATA_SOURCE,
-  ENUM_ACTION_TYPE,
+	ENUM_ACTION_LOG_DATA_SOURCE,
+	ENUM_ACTION_TYPE,
 } from '../constants/enum';
 
 @SchemaCustom({ collection: 'action_logs', strict: false, autoIndex: true })
@@ -92,4 +92,3 @@ ActionLogSchema.index({
 });
 
 export { ActionLogSchema };
-
