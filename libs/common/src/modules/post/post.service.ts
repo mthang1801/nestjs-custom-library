@@ -1,6 +1,6 @@
 import { AbstractService, Posts, PostsDocument, User } from '@app/shared';
 import { AbstractType } from '@app/shared/abstract/types/abstract.type';
-import { ActionLogQueryFilterDto } from '@app/shared/action-log/dto/action-log-query-filter.dto';
+import { ActionLogFilterQueryDto } from '@app/shared/action-log/dto/action-log-filter-query.dto';
 import { ENUM_STATUS } from '@app/shared/constants/enum';
 import * as postData from '@app/shared/data/post.json';
 import { Injectable, Logger } from '@nestjs/common';
@@ -14,26 +14,25 @@ export class PostService extends AbstractService<PostsDocument> {
 	logger = new Logger(PostService.name);
 	constructor(private readonly postRepository: PostRepository) {
 		super(postRepository);
-		this.name = PostService.name;
 	}
 
-	async findAll({ QuerySearchFilter }: PostFilterQueryDto) {
-		return this._findAndCountAll(QuerySearchFilter, {
+	async findAll({ SearchFilterQuery }: PostFilterQueryDto) {
+		return this._findAndCountAll(SearchFilterQuery, {
 			includeSoftDelete: false,
 		});
 	}
 
 	async aggregate({
-		AggregateQueryFilter,
-		AggregateQuerySearch,
+		AggregateFilterQuery,
+		AggregateSearchQuery,
 		FacetResponseResultAndMetadata,
 	}: PostFilterQueryDto) {
 		const [{ data, metadata }] = await this._aggregate<
 			AbstractType.ResponseDataAndMetadata<Posts>
 		>(
 			[
-				AggregateQueryFilter,
-				AggregateQuerySearch,
+				AggregateFilterQuery,
+				AggregateSearchQuery,
 				FacetResponseResultAndMetadata,
 			]
 				.filter(Boolean)
@@ -55,14 +54,15 @@ export class PostService extends AbstractService<PostsDocument> {
 		);
 	}
 
-	async findActionLogs(query: ActionLogQueryFilterDto) {
+	async findActionLogs(query: ActionLogFilterQueryDto) {
 		return this._findActionLogs(query);
 	}
 
 	async create(createPostDto: CreatePostDto) {
-		for (let i = 0; i <= Math.ceil(postData.length / 100); i++) {
-			await this._create(postData.slice(i * 100, (i + 1) * 100) as any[]);
-		}
+    await this._create(createPostDto as any)
+		// for (let i = 0; i <= Math.ceil(postData.length / 100); i++) {
+		// 	await this._create(postData.slice(i * 100, (i + 1) * 100) as any[]);
+		// }
 	}
 
 	saveLog(saveLogDto: SaveLogDto, user: User) {

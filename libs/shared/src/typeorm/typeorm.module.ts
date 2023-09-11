@@ -5,12 +5,12 @@ import * as Joi from 'joi';
 import { TypeORMDynamicModuleOptions } from './interfaces/typeorm-dynamic-module-options.interface';
 
 @Module({})
-export class TypeORMDynamicModule {
+export class LibTypeORMModule {
 	static forRootAsync({
 		logger = true,
 	}: TypeORMDynamicModuleOptions): DynamicModule {
 		return {
-			module: TypeORMDynamicModule,
+			module: LibTypeORMModule,
 			imports: [
 				ConfigModule.forRoot({
 					isGlobal: true,

@@ -21,12 +21,13 @@ import {
 } from 'mongoose';
 import { I18nService } from 'nestjs-i18n';
 import { PipelineOptions } from 'stream';
-import { ActionLogQueryFilterDto } from '../action-log/dto/action-log-query-filter.dto';
+import { ActionLogFilterQueryDto } from '../action-log/dto/action-log-filter-query.dto';
 import { ENUM_MODEL } from '../constants/enum';
 import { LibMongoService } from '../mongodb/mongodb.service';
 import { getPageSkipLimit } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
 import { AbstractRepository } from './abstract.repository';
+import { AbstractFilterQueryDto } from './dto/abstract-filter-query.dto';
 
 @Injectable()
 export abstract class AbstractService<
@@ -179,7 +180,7 @@ export abstract class AbstractService<
 		pipeline: PipelineStage[],
 		options?: PipelineOptions,
 	): Promise<Array<T>> {
-		return this.repository.setAggregate<T>(pipeline, options);
+		return this.repository.aggregate<T>(pipeline, options);
 	}
 
 	protected async _aggregateBuilder() {
@@ -194,8 +195,8 @@ export abstract class AbstractService<
 		});
 	}
 
-	public async _findActionLogs(query: ActionLogQueryFilterDto) {
-		const [{ data, metadata }] = await this.mongoService.aggregate(
+	public async _findActionLogs(query: ActionLogFilterQueryDto) {
+		const [{ data, meta }] = await this.mongoService.aggregate(
 			ENUM_MODEL.ACTION_LOG,
 			[
 				this.stageFilterQuery(query),
@@ -206,11 +207,11 @@ export abstract class AbstractService<
 				.flat(1),
 		);
 
-		return { items: data, metadata };
+		return { items: data, metadata: meta };
 	}
 
-	stageFilterQuery(query: ActionLogQueryFilterDto) {
-		const filterQuery: Partial<ActionLogQueryFilterDto> = {};
+	stageFilterQuery(query: ActionLogFilterQueryDto) {
+		const filterQuery: Partial<ActionLogFilterQueryDto> = {};
 
 		filterQuery.collection_name =
 			query.collection_name ?? this.modelInfo.collectionName;
@@ -239,7 +240,7 @@ export abstract class AbstractService<
 	}
 
 	stageSearchQuery(
-		query: ActionLogQueryFilterDto,
+		query: ActionLogFilterQueryDto,
 	): Array<
 		| PipelineStage.Search
 		| PipelineStage.AddFields
@@ -259,7 +260,7 @@ export abstract class AbstractService<
 	}
 
 	stageFacetDataAndMeta(
-		query: ActionLogQueryFilterDto,
+		query: ActionLogFilterQueryDto,
 	): Array<PipelineStage.Facet | PipelineStage.Set> {
 		const { page, skip, limit } = getPageSkipLimit(query);
 		return [
@@ -278,16 +279,23 @@ export abstract class AbstractService<
 							$limit: limit,
 						},
 					],
-					metadata: getMetadataAggregate(page, limit),
+					meta: getMetadataAggregate(page, limit),
 				},
 			},
 			{
 				$set: {
-					metadata: {
-						$first: '$metadata',
+					meta: {
+						$first: '$meta',
 					},
 				},
 			},
 		];
+	}
+
+	protected async _aggregateFindAllRecursion<
+		T extends AbstractFilterQueryDto,
+		R extends any,
+	>(params: T): Promise<AbstractType.ResponseDataAndMetadata<R>> {
+		return this.repository.aggregateFindAllRecursion<T, R>(params);
 	}
 }

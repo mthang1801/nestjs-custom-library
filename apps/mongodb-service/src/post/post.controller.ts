@@ -4,7 +4,7 @@ import { SaveLogDto } from '@app/common/modules/post/dto/save-log.dto';
 import { UpdatePostDto } from '@app/common/modules/post/dto/update-post.dto';
 import { PostService } from '@app/common/modules/post/post.service';
 import { User } from '@app/shared';
-import { ActionLogQueryFilterDto } from '@app/shared/action-log/dto/action-log-query-filter.dto';
+import { ActionLogFilterQueryDto } from '@app/shared/action-log/dto/action-log-filter-query.dto';
 import { UserAuth } from '@app/shared/decorators';
 import {
   Body,
@@ -36,7 +36,7 @@ export class PostController {
 	}
 
 	@Get('action-logs')
-	async findActionLogs(@Query() query: ActionLogQueryFilterDto) {
+	async findActionLogs(@Query() query: ActionLogFilterQueryDto) {
 		return this.postService.findActionLogs(query);
 	}
 

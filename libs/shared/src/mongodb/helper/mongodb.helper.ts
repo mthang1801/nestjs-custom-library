@@ -3,6 +3,7 @@ import mongoose, { PipelineStage } from 'mongoose';
 import { MongoDB } from '../types/mongodb.type';
 
 export const $missingTypes = [{}, [], null, undefined];
+
 export const $getMetadataAggregate = (
 	currentPage: number,
 	limit: number,
@@ -119,7 +120,6 @@ export const LookupRecursion = ({
 	pipeline = undefined,
 	searchFilterQuery = [],
 }: MongoDB.LookupRecursion): PipelineStage.Lookup => {
-	console.log('LookupRecursion::', maxDepthLevel);
 	localField = replaceStartWithDollarSign(localField);
 	foreignField = replaceStartWithDollarSign(foreignField);
 	const alias = as ?? from;

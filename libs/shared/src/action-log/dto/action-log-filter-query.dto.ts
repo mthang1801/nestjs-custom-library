@@ -6,7 +6,7 @@ import {
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional } from 'class-validator';
 
-export class ActionLogQueryFilterDto extends AbstractFilterQueryDto {
+export class ActionLogFilterQueryDto extends AbstractFilterQueryDto {
 	@IsOptional()
 	@ApiPropertyOptional()
 	collection_name?: string;

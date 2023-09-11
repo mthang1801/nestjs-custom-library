@@ -10,7 +10,6 @@ export class UserService extends AbstractService<UserDocument> {
 	logger = new Logger(UserService.name);
 	constructor(readonly userRepository: UserRepository) {
 		super(userRepository);
-    this.name = UserService.name;
 	}
 
 	async generateRawAndHashedPassword(password: string) {

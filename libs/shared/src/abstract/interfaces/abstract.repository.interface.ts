@@ -10,6 +10,7 @@ import {
 	UpdateQuery,
 } from 'mongoose';
 import { PipelineOptions } from 'stream';
+import { AbstractFilterQueryDto } from '../dto/abstract-filter-query.dto';
 export interface Write<T> {
 	create(
 		payload: Partial<T> | Partial<T>[],
@@ -87,6 +88,10 @@ export interface Read<T> {
 		pipeline: PipelineStage[],
 		options?: PipelineOptions,
 	): Aggregate<Array<T>>;
+
+	aggregateFindAllRecursion<T extends AbstractFilterQueryDto, R extends any>(
+		params: T,
+	): Promise<AbstractType.ResponseDataAndMetadata<R>>;
 }
 
 export interface IAbstractRepository<T> extends Write<T>, Read<T> {}

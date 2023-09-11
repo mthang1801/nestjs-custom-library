@@ -15,7 +15,7 @@ import { ActionLog } from '../schemas';
 import { getPageSkipLimit, typeOf } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
 import { LibActionLogRepository } from './action-log.repository';
-import { ActionLogQueryFilterDto } from './dto/action-log-query-filter.dto';
+import { ActionLogFilterQueryDto } from './dto/action-log-filter-query.dto';
 import { SaveCustomActionLogDto } from './dto/save-custom-action-log.dto';
 
 @Injectable()
@@ -182,7 +182,7 @@ export class LibActionLogService {
 		return this.actionLogRepository.primaryModel.create(payload);
 	}
 
-	public async findAll(query: ActionLogQueryFilterDto) {
+	public async findAll(query: ActionLogFilterQueryDto) {
 		const [{ data, meta }] =
 			await this.actionLogRepository.secondaryModel.aggregate(
 				[
@@ -197,8 +197,8 @@ export class LibActionLogService {
 		return { items: data, metadata: meta };
 	}
 
-	stageFilterQuery(query: ActionLogQueryFilterDto) {
-		const filterQueryResult: Partial<ActionLogQueryFilterDto> = {};
+	stageFilterQuery(query: ActionLogFilterQueryDto) {
+		const filterQueryResult: Partial<ActionLogFilterQueryDto> = {};
 
 		if (query.collection_name)
 			filterQueryResult.collection_name = query.collection_name;
@@ -222,7 +222,7 @@ export class LibActionLogService {
 	}
 
 	stageSearchQuery(
-		query: ActionLogQueryFilterDto,
+		query: ActionLogFilterQueryDto,
 	): Array<
 		| PipelineStage.Search
 		| PipelineStage.AddFields
@@ -241,7 +241,7 @@ export class LibActionLogService {
 		];
 	}
 
-	stageFacetDataAndMeta(query: ActionLogQueryFilterDto): PipelineStage.Facet {
+	stageFacetDataAndMeta(query: ActionLogFilterQueryDto): PipelineStage.Facet {
 		const { page, skip, limit } = getPageSkipLimit(query);
 		return {
 			$facet: {

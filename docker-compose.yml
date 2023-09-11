@@ -1,8 +1,57 @@
 version: '3.9'
 services:
+  mongodb-primary:
+    image: bitnami/mongodb:latest
+    hostname: mongodb-primary
+    networks:
+      - mongo-cluster
+    volumes:
+      - mongo_master_data:/bitnami
+    environment:
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=admin123
+      - MONGODB_USERNAME=admin
+      - MONGODB_PASSWORD=admin123
+      - MONGODB_DATABASE=test
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    ports:
+      - 27017:27017
+
+  mongodb-secondary:
+    image: bitnami/mongodb:latest
+    hostname: mongodb-secondary
+    networks:
+      - mongo-cluster
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGODB_PRIMARY_HOST=mongodb-primary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=admin123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+
+  redis:
+    image: bitnami/redis:latest
+    hostname: redis
+    container_name: redis
+    volumes:
+      - redis-data:/bitnami/redis/data
+    environment:
+      - REDIS_IO_THREADS=4
+      # - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+      # - REDIS_IO_THREADS_DO_READS=true
+      - REDIS_PASSWORD=admin123
+    ports:
+      - 6379:6379
+
   rabbitmq:
-    container_name: rabbitmq
     image: rabbitmq:3-management
+    hostname: rabbitmq
+    container_name: rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=root
       - RABBITMQ_DEFAULT_PASS=admin123
@@ -10,154 +59,10 @@ services:
       - '5672:5672'
       - '15672:15672'
 
-  redis:
-    image: bitnami/redis:latest
-    hostname: redis 
-    container_name: redis 
-    volumes:
-      - redis-data:/bitnami/redis/data
-    environment: 
-      - ALLOW_EMPTY_PASSWORD=yes
-      # - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
-    ports: 
-      - 6379:63799
-
-
-  mongo:
-    container_name: mongo
-    image: mongo
-    expose:
-      - 27017
-    ports:
-      - 27017:27017
-    restart: always
-    environment: 
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=admin123
-
-  # mongo-primary:
-  #   container_name: mongo-primary
-  #   hostname: mongo-primary
-  #   image: mongo
-  #   expose:
-  #     - 27017
-  #   ports:
-  #     - 27017:27017
-  #   restart: always
-  #   command: >
-  #     mongod --replSet mongo-set
-  #   networks:
-  #     - mongo-cluster
-
-  # mongo-secondary:
-  #   container_name: mongo-secondary
-  #   hostname: mongo-secondary
-  #   image: mongo
-  #   expose:
-  #     - 27017
-  #   ports:
-  #     - 27018:27017
-  #   restart: always
-  #   command: mongod --replSet mongo-set
-  #   networks:
-  #     - mongo-cluster
-  #   depends_on:
-  #     - mongo-primary
-
-  # mongo-arbiter:
-  #   container_name: mongo-arbiter
-  #   hostname: mongo-arbiter
-  #   image: mongo
-  #   expose:
-  #     - 27017
-  #   ports:
-  #     - 27019:27017
-  #   restart: always
-  #   command: mongod --replSet mongo-set
-  #   networks:
-  #     - mongo-cluster
-  #   depends_on:
-  #     - mongo-primary
-
-  # # # finally, we can define the initialization server
-  # # # this runs the `rs.initiate` command to intialize
-  # # # the replica set and connect the three servers to each other
-  # mongoinit:
-  #   image: mongo
-  #   # this container will exit after executing the command
-  #   restart: 'no'
-  #   networks:
-  #     - mongo-cluster
-  #   depends_on:
-  #     - mongo-primary
-  #     - mongo-secondary
-  #     - mongo-arbiter
-  #   command: >
-  #     mongosh --host mongo-primary:27017 --eval
-  #     '
-  #     db = (new Mongo("mongo-primary:27017")).getDB("test");
-  #     config = {
-  #     "_id" : "mongo-set",
-  #     "members" : [
-  #       {
-  #         "_id" : 0,
-  #         "host" : "mongo-primary:27017"
-  #       },
-  #       {
-  #         "_id" : 1,
-  #         "host" : "mongo-secondary:27017"
-  #       },
-  #       {
-  #         "_id" : 2,
-  #         "host" : "mongo-arbiter:27017"
-  #       }
-  #     ]
-  #     };
-  #     rs.initiate(config);
-  #     '
-
-  # mysql:
-  #   container_name: mysql
-  #   image: mysql:8.0.32
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: admin123
-  #     MYSQL_DATABASE: test
-  #   ports:
-  #     - '3306:3306'
-  #   restart: always
-
-  # zookeeper:
-  #   container_name: zookeeper
-  #   hostname: zookeeper
-  #   image: confluentinc/cp-zookeeper:7.3.2
-  #   ports:
-  #     - '2181:2181'
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 2181
-  #     ZOOKEEPER_TICK_TIME: 2000
-
-  # kafka:
-  #   container_name: kafka
-  #   hostname: kafka
-  #   image: confluentinc/cp-kafka:7.3.2
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - '29092:29092'
-  #     - '9092:9092'
-  #   environment:
-  #     KAFKA_BROKER_ID: 1
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #     KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-  #     KAFKA_DELETE_TOPIC_ENABLE: 'true'
-
 volumes:
-  mongodb_master_data:
+  mongo_master_data: 
     driver: local
-  redis-data : 
+  redis-data:
     driver: local
 networks:
   mongo-cluster: {}

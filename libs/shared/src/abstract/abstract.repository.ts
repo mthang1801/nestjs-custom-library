@@ -4,38 +4,38 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientProxy } from '@nestjs/microservices';
 import * as lodash from 'lodash';
 import {
-	Aggregate,
-	ClientSession,
-	FilterQuery,
-	Model,
-	ObjectId,
-	PipelineStage,
-	ProjectionType,
-	SaveOptions,
-	UpdateQuery,
+  Aggregate,
+  ClientSession,
+  FilterQuery,
+  Model,
+  ObjectId,
+  PipelineStage,
+  ProjectionType,
+  SaveOptions,
+  UpdateQuery,
 } from 'mongoose';
 import { PipelineOptions } from 'stream';
 import { LibActionLogService } from '../action-log';
+import { ENUM_ACTION_TYPE } from '../constants/enum';
+import {
+  LookupRecursion,
+  getMetadataAggregate,
+  matchLookupRecursionSearchFilterQueryCondition,
+  toMongoObjectId,
+} from '../mongodb';
+import { LibMongoService } from '../mongodb/mongodb.service';
 import { ENUM_EVENT_PATTERN, ENUM_QUEUES, RMQClientService } from '../rabbitmq';
 import { ActionLog } from '../schemas';
 import { AbstractSchema } from '../schemas/abstract.schema';
 import {
-	convertToNumber,
-	getPageSkipLimit,
-	typeOf,
+  convertToNumber,
+  getPageSkipLimit,
+  typeOf,
 } from '../utils/function.utils';
 import { UtilService } from '../utils/util.service';
+import { AbstractFilterQueryDto } from './dto/abstract-filter-query.dto';
 import { IAbstractRepository } from './interfaces';
 import { AbstractType } from './types/abstract.type';
-import { ENUM_ACTION_TYPE } from '../constants/enum';
-import { LibMongoService } from '../mongodb/mongodb.service';
-import {
-	LookupRecursion,
-	getMetadataAggregate,
-	matchLookupRecursionSearchFilterQueryCondition,
-	toMongoObjectId,
-} from '../mongodb';
-import { AbstractFilterQueryDto } from './dto/abstract-filter-query.dto';
 
 @Injectable()
 export abstract class AbstractRepository<T extends AbstractSchema>
@@ -90,7 +90,7 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 			options as any,
 		)) as T[];
 
-		//TODO: Save action info
+		//TODO: Save action logs
 		if (options?.enableSaveAction !== false) {
 			this.handleLoggingAction<T | T[]>({
 				new_data: newData,
@@ -98,6 +98,13 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 				input_payload: payloadData,
 			});
 		}
+
+		//TODO: Save action Info
+		await Promise.all(
+			newData.map(async ({ id }) => {
+				await this.saveInfo(id);
+			}),
+		);
 
 		return typeOf(payload) === 'array' ? newData : newData.at(0);
 	}
@@ -612,12 +619,16 @@ export abstract class AbstractRepository<T extends AbstractSchema>
 		return { data, metadata };
 	}
 
-	findMatchConditionBeforeRecursion(params: any): Record<string, any> {
+	private findMatchConditionBeforeRecursion(params: any): Record<string, any> {
 		const condition: any = {};
 		if (params.max_level) {
 			condition.level = { $lte: params.max_level };
 		}
-
 		return condition;
+	}
+
+	async saveInfo(id) {
+		const response = await this.findById(id);
+		console.log(response);
 	}
 }
