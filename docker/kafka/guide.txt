@@ -1,0 +1,4 @@
+1. docker-compose up -d
+2. docker exec -it kafka bin/bash
+3. cd /opt/kafka/bin
+4. kafka-topics.sh --create --topic quickstart --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1

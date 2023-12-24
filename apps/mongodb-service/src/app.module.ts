@@ -1,12 +1,13 @@
 import { AuthGuard } from '@app/common/modules/auth/guards/auth.guard';
 import {
   AllExceptionsFilter,
+  LibActionLogModule,
   LibMongoModule
 } from '@app/shared';
 import { LibCoreModule } from '@app/shared/core/core.module';
 import { LibI18nModule } from '@app/shared/i18n';
 import { TransformInterceptor } from '@app/shared/interceptors/transform.interceptor';
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module, ValidationPipe, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import * as Joi from 'joi';
@@ -38,6 +39,7 @@ import { UserModule } from './user/user.module';
 		AuthModule,
 		UserModule,
 		PostModule,
+    forwardRef(() => LibActionLogModule),
 	],
 	controllers: [],
 	providers: [

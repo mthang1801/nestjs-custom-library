@@ -34,7 +34,6 @@ import { LibUtilModule } from '../utils/util.module';
 		EventEmitterModule.forRoot(),
 		LibLogger,
 		LibRabbitMQModule.registerAsync({ name: ENUM_QUEUES.DEFAULT }),
-		forwardRef(() => LibActionLogModule),
 	],
 })
 export class LibCoreModule {}

@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  postgresql-master : 
+    image: bitnami/postgresql:latest
+    ports: 
+      - 5432:5432
+    volumes:
+      - postgresql_data:/bitnami/postgresql
+    environment : 
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_USERNAME=pgadmin_master
+      - POSTGRESQL_PASSWORD=admin123
+      - POSTGRESQL_DATABASE=tutorial
+      - POSTGRESQL_REPLICATION_USER=pg_replication_user
+      - POSTGRESQL_REPLICATION_PASSWORD=pg_replication_password
+    
+  postgresql-slave: 
+    image : bitnami/postgresql:latest 
+    ports: 
+      - 5432:5432
+    depends_on: 
+      -   postgresql-master 
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=pg_replication_user
+      - POSTGRESQL_REPLICATION_PASSWORD=pg_replication_password
+      - POSTGRESQL_MASTER_HOST=postgresql-master
+      - POSTGRESQL_PASSWORD=admin123
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+    
+volumes:
+  postgresql_data:
+    driver: local

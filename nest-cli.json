@@ -225,6 +225,15 @@
 			"compilerOptions": {
 				"tsConfigPath": "apps/video-stream/tsconfig.app.json"
 			}
+		},
+		"worker-threads": {
+			"type": "application",
+			"root": "apps/worker-threads",
+			"entryFile": "main",
+			"sourceRoot": "apps/worker-threads/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/worker-threads/tsconfig.app.json"
+			}
 		}
 	}
 }
